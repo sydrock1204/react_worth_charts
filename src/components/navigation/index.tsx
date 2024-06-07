@@ -9,7 +9,7 @@ const Navigation:FC = () => {
     return(
         <>
             <Header />
-            <div className="flex flex-row border-t-2 border-b-2 border-color-white min-h-[90vh]">
+            <div className="flex flex-row border-t-2 border-b-2 border-color-white min-h-[90vh] h-[2000px]">
                 <div className="flex flex-col w-[324px] border-r-2 border-color-white">
                     <Link to="/home" className="flex text-[18px] h-20 items-center border-b-2 border-color-white pl-9">Home</Link>
                     <Link to="/about" className="flex text-[18px] h-20 items-center border-b-2 border-color-white pl-9">About</Link>
