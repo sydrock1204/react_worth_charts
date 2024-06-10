@@ -19,6 +19,26 @@ import IconTelegram from './iconTelegram.svg'
 import IconTrash from './iconTrash.svg'
 import IconUser from './iconUser.svg'
 import IconWhatsapp from './iconWhatsapp.svg'
+import RectangleSelectedSvg from './rectangleSelected.svg'
+import RectangleSvg from './rectangle.svg'
+import ArrowSelectedSvg from './arrow.svg'
+import ArrowSvg from './arrowBlack.svg'
+import TextSvg from './Text.svg'
+import TextSelectedSvg from './textSelect.svg'
+import TrendSvg from './Trend.svg'
+import TrendSelectedSvg from './trendSelect.svg'
+import HorizontalSvg from './horizontal.svg'
+import HorizontalSelectedSvg from './horizontalSelect.svg'
+import VerticalSvg from './vertical.svg'
+import VerticalSelectedSvg from './verticalSelect.svg'
+import CircleSvg from './circle.svg'
+import CircleSelectedSvg from './circleSelect.svg'
+import CalloutSvg from './callout.svg'
+import CalloutSelectedSvg from './calloutSelect.svg'
+import PriceRangeSvg from './pricerange.svg'
+import PriceRangeSelectedSvg from './pricerangeSelect.svg'
+import MagnetSvg from './magnet.svg'
+import MagnetSelectedSvg from './magnetSelect.svg'
 
 export {
   IconCalendarStats,
@@ -42,4 +62,24 @@ export {
   IconLogout,
   IconLocation,
   IconMedicalReport,
+  RectangleSelectedSvg,
+  RectangleSvg,
+  ArrowSelectedSvg,
+  ArrowSvg,
+  TextSelectedSvg,
+  TextSvg,
+  TrendSvg,
+  TrendSelectedSvg,
+  HorizontalSvg,
+  HorizontalSelectedSvg,
+  VerticalSvg,
+  VerticalSelectedSvg,
+  CircleSvg,
+  CircleSelectedSvg,
+  CalloutSvg,
+  CalloutSelectedSvg,
+  PriceRangeSvg,
+  PriceRangeSelectedSvg,
+  MagnetSvg,
+  MagnetSelectedSvg
 }

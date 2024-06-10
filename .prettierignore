@@ -1,0 +1,10 @@
+node_modules
+public
+.vscode
+package.json
+package-lock.json
+yarn.lock
+lib
+build
+dist
+.vite

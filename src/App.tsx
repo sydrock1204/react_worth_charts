@@ -8,7 +8,7 @@ import './App.css'
 
 import Home from './pages/Home'
 import About from './pages/About'
-import Chart from './pages/Chart'
+import Chart from './pages/Chart/index'
 import Techmethod from './pages/Techmethod'
 import Testimonials from './pages/Testimonials'
 import Contact from './pages/Contact'
@@ -16,35 +16,35 @@ import Navigation from './components/navigation'
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <Navigation />,
     children: [
       {
         path: '/home',
-        element: <Home />
+        element: <Home />,
       },
       {
         path: '/about',
-        element: <About />
+        element: <About />,
       },
       {
         path: '/chart',
-        element: <Chart />
+        element: <Chart />,
       },
       {
         path: '/techmethod',
-        element: <Techmethod />
+        element: <Techmethod />,
       },
       {
         path: '/testimonials',
-        element: <Testimonials />
+        element: <Testimonials />,
       },
       {
         path: '/contact',
-        element: <Contact />
-      }
-    ]
-  }
+        element: <Contact />,
+      },
+    ],
+  },
 ])
 const App = () => {
   return (
@@ -52,7 +52,6 @@ const App = () => {
       <RouterProvider router={router} />
     </div>
   )
-
 }
 
 export default App
