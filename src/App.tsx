@@ -13,6 +13,7 @@ import Techmethod from './pages/Techmethod'
 import Testimonials from './pages/Testimonials'
 import Contact from './pages/Contact'
 import Navigation from './components/navigation'
+import WorthAuth from './pages/Auth'
 
 const router = createBrowserRouter([
   {
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
       {
         path: '/contact',
         element: <Contact />,
+      },
+      {
+        path: '/auth',
+        element: <WorthAuth />,
       },
     ],
   },

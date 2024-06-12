@@ -39,6 +39,12 @@ import PriceRangeSvg from './pricerange.svg'
 import PriceRangeSelectedSvg from './pricerangeSelect.svg'
 import MagnetSvg from './magnet.svg'
 import MagnetSelectedSvg from './magnetSelect.svg'
+import MagnifierSvg from './magnifier.svg'
+import CompareSvg from './compare.svg'
+import IntervalSvg from './interval.svg'
+import StickSvg from './stick.svg'
+import SettingsSvg from './settings.svg'
+import IndicatorsSvg from './indicators.svg'
 
 export {
   IconCalendarStats,
@@ -81,5 +87,11 @@ export {
   PriceRangeSvg,
   PriceRangeSelectedSvg,
   MagnetSvg,
-  MagnetSelectedSvg
+  MagnetSelectedSvg,
+  MagnifierSvg,
+  CompareSvg,
+  IntervalSvg,
+  StickSvg,
+  SettingsSvg,
+  IndicatorsSvg
 }

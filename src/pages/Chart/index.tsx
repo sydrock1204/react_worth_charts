@@ -1,7 +1,7 @@
-import { FC, useState, useEffect, useRef } from 'react'
+import { FC, useState, useEffect, useRef, SetStateAction } from 'react'
 
 import { StockPriceData, VolumeData, Point, PointXY } from '../../utils/typing'
-// import { fetchData } from '../../api/fetchData'
+import { fetchData } from '../../api/fetchData'
 import { getTimeStamp } from '../../utils/getTimeStamp'
 
 import RemoveSvg from '../../assets/icons/Remove.png'
@@ -26,793 +26,21 @@ import {
   PriceRangeSelectedSvg,
   MagnetSvg,
   MagnetSelectedSvg,
+  MagnifierSvg,
+  CompareSvg,
+  IntervalSvg,
+  StickSvg,
+  SettingsSvg,
+  IndicatorsSvg,
 } from '../../assets/icons'
 
-import { rawData } from './rawData'
+import { rawData2, rawData1, rawData3 } from './rawData'
 
-import {
-  createChart,
-  ColorType,
-  TextAlignment,
-  BoxHorizontalAlignment,
-  BoxVerticalAlignment,
-  CrosshairMode,
-} from '../../components/lightweights-line-tools'
-import {
-  IChartApi,
-  MouseEventParams,
-} from '../../components/lightweights-line-tools/api/ichart-api'
-import { ILineToolApi } from '../../components/lightweights-line-tools/api/iline-tool-api'
-import { ISeriesApi } from '../../components/lightweights-line-tools/api/iseries-api'
-
-const ChartComponent = (props: any) => {
-  const {
-    data,
-    volume,
-    circlePoint,
-    trendPoints,
-    selectDelete,
-    rectanglePoints,
-    labelPoint,
-    horizontalPoint,
-    verticalPoint,
-    calloutPoint,
-    priceRangePoint,
-    handleTemplePoint,
-    magnet,
-    colors: {
-      backgroundColor = 'white',
-      lineColor = '#2962FF',
-      textColor = 'black',
-      areaTopColor = '#2962FF',
-      areaBottomColor = 'rgba(41, 98, 255, 0.28)',
-    } = {},
-  } = props
-
-  const chartContainerRef = useRef<IChartApi | null>(null)
-  const chart = useRef<IChartApi | null>(null)
-  const candleStickSeries = useRef<ISeriesApi<'Candlestick'> | null>(null)
-  const [calloutPointLineSeries, setCalloutPointLineSeries] =
-    useState<ILineToolApi<'Callout'>>()
-  const [priorSelectDelete, setPriorSelectDelete] =
-    useState<boolean>(selectDelete)
-
-  const getPointInformation = (param: MouseEventParams) => {
-    if (!param.point) {
-      return
-    }
-
-    // console.log(candleStickSeries.current?.coordinateToPrice(param.point.y))
-    // console.log(param.time)\
-
-    let pointPrice = candleStickSeries.current?.coordinateToPrice(param.point.y)
-    handleTemplePoint({
-      price: pointPrice,
-      timestamp: param.time,
-    })
-  }
-
-  useEffect(() => {
-    if (magnet) {
-      chart.current?.applyOptions({
-        crosshair: {
-          magnetThreshold: 40,
-          mode: CrosshairMode.Magnet,
-        },
-      })
-    } else {
-      chart.current?.applyOptions({
-        crosshair: {
-          magnetThreshold: 14,
-          mode: CrosshairMode.Normal,
-        },
-      })
-    }
-  }, [magnet])
-
-  useEffect(() => {
-    const handleResize = () => {
-      chart.current?.applyOptions({
-        // width: chartContainerRef.current?.,
-      })
-    }
-
-    chart.current = createChart(chartContainerRef.current, {
-      layout: {
-        background: { type: ColorType.Solid, color: backgroundColor },
-        textColor,
-      },
-      leftPriceScale: {
-        visible: true,
-      },
-      width: 800,
-      height: 850,
-    })
-
-    candleStickSeries.current = chart.current.addCandlestickSeries({
-      upColor: 'green',
-      downColor: 'red',
-    })
-    candleStickSeries.current.setData(data)
-
-    const volumeSeries = chart.current.addHistogramSeries({
-      color: '#26a69a',
-      priceFormat: {
-        type: 'volume',
-      },
-      priceScaleId: 'left',
-      scaleMargins: {
-        top: 0.7,
-        bottom: 0,
-      },
-    })
-    volumeSeries.priceScale().applyOptions({
-      scaleMargins: {
-        top: 0.75,
-        bottom: 0,
-      },
-    })
-    volumeSeries.setData(volume)
-
-    chart.current.timeScale().fitContent()
-
-    chart.current?.subscribeClick(getPointInformation)
-
-    window.addEventListener('resize', handleResize)
-
-    return () => {
-      window.removeEventListener('resize', handleResize)
-      chart.current?.unsubscribeClick(getPointInformation)
-      chart.current?.remove()
-    }
-  }, [
-    data,
-    volume,
-    backgroundColor,
-    lineColor,
-    textColor,
-    areaTopColor,
-    areaBottomColor,
-  ])
-
-  useEffect(() => {
-    if (circlePoint) {
-      chart.current?.addLineTool(
-        'Circle',
-        [circlePoint.point1, circlePoint.point2],
-        {
-          text: {
-            value: 'circle text',
-            alignment: TextAlignment.Center,
-            font: {
-              color: 'rgba(255,255,255,1)',
-              size: 18,
-              bold: false,
-              italic: false,
-              family: 'Roboto',
-            },
-            box: {
-              alignment: {
-                vertical: BoxVerticalAlignment.Middle,
-                horizontal: BoxHorizontalAlignment.Center,
-              },
-              angle: 0,
-              scale: 3,
-              offset: {
-                x: 0,
-                y: 30,
-              },
-              padding: {
-                x: 0,
-                y: 0,
-              },
-              maxHeight: 500,
-              border: {
-                color: 'rgba(126,211,33,1)',
-                width: 4,
-                radius: 20,
-                highlight: false,
-                style: 3,
-              },
-              background: {
-                color: 'rgba(208,2,27,1)',
-                inflation: {
-                  x: 10,
-                  y: 30,
-                },
-              },
-            },
-            padding: 30,
-            wordWrapWidth: 0,
-            forceTextAlign: false,
-            forceCalculateMaxLineWidth: false,
-          },
-          circle: {
-            background: {
-              color: 'rgba(39,176,119,0.2)',
-            },
-            border: {
-              color: 'rgba(156,39,176,0.5)',
-              width: 1,
-              style: 3,
-            },
-            extend: {
-              right: true, //does not do anything, left in for ease of use with rectangle settings
-              left: false, //does not do anything, left in for ease of use with rectangle settings
-            },
-          },
-          visible: true,
-          editable: true,
-        }
-      )
-      chart.current?.timeScale().fitContent()
-    }
-  }, [circlePoint])
-
-  useEffect(() => {
-    if (trendPoints) {
-      chart.current?.addLineTool(
-        'TrendLine',
-        [trendPoints.point1, trendPoints.point2],
-        {
-          text: {
-            value: 'TrendLine with box',
-            alignment: TextAlignment.Left,
-            font: {
-              color: 'rgba(255,255,255,1)',
-              size: 14,
-              bold: true,
-              italic: true,
-              family: 'Arial',
-            },
-            box: {
-              alignment: {
-                vertical: BoxVerticalAlignment.Bottom,
-                horizontal: BoxHorizontalAlignment.Center,
-              },
-              angle: 0,
-              scale: 1,
-              offset: {
-                x: 0,
-                y: 20,
-              },
-              padding: {
-                x: 0,
-                y: 0,
-              },
-              maxHeight: 100,
-              shadow: {
-                blur: 0,
-                color: 'rgba(255,255,255,1)',
-                offset: {
-                  x: 0,
-                  y: 0,
-                },
-              },
-              border: {
-                color: 'rgba(126,211,33,1)',
-                width: 4,
-                radius: 20,
-                highlight: false,
-                style: 1,
-              },
-              background: {
-                color: 'rgba(199,56,56,0.25)',
-                inflation: {
-                  x: 10,
-                  y: 10,
-                },
-              },
-            },
-            padding: 0,
-            wordWrapWidth: 0,
-            forceTextAlign: false,
-            forceCalculateMaxLineWidth: false,
-          },
-          line: {
-            color: 'rgba(41,98,255,1)',
-            width: 4,
-            style: 0,
-            end: {
-              left: 0,
-              right: 0,
-            },
-            extend: {
-              right: false,
-              left: false,
-            },
-          },
-          visible: true,
-          editable: true,
-        }
-      )
-    }
-    chart.current?.timeScale().fitContent()
-  }, [trendPoints])
-
-  useEffect(() => {
-    if (rectanglePoints) {
-      const lineTools = chart.current?.addLineTool(
-        'Rectangle',
-        [rectanglePoints.point1, rectanglePoints.point2],
-        {
-          text: {
-            value: 'This is the Box Area',
-            alignment: TextAlignment.Left,
-            font: {
-              color: 'rgba(41,98,255,1)',
-              size: 20,
-              bold: false,
-              italic: false,
-              family: 'Arial',
-            },
-            box: {
-              alignment: {
-                vertical: BoxVerticalAlignment.Middle,
-                horizontal: BoxHorizontalAlignment.Center,
-              },
-              angle: 0,
-              scale: 1,
-              offset: {
-                x: 0,
-                y: 0,
-              },
-              padding: {
-                x: 0,
-                y: 0,
-              },
-              maxHeight: 100,
-              shadow: {
-                blur: 0,
-                color: 'rgba(255,255,255,1)',
-                offset: {
-                  x: 0,
-                  y: 0,
-                },
-              },
-              border: {
-                color: 'rgba(126,211,33,0)',
-                width: 4,
-                radius: 0,
-                highlight: false,
-                style: 3,
-              },
-              background: {
-                color: 'rgba(199,56,56,0)',
-                inflation: {
-                  x: 0,
-                  y: 0,
-                },
-              },
-            },
-            padding: 0,
-            wordWrapWidth: 0,
-            forceTextAlign: false,
-            forceCalculateMaxLineWidth: false,
-          },
-          rectangle: {
-            background: {
-              color: 'rgba(156,39,176,0.2)',
-            },
-            border: {
-              color: 'rgba(39,176,80,1)',
-              width: 3,
-              style: 3,
-            },
-            extend: {
-              right: false,
-              left: false,
-            },
-          },
-          visible: true,
-          editable: true,
-        }
-      )
-    }
-    chart.current?.timeScale().fitContent()
-  }, [rectanglePoints])
-
-  useEffect(() => {
-    if (labelPoint) {
-      chart.current?.addLineTool('Text', [labelPoint], {
-        text: {
-          value: 'Text Line Tool, below is highlighter',
-          alignment: TextAlignment.Left,
-          font: {
-            color: 'rgba(255,255,255,1)',
-            size: 14,
-            bold: false,
-            italic: false,
-            family: 'Arial',
-          },
-          box: {
-            alignment: {
-              vertical: BoxVerticalAlignment.Bottom,
-              horizontal: BoxHorizontalAlignment.Center,
-            },
-            angle: 0,
-            scale: 1,
-            offset: {
-              x: 0,
-              y: 0,
-            },
-            padding: {
-              x: 0,
-              y: 0,
-            },
-            maxHeight: 100,
-            shadow: {
-              blur: 0,
-              color: 'rgba(255,255,255,1)',
-              offset: {
-                x: 0,
-                y: 0,
-              },
-            },
-            border: {
-              color: 'rgba(126,211,33,1)',
-              width: 4,
-              radius: 0,
-              highlight: false,
-              style: 0,
-            },
-            background: {
-              color: 'rgba(153,27,27,1)',
-              inflation: {
-                x: 10,
-                y: 10,
-              },
-            },
-          },
-          padding: 0,
-          wordWrapWidth: 0,
-          forceTextAlign: false,
-          forceCalculateMaxLineWidth: false,
-        },
-        visible: true,
-        editable: true,
-      })
-    }
-
-    chart.current?.timeScale().fitContent()
-  }, [labelPoint])
-
-  useEffect(() => {
-    if (horizontalPoint) {
-      chart.current?.addLineTool('HorizontalLine', [horizontalPoint], {
-        text: {
-          value: 'HorizontalLine Line Tool',
-          alignment: TextAlignment.Left,
-          font: {
-            color: 'rgba(41,98,255,1)',
-            size: 20,
-            bold: false,
-            italic: false,
-            family: 'Arial',
-          },
-          box: {
-            alignment: {
-              vertical: BoxVerticalAlignment.Top,
-              horizontal: BoxHorizontalAlignment.Left,
-            },
-            angle: 0,
-            scale: 1,
-            offset: {
-              x: 0,
-              y: 0,
-            },
-            padding: {
-              x: 0,
-              y: 0,
-            },
-            maxHeight: 100,
-            shadow: {
-              blur: 0,
-              color: 'rgba(255,255,255,1)',
-              offset: {
-                x: 0,
-                y: 0,
-              },
-            },
-            border: {
-              color: 'rgba(126,211,33,0)',
-              width: 1,
-              radius: 0,
-              highlight: false,
-              style: 0,
-            },
-            background: {
-              color: 'rgba(199,56,56,0)',
-              inflation: {
-                x: 0,
-                y: 0,
-              },
-            },
-          },
-          padding: 0,
-          wordWrapWidth: 0,
-          forceTextAlign: false,
-          forceCalculateMaxLineWidth: false,
-        },
-        line: {
-          color: 'rgba(41,98,255,1)',
-          width: 1,
-          style: 0,
-          end: {
-            left: 0,
-            right: 0,
-          },
-          extend: {
-            right: true,
-            left: true,
-          },
-        },
-        visible: true,
-        editable: true,
-      })
-    }
-
-    chart.current?.timeScale().fitContent()
-  }, [horizontalPoint])
-
-  useEffect(() => {
-    if (verticalPoint) {
-      chart.current?.addLineTool('VerticalLine', [verticalPoint], {
-        text: {
-          value: 'VerticalLine Line Tool',
-          alignment: TextAlignment.Left,
-          font: {
-            color: 'rgba(41,98,255,1)',
-            size: 20,
-            bold: false,
-            italic: false,
-            family: 'Arial',
-          },
-          box: {
-            alignment: {
-              vertical: BoxVerticalAlignment.Bottom,
-              horizontal: BoxHorizontalAlignment.Center,
-            },
-            angle: 0,
-            scale: 1,
-            offset: {
-              x: 0,
-              y: 0,
-            },
-            padding: {
-              x: 0,
-              y: 0,
-            },
-            maxHeight: 100,
-            shadow: {
-              blur: 0,
-              color: 'rgba(255,255,255,1)',
-              offset: {
-                x: 0,
-                y: 0,
-              },
-            },
-            border: {
-              color: 'rgba(126,211,33,0)',
-              width: 1,
-              radius: 0,
-              highlight: false,
-              style: 0,
-            },
-            background: {
-              color: 'rgba(199,56,56,0)',
-              inflation: {
-                x: 0,
-                y: 0,
-              },
-            },
-          },
-          padding: 0,
-          wordWrapWidth: 0,
-          forceTextAlign: false,
-          forceCalculateMaxLineWidth: false,
-        },
-        line: {
-          color: 'rgba(41,98,255,1)',
-          width: 2,
-          style: 1,
-        },
-        visible: true,
-        editable: true,
-      })
-    }
-
-    chart.current?.timeScale().fitContent()
-  }, [verticalPoint])
-
-  useEffect(() => {
-    if (calloutPoint) {
-      setCalloutPointLineSeries(
-        chart.current?.addLineTool(
-          'Callout',
-          [calloutPoint.point1, calloutPoint.point2],
-          {
-            text: {
-              value: 'callout tool text',
-              alignment: TextAlignment.Left,
-              font: {
-                color: 'rgba(255,255,255,1)',
-                size: 14,
-                bold: false,
-                italic: false,
-                family: 'Arial',
-              },
-              box: {
-                alignment: {
-                  vertical: BoxVerticalAlignment.Middle,
-                  horizontal: BoxHorizontalAlignment.Center,
-                },
-                angle: 0,
-                scale: 1,
-                offset: {
-                  x: 0,
-                  y: 0,
-                },
-                padding: {
-                  x: 0,
-                  y: 0,
-                },
-                maxHeight: 300,
-                shadow: {
-                  blur: 0,
-                  color: 'rgba(255,255,255,1)',
-                  offset: {
-                    x: 0,
-                    y: 0,
-                  },
-                },
-                border: {
-                  color: 'rgba(74,144,226,1)',
-                  width: 4,
-                  radius: 10,
-                  highlight: false,
-                  style: 0,
-                },
-                background: {
-                  color: 'rgba(19,73,133,1)',
-                  inflation: {
-                    x: 10,
-                    y: 10,
-                  },
-                },
-              },
-              padding: 0,
-              wordWrapWidth: 120,
-              forceTextAlign: false,
-              forceCalculateMaxLineWidth: true,
-            },
-            line: {
-              color: 'rgba(74,144,226,1)',
-              width: 1,
-              style: 0,
-              end: {
-                left: 1,
-                right: 0,
-              },
-              extend: {
-                right: false,
-                left: false,
-              },
-            },
-            visible: true,
-            editable: true,
-          }
-        )
-      )
-    }
-
-    chart.current?.timeScale().fitContent()
-  }, [calloutPoint])
-
-  useEffect(() => {
-    if (priceRangePoint) {
-      chart.current?.addLineTool(
-        'PriceRange',
-        [priceRangePoint.point1, priceRangePoint.point2],
-        {
-          text: {
-            value: 'Price Range Line Tool',
-            alignment: TextAlignment.Left,
-            font: {
-              color: 'rgba(41,98,255,1)',
-              size: 16,
-              bold: false,
-              italic: false,
-              family: 'Arial',
-            },
-            box: {
-              alignment: {
-                vertical: BoxVerticalAlignment.Top,
-                horizontal: BoxHorizontalAlignment.Center,
-              },
-              angle: 0,
-              scale: 1,
-              offset: {
-                x: 0,
-                y: 0,
-              },
-              padding: {
-                x: 0,
-                y: 0,
-              },
-              maxHeight: 100,
-              shadow: {
-                blur: 0,
-                color: 'rgba(255,255,255,1)',
-                offset: {
-                  x: 0,
-                  y: 0,
-                },
-              },
-              border: {
-                color: 'rgba(126,211,33,0)',
-                width: 4,
-                radius: 0,
-                highlight: false,
-                style: 3,
-              },
-              background: {
-                color: 'rgba(199,56,56,0)',
-                inflation: {
-                  x: 0,
-                  y: 0,
-                },
-              },
-            },
-            padding: 0,
-            wordWrapWidth: 0,
-            forceTextAlign: true,
-            forceCalculateMaxLineWidth: true,
-          },
-          priceRange: {
-            background: {
-              color: 'rgba(156,39,176,0.2)',
-              inflation: {
-                x: 0,
-                y: 0,
-              },
-            },
-            border: {
-              color: 'rgba(39,176,80,1)',
-              width: 3,
-              radius: 0,
-              highlight: true,
-              style: 3,
-            },
-            extend: {
-              right: false,
-              left: false,
-            },
-          },
-          visible: true,
-          editable: true,
-        }
-      )
-    }
-
-    chart.current?.timeScale().fitContent()
-  }, [priceRangePoint])
-
-  useEffect(() => {
-    console.log(chart.current?.getSelectedLineTools())
-    calloutPointLineSeries?.applyOptions({
-      text: {
-        value: 'hello callout',
-      },
-    })
-    chart.current?.removeSelectedLineTools()
-  }, [selectDelete])
-
-  return <div ref={chartContainerRef} />
-}
+import { ChartComponent } from '../../components/chartview'
 
 const Chart: FC = () => {
   const [data, setData] = useState<StockPriceData[]>([])
+  const [tempData, setTempData] = useState<any | null>(null)
   const [startPoint, setStartPoint] = useState<Point | null>(null)
   const [volume, setVolume] = useState<VolumeData[]>([])
   const [circlePoints, setCirclePoints] = useState<PointXY | null>(null)
@@ -829,14 +57,24 @@ const Chart: FC = () => {
   const [editType, setEditType] = useState<string>('arrow')
   const [editClickCounts, setEditClickCounts] = useState<number>(0)
   const [tempPoint, setTempPoint] = useState<Point | null>(null)
+  const [symbol, setSymbol] = useState('AAPL')
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [interval, setInterval] = useState('60min')
 
   const handleTemplePoint = (point: Point) => {
     console.log('point: ', point)
 
     setTempPoint(point)
   }
+
+  const handleCrosshairMove = (time: number) => {
+    // const Index
+    // console.log('O H L C', tempData.get(time))
+  }
   useEffect(() => {
-    const Data = Object.entries(rawData)
+    // fetchData(symbol, interval).then(value => {
+    //   console.log(value)
+    const Data = Object.entries(rawData3)
       .map(data => {
         let stockData = {
           time: getTimeStamp(data[0]),
@@ -849,6 +87,15 @@ const Chart: FC = () => {
       })
       .reverse()
     setData(Data)
+    const timeData = Data.map(data => {
+      return [
+        data.time,
+        { open: data.open, close: data.close, high: data.high, low: data.low },
+      ]
+    })
+    // console.log(timeData)
+    const tempDataArray = new Map(timeData)
+    setTempData(tempDataArray)
 
     let start = Math.floor(Data.length / 2)
     let startTime = Data[start].time
@@ -857,17 +104,20 @@ const Chart: FC = () => {
 
     setStartPoint(startPoint)
 
-    const Volume = Object.entries(rawData)
+    const Volume = Object.entries(rawData3)
       .map((data, index) => {
         let volumeData = {
-          time: data[0],
+          time: getTimeStamp(data[0]),
           value: Number(data[1]['5. volume']),
           color: index % 2 === 0 ? '#26a69a' : '#ef5350',
         }
+        // console.log(volumeData)
         return volumeData
       })
       .reverse()
+    // console.log(Volume)
     setVolume(Volume)
+    // })
   }, [])
 
   useEffect(() => {
@@ -943,20 +193,105 @@ const Chart: FC = () => {
     }
   }, [tempPoint])
 
+  const handleOpenModal = () => {
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+  }
+
+  const handleChange = event => {
+    setSymbol(event.target.value.toUpperCase())
+  }
+
   return (
-    <div id="Chart" className="flex flex-row">
+    <div id="Chart" className="relative flex flex-row">
       <div className="absolute w-[800px] flex flex-col z-30 ">
         <div className="flex flex-row h-[40px] bg-white border-color-[#E0E3EB] border-b-2">
-          <div className="flex flex-row w-40">
-            <div className="flex hover:bg-gray4 w-4/6">
-              <input className="my-[2px] mx-[2px] w-[100px]" />
+          <div className="flex flex-row">
+            <div className="flex">
+              <img src={MagnifierSvg} alt="magnifier" className="flex p-2" />
+              <input
+                className="my-[4px] mx-[2px] w-[100px] p-1 font-mono font-bold"
+                value={symbol}
+                onChange={handleChange}
+                onFocus={handleOpenModal}
+              />
             </div>
-            <div className="flex hover:bg-gray4 w-2/6"></div>
+            <div className="flex">
+              <img
+                src={CompareSvg}
+                alt="compare"
+                className="flex p-2 cursor-pointer hover:bg-gray5 border-r-2 border-b-gray-800"
+                // onClick={fetchSeriesData}
+              />
+            </div>
+          </div>
+          <div className="flex flex-row gap-2 my-1">
+            <button
+              className={
+                interval == '1min'
+                  ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
+                  : 'w-[40px] cursor-pointer hover:bg-gray5'
+              }
+              onClick={() => setInterval('1min')}
+            >
+              1m
+            </button>
+            <button
+              className={
+                interval == '30min'
+                  ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
+                  : 'w-[40px] cursor-pointer hover:bg-gray5'
+              }
+              onClick={() => setInterval('30min')}
+            >
+              30m
+            </button>
+            <button
+              className={
+                interval == '1h'
+                  ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
+                  : 'w-[40px] cursor-pointer hover:bg-gray5'
+              }
+              onClick={() => setInterval('1h')}
+            >
+              1h
+            </button>
+            <button
+              className={
+                interval == 'D'
+                  ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
+                  : 'w-[40px] cursor-pointer hover:bg-gray5'
+              }
+              onClick={() => setInterval('D')}
+            >
+              D
+            </button>
+            <img src={IntervalSvg} className="cursor-pointer hover:bg-gray5" />
+            <div className="w-2 border-r-2 border-b-gray-800" />
+            <img
+              src={StickSvg}
+              alt="stick"
+              className="cursor-pointer hover:bg-gray5 mr-4"
+            />
+            <img
+              src={SettingsSvg}
+              alt="settings"
+              className="cursor-pointer hover:bg-gray5"
+            />
+            <img src={IntervalSvg} className="cursor-pointer hover:bg-gray5" />
+            <div className="w-1 border-r-2 border-b-gray-800" />
+            <img
+              src={IndicatorsSvg}
+              className="cursor-pointer hover:bg-gray5"
+            />
           </div>
         </div>
         <div className="h-[40px] bg-transparent" />
       </div>
-      <div className="absolute z-20 flex flex-col w-16 h-[680px]  bg-white top-[120px] pt-10 pb-4 px-2 gap-4">
+      <div className="absolute z-20 flex flex-col w-[61px] h-[640px]  bg-white top-[40px] pt-10 pb-4 px-2 gap-4">
         <img
           src={editType == 'arrow' ? ArrowSelectedSvg : ArrowSvg}
           alt="Text"
@@ -1050,7 +385,11 @@ const Chart: FC = () => {
         priceRangePoint={priceRangePoint}
         magnet={magnet}
         handleTemplePoint={handleTemplePoint}
+        handleCrosshairMove={handleCrosshairMove}
       />
+      {/* <ReactModal isOpen={isModalOpen}>
+        <p>Select the Symbol</p>
+      </ReactModal> */}
     </div>
   )
 }
