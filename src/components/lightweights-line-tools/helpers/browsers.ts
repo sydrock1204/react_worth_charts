@@ -4,7 +4,7 @@ export function isFF(): boolean {
 	if (!isRunningOnClientSide) {
 		return false;
 	}
-	return window.navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+	return window.navigator.userAgent.toLowerCase().includes('firefox');
 }
 
 export function isIOS(): boolean {

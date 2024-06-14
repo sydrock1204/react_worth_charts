@@ -377,7 +377,7 @@ export class ChartApi implements IChartApi, DataUpdatesConsumer<SeriesType> {
 		if (pane === null) { return JSON.stringify(lineToolsOptions); }
 		const selectedLineTools = pane.getSelectedLineTools();
 		if (selectedLineTools.length > 0) {
-			lineToolsOptions = selectedLineTools.map((l: LineTool<LineToolType>) => l.exportLineToolToLineToolExport());
+			lineToolsOptions = selectedLineTools.map((l: LineTool) => l.exportLineToolToLineToolExport());
 		}
 		return JSON.stringify(lineToolsOptions);
 	}
@@ -387,7 +387,7 @@ export class ChartApi implements IChartApi, DataUpdatesConsumer<SeriesType> {
 		if (pane === null) { return; }
 		const selectedLineTools = pane.getSelectedLineTools();
 		if (selectedLineTools.length > 0) {
-			selectedLineTools.forEach((line: LineTool<LineToolType>) => { pane.removeDataSource(line); });
+			selectedLineTools.forEach((line: LineTool) => { pane.removeDataSource(line); });
 			pane.recalculate();
 		}
 	}
@@ -397,7 +397,7 @@ export class ChartApi implements IChartApi, DataUpdatesConsumer<SeriesType> {
 		if (pane === null) { return; }
 		const selectedLineTools = pane.getAllLineTools();
 		if (selectedLineTools.length > 0) {
-			selectedLineTools.forEach((line: LineTool<LineToolType>) => { pane.removeDataSource(line); });
+			selectedLineTools.forEach((line: LineTool) => { pane.removeDataSource(line); });
 			pane.recalculate();
 		}
 	}
@@ -410,7 +410,7 @@ export class ChartApi implements IChartApi, DataUpdatesConsumer<SeriesType> {
 		}
 		const lineTools = pane.getAllLineTools();
 		if (lineTools.length > 0) {
-			lineToolsOptions = lineTools.map((l: LineTool<LineToolType>) => l.exportLineToolToLineToolExport());
+			lineToolsOptions = lineTools.map((l: LineTool) => l.exportLineToolToLineToolExport());
 		}
 		return JSON.stringify(lineToolsOptions);
 	}
@@ -520,7 +520,7 @@ export class ChartApi implements IChartApi, DataUpdatesConsumer<SeriesType> {
 		const model = this._chartWidget.model();
 
 		model.updateTimeScale(update.timeScale.baseIndex, update.timeScale.points, update.timeScale.firstChangedPointIndex);
-		update.series.forEach((value: SeriesChanges, series: Series) => series.setData(value.data, value.info));
+		update.series.forEach((value: SeriesChanges, series: Series) => { series.setData(value.data, value.info); });
 
 		model.recalculateAllPanes();
 	}

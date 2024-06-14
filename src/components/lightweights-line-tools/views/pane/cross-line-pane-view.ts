@@ -15,7 +15,7 @@ export class CrossLinePaneView extends LineToolPaneView {
 	protected _verticalLineRenderer: SegmentRenderer = new SegmentRenderer();
 	protected _horizontalLineRenderer: SegmentRenderer = new SegmentRenderer();
 
-	public constructor(source: LineTool<LineToolType>, model: ChartModel) {
+	public constructor(source: LineTool, model: ChartModel) {
 		super(source, model);
 		this._renderer = null;
 		this._verticalLineRenderer.setHitTest(new HitTestResult(HitTestType.MovePoint));

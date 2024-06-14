@@ -16,7 +16,7 @@ export class RectanglePaneView extends LineToolPaneView {
 	protected _rectangleRenderer: RectangleRenderer = new RectangleRenderer();
 	protected _labelRenderer: TextRenderer = new TextRenderer();
 
-	public constructor(source: LineTool<LineToolType>, model: ChartModel) {
+	public constructor(source: LineTool, model: ChartModel) {
 		super(source, model);
 		this._renderer = null;
 	}

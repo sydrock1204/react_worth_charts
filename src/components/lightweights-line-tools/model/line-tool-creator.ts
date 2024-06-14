@@ -12,7 +12,7 @@ import { LineToolOptions, LineToolPartialOptions, LineToolPartialOptionsMap, Lin
 import { LineTools } from './line-tools';
 
 export class LineToolCreator implements IInputEventListener {
-	protected _lastLineTool: LineTool<LineToolType> | null = null;
+	protected _lastLineTool: LineTool | null = null;
 	protected _activeOptions: LineToolPartialOptions<unknown> | null = null;
 	protected _activeType: LineToolType | null = null;
 	protected _model: ChartModel;

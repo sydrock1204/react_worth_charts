@@ -24,7 +24,7 @@ export interface CreateAnchorData {
 }
 
 export abstract class LineToolPaneView implements IUpdatablePaneView, IInputEventListener {
-	protected readonly _source: LineTool<LineToolType>;
+	protected readonly _source: LineTool;
 	protected readonly _model: ChartModel;
 	protected _points: AnchorPoint[] = [];
 
@@ -35,7 +35,7 @@ export abstract class LineToolPaneView implements IUpdatablePaneView, IInputEven
 	protected _renderer: IPaneRenderer | null = null;
 	protected _onMouseDownInitialPoints: AnchorPoint[] = [];
 
-	public constructor(source: LineTool<LineToolType>, model: ChartModel) {
+	public constructor(source: LineTool, model: ChartModel) {
 		this._source = source;
 		this._model = model;
 	}
@@ -231,7 +231,7 @@ export abstract class LineToolPaneView implements IUpdatablePaneView, IInputEven
 			const changed = this._source.setHovered(hitResult !== null && !event.consumed);
 
 			if (this._source.hovered() && !event.consumed) {
-				if (this._source.options().editable === true) {
+				if (this._source.options().editable) {
 					paneWidget.setCursor(hitResult?.data()?.cursorType || PaneCursorType.Pointer);
 					this._editedPointIndex = hitResult?.data()?.pointIndex ?? null;
 				} else {
@@ -255,7 +255,7 @@ export abstract class LineToolPaneView implements IUpdatablePaneView, IInputEven
 			this._source.addPoint(this._source.screenPointToPoint(appliedPoint) as LineToolPoint);
 			return false;
 		} else {
-			if (this._source.options().editable === true) {
+			if (this._source.options().editable) {
 				const hitResult = this._hitTest(paneWidget, ctx, originPoint);
 				return this._source.setSelected(hitResult !== null && !event.consumed);
 			} else {
@@ -312,7 +312,7 @@ export abstract class LineToolPaneView implements IUpdatablePaneView, IInputEven
 		// console.log(this._editedPointIndex);
 
 		// if shift, isTrendLine = true and at least 1 point exists already
-		if (event.shiftKey === true && isTrendLine === true && this._points.length > 0) {
+		if (event.shiftKey && isTrendLine && this._points.length > 0) {
 			// override point
 			if (useEditedPointIndex) {
 				if (this._editedPointIndex === 1) {
@@ -330,18 +330,18 @@ export abstract class LineToolPaneView implements IUpdatablePaneView, IInputEven
 				}
 			} else {
 				// if shift, isTrendLine = true and at least 1 point exists already
-				if (event.shiftKey === true && isTrendLine === true && this._points.length > 0) {
+				if (event.shiftKey && isTrendLine && this._points.length > 0) {
 					// override point 2's y with point 1's y
 					appliedPoint.y = this._points[0].y;
 				}
 			}
 		}
 
-		if (toolTypeStr === 'FibRetracement' && event.shiftKey === true && this._points.length === 2 && this._editedPointIndex !== null && this._onMouseDownInitialPoints.length === 2) {
+		if (toolTypeStr === 'FibRetracement' && event.shiftKey && this._points.length === 2 && this._editedPointIndex !== null && this._onMouseDownInitialPoints.length === 2) {
 			appliedPoint.y = this._onMouseDownInitialPoints[this._editedPointIndex].y;
 		}
 
-		if (toolTypeStr === 'Rectangle' && event.shiftKey === true && this._points.length === 2 && this._editedPointIndex !== null && this._onMouseDownInitialPoints.length === 2) {
+		if (toolTypeStr === 'Rectangle' && event.shiftKey && this._points.length === 2 && this._editedPointIndex !== null && this._onMouseDownInitialPoints.length === 2) {
 			// a rectangle has multiple indexes.
 			// 0,3 are at the top corners.  top has 0,6,3 going from left to right
 			// 2,1 are at the top corners.  top has 2,7,1 going from left to right
@@ -352,7 +352,7 @@ export abstract class LineToolPaneView implements IUpdatablePaneView, IInputEven
 			}
 		}
 
-		if (toolTypeStr === 'PriceRange' && event.shiftKey === true && this._points.length === 2 && this._editedPointIndex !== null && this._onMouseDownInitialPoints.length === 2) {
+		if (toolTypeStr === 'PriceRange' && event.shiftKey && this._points.length === 2 && this._editedPointIndex !== null && this._onMouseDownInitialPoints.length === 2) {
 			// a rectangle has multiple indexes.
 			// 0,3 are at the top corners.  top has 0,6,3 going from left to right
 			// 2,1 are at the top corners.  top has 2,7,1 going from left to right

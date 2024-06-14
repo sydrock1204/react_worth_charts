@@ -206,7 +206,7 @@ export class Pane implements IDestroyable {
 		const priceScale = source.priceScale();
 		// if source has owner, it returns owner's price scale
 		// and it does not have source in their list
-		if (priceScale && priceScale.dataSources().indexOf(source) >= 0) {
+		if (priceScale && priceScale.dataSources().includes(source)) {
 			priceScale.removeDataSource(source);
 		}
 
@@ -218,17 +218,17 @@ export class Pane implements IDestroyable {
 		this._cachedOrderedSources = null;
 	}
 
-	public getAllLineTools(): LineTool<LineToolType>[] {
-		return this._dataSources.filter((s: IPriceDataSource) => s instanceof LineTool).map((s: IPriceDataSource) => (s as LineTool<LineToolType>));
+	public getAllLineTools(): LineTool[] {
+		return this._dataSources.filter((s: IPriceDataSource) => s instanceof LineTool).map((s: IPriceDataSource) => (s as LineTool));
 	}
 
-	public getLineTool(id: string): LineTool<LineToolType> | null {
-		const lineTools = this._dataSources.filter((s: IPriceDataSource) => s instanceof LineTool && s.id() === id).map((s: IPriceDataSource) => (s as LineTool<LineToolType>));
+	public getLineTool(id: string): LineTool | null {
+		const lineTools = this._dataSources.filter((s: IPriceDataSource) => s instanceof LineTool && s.id() === id).map((s: IPriceDataSource) => (s as LineTool));
 		return lineTools.length > 0 ? lineTools[0] : null;
 	}
 
-	public getSelectedLineTools(): LineTool<LineToolType>[] {
-		return this._dataSources.filter((s: IPriceDataSource) => s instanceof LineTool && (s as LineTool).selected()).map((s: IPriceDataSource) => (s as LineTool<LineToolType>));
+	public getSelectedLineTools(): LineTool[] {
+		return this._dataSources.filter((s: IPriceDataSource) => s instanceof LineTool && (s as LineTool).selected()).map((s: IPriceDataSource) => (s as LineTool));
 	}
 
 	public priceScalePosition(priceScale: PriceScale): PriceScalePosition {

@@ -34,7 +34,7 @@ export class LineToolBrush extends LineTool<'Brush'> {
 			const endScreenPoint = ensureNotNull(this.pointToScreenPoint(endPoint));
 			if (ensureNotNull(this.pointToScreenPoint(point)).subtract(endScreenPoint).length() < 2) { return; }
 		}
-		return super.addPoint(point);
+		super.addPoint(point);
 	}
 
 	public override hasMagnet(): boolean {

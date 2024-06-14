@@ -21,7 +21,9 @@ export default function WorthAuth() {
         label="email"
         placeholder="What is your email?"
         value={email}
-        handleChange={e => setEmail(e.target.value)}
+        handleChange={e => {
+          setEmail(e.target.value)
+        }}
       />
 
       <BaseInput
@@ -30,17 +32,19 @@ export default function WorthAuth() {
         placeholder="What is your password?"
         value={password}
         type="password"
-        handleChange={e => setPassword(e.target.value)}
+        handleChange={e => {
+          setPassword(e.target.value)
+        }}
       />
 
       <button
         className=" bg-red-600 rounded-md p-3 mt-4 text-white"
         onClick={() => {
-          if (!signInHandler) {
-            return
-          } else {
-            signInHandler(email, password)
-          }
+          // if (!signInHandler) {
+          //   return
+          // } else {
+          signInHandler(email, password)
+          // }
         }}
       >
         LogIn

@@ -71,7 +71,7 @@ export class PolygonRenderer extends ScaledRenderer {
 		const lineColor = this._data.line.color || 'white';
 		const lineWidth = this._data.line.width || 1;
 
-		if (pointsCount === 1) { return this._drawPoint(ctx, this._data.points[0], pointsCount / 2, lineColor); }
+		if (pointsCount === 1) { this._drawPoint(ctx, this._data.points[0], pointsCount / 2, lineColor); return; }
 
 		ctx.beginPath();
 		ctx.lineCap = lineCap;

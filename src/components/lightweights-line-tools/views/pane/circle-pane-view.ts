@@ -18,7 +18,7 @@ export class CirclePaneView extends LineToolPaneView {
 	protected _circleRenderer: CircleRenderer = new CircleRenderer();
 	protected _labelRenderer: TextRenderer = new TextRenderer();
 
-	public constructor(source: LineTool<LineToolType>, model: ChartModel) {
+	public constructor(source: LineTool, model: ChartModel) {
 		super(source, model);
 		this._renderer = null;
 	}

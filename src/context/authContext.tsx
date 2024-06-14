@@ -31,10 +31,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [users, setUsers] = useState<UserInfo[]>([])
 
   const signInHandler = async (email: string, password: string) => {
-    let { data, error } = await supabase.auth.signInWithPassword({
+    console.log('signInHandler')
+    const { data, error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
     })
+    console.log('signInHandler', data)
     if (!data.user) {
       return
     }
@@ -43,7 +45,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const signOutHandler = async () => {
-    let { error } = await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut()
     if (error) {
       return
     }
@@ -53,7 +55,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const loadUsers = async () => {
-    supabase.auth.getUser().then(v => console.log(v))
+    supabase.auth.getUser().then(v => {
+      console.log(v)
+    })
   }
 
   useEffect(() => {

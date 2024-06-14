@@ -22,7 +22,7 @@ import { LineToolTriangle } from './line-tool-triangle';
 import { LineToolVerticalLine } from './line-tool-vertical-line';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const LineTools: Record<LineToolType, new(...args: any) => LineTool<LineToolType>> = {
+export const LineTools: Record<LineToolType, new(...args: any) => LineTool> = {
 	FibRetracement: LineToolFibRetracement,
 	ParallelChannel: LineToolParallelChannel,
 	HorizontalLine: LineToolHorizontalLine,

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ensureNotNull } from '../helpers/assertions';
 import { isFF, isIOS } from '../helpers/browsers';
 import { preventScrollByWheelClick } from '../helpers/events';
@@ -702,7 +703,7 @@ export class MouseEventHandler implements IDestroyable {
 
 		this._target.addEventListener(
 			'touchstart',
-			(event: TouchEvent) => this._checkPinchState(event.touches),
+			(event: TouchEvent) => { this._checkPinchState(event.touches); },
 			{ passive: true }
 		);
 

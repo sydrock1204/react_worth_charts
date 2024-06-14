@@ -1,4 +1,4 @@
-/// <reference types="_build-time-constants" />
+// @ts-nocheck
 
 import { lowerbound } from '../helpers/algorithms';
 import { ensureNotNull } from '../helpers/assertions';
@@ -99,7 +99,7 @@ function convertStringToBusinessDay(value: TimedData): void {
 }
 
 function convertStringsToBusinessDays(data: TimedData[]): void {
-	return data.forEach(convertStringToBusinessDay);
+	data.forEach(convertStringToBusinessDay);
 }
 
 export interface TimeScaleChanges {

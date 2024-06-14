@@ -96,7 +96,7 @@ export class CircleRenderer implements IPaneRenderer {
     }
     
     private _shouldSkipDrawing(): boolean {
-        return this._data === null || this._data.points.length < 2 || (this._data?.border?.width || 0) <= 0 && !this._data?.background?.color;
+        return this._data === null || this._data.points.length < 2 || (this._data.border?.width || 0) <= 0 && !this._data.background?.color;
     }
     
     private _calculateScaledBorderWidth(pixelRatio: number): number {

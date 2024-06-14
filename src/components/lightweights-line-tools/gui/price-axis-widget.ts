@@ -538,7 +538,7 @@ export class PriceAxisWidget implements IDestroyable {
 
 		bottom.sort((l: IPriceAxisView, r: IPriceAxisView) => l.coordinate() - r.coordinate());
 
-		views.forEach((view: IPriceAxisView) => view.setFixedCoordinate(view.coordinate()));
+		views.forEach((view: IPriceAxisView) => { view.setFixedCoordinate(view.coordinate()); });
 
 		const options = this._priceScale.options();
 		if (!options.alignLabels) {

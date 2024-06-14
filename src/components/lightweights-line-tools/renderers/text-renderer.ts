@@ -70,32 +70,32 @@ export class TextRenderer implements IPaneRenderer {
 				}
 			}
 
-			return before.text?.forceCalculateMaxLineWidth === after.text?.forceCalculateMaxLineWidth
-                && before.text?.forceTextAlign === after.text?.forceTextAlign
-                && before.text?.wordWrapWidth === after.text?.wordWrapWidth
-                && before.text?.padding === after.text?.padding
-                && before.text?.value === after.text?.value
-                && before.text?.alignment === after.text?.alignment
-                && before.text?.font?.bold === after.text?.font?.bold
-                && before.text?.font?.size === after.text?.font?.size
-                && before.text?.font?.family === after.text?.font?.family
-                && before.text?.font?.italic === after.text?.font?.italic
-                && before.text?.box?.angle === after.text?.box?.angle
-                && before.text?.box?.scale === after.text?.box?.scale
-                && before.text?.box?.offset?.x === after.text?.box?.offset?.x
-                && before.text?.box?.offset?.y === after.text?.box?.offset?.y
-                && before.text?.box?.maxHeight === after.text?.box?.maxHeight
-                && before.text?.box?.padding?.x === after.text?.box?.padding?.x
-                && before.text?.box?.padding?.y === after.text?.box?.padding?.y
-                && before.text?.box?.alignment?.vertical === after.text?.box?.alignment?.vertical
-                && before.text?.box?.alignment?.horizontal === after.text?.box?.alignment?.horizontal
-                && before.text?.box?.background?.inflation?.x === after.text?.box?.background?.inflation?.x
-                && before.text?.box?.background?.inflation?.y === after.text?.box?.background?.inflation?.y
-                && before.text?.box?.border?.highlight === after.text?.box?.border?.highlight
-                && before.text?.box?.border?.radius === after.text?.box?.border?.radius
-                && before.text?.box?.shadow?.offset === after.text?.box?.shadow?.offset
-                && before.text?.box?.shadow?.color === after.text?.box?.shadow?.color
-                && before.text?.box?.shadow?.blur === after.text?.box?.shadow?.blur;
+			return before.text.forceCalculateMaxLineWidth === after.text.forceCalculateMaxLineWidth
+                && before.text.forceTextAlign === after.text.forceTextAlign
+                && before.text.wordWrapWidth === after.text.wordWrapWidth
+                && before.text.padding === after.text.padding
+                && before.text.value === after.text.value
+                && before.text.alignment === after.text.alignment
+                && before.text.font?.bold === after.text.font?.bold
+                && before.text.font?.size === after.text.font?.size
+                && before.text.font?.family === after.text.font?.family
+                && before.text.font?.italic === after.text.font?.italic
+                && before.text.box?.angle === after.text.box?.angle
+                && before.text.box?.scale === after.text.box?.scale
+                && before.text.box?.offset?.x === after.text.box?.offset?.x
+                && before.text.box?.offset?.y === after.text.box?.offset?.y
+                && before.text.box?.maxHeight === after.text.box?.maxHeight
+                && before.text.box?.padding?.x === after.text.box?.padding?.x
+                && before.text.box?.padding?.y === after.text.box?.padding?.y
+                && before.text.box?.alignment?.vertical === after.text.box?.alignment?.vertical
+                && before.text.box?.alignment?.horizontal === after.text.box?.alignment?.horizontal
+                && before.text.box?.background?.inflation?.x === after.text.box?.background?.inflation?.x
+                && before.text.box?.background?.inflation?.y === after.text.box?.background?.inflation?.y
+                && before.text.box?.border?.highlight === after.text.box?.border?.highlight
+                && before.text.box?.border?.radius === after.text.box?.border?.radius
+                && before.text.box?.shadow?.offset === after.text.box?.shadow?.offset
+                && before.text.box?.shadow?.color === after.text.box?.shadow?.color
+                && before.text.box?.shadow?.blur === after.text.box?.shadow?.blur;
 		}
 
 		if (checkUnchanged(this._data, data)) {
@@ -193,12 +193,12 @@ export class TextRenderer implements IPaneRenderer {
 		const scaledBottom = scaledTop + Math.round(internalData.boxHeight * pixelRatio);
 
 		if (textData.box?.background?.color || textData.box?.border?.color || textData.box?.border?.highlight && textData.wordWrapWidth) {
-			const borderWidth = Math.round((textData.box?.border?.width || Math.max(fontSize / 12, 1)) * pixelRatio);
+			const borderWidth = Math.round((textData.box.border?.width || Math.max(fontSize / 12, 1)) * pixelRatio);
 			const halfBorderWidth = borderWidth / 2;
 			let ctxUpdated = false;
 
-			if (textData.box?.shadow) {
-				const { color, blur, offset } = textData.box?.shadow;
+			if (textData.box.shadow) {
+				const { color, blur, offset } = textData.box.shadow;
 				ctx.save();
 				ctx.shadowColor = color as string;
 				ctx.shadowBlur = blur as number;
@@ -208,13 +208,13 @@ export class TextRenderer implements IPaneRenderer {
 			}
 
 			if (textData.box.border?.width) {
-				if (textData.box.border?.color) {
+				if (textData.box.border.color) {
 					ctx.strokeStyle = textData.box.border.color;
 				}
 				ctx.lineWidth = borderWidth;
 
-				const radius = textData.box?.border?.radius ?? 0 * pixelRatio + borderWidth;
-				const textBoxBorderStyle = textData.box?.border?.style;
+				const radius = textData.box.border.radius ?? 0 * pixelRatio + borderWidth;
+				const textBoxBorderStyle = textData.box.border.style;
 				drawRoundRect(ctx, scaledLeft - halfBorderWidth, scaledTop - halfBorderWidth, scaledRight - scaledLeft + borderWidth, scaledBottom - scaledTop + borderWidth, radius, textBoxBorderStyle);
 
 				if (textData.box.background?.color) {
@@ -241,7 +241,7 @@ export class TextRenderer implements IPaneRenderer {
 
 		for (const line of lines) {
 			// eslint-disable-next-line @typescript-eslint/no-loop-func
-			drawScaled(ctx, pixelRatio, () => ctx.fillText(line, x, y));
+			drawScaled(ctx, pixelRatio, () => { ctx.fillText(line, x, y); });
 			y += fontSize + linePadding;
 		}
 		ctx.restore();
@@ -264,39 +264,39 @@ export class TextRenderer implements IPaneRenderer {
 		let anchorY = anchor.y as number;
 		let anchorX = anchor.x as number;
 
-		switch (data.text?.box?.alignment?.vertical) {
+		switch (data.text.box?.alignment?.vertical) {
 			case BoxVerticalAlignment.Top:
-				anchorY -= boxHeight + (data.text?.box?.offset?.y || 0);
+				anchorY -= boxHeight + (data.text.box.offset?.y || 0);
 				break;
 			case BoxVerticalAlignment.Middle:
 				anchorY -= boxHeight / 2;
 				break;
 			case BoxVerticalAlignment.Bottom:
-				anchorY += (data.text?.box?.offset?.y || 0);
+				anchorY += (data.text.box.offset?.y || 0);
 		}
 
 		const textY = anchorY + (inflationPaddingY) + getScaledFontSize(data) / 2;
 		let textAlign = TextAlignment.Start;
 		let textX = 0;
 
-		switch (data.text?.box?.alignment?.horizontal) {
+		switch (data.text.box?.alignment?.horizontal) {
 			case BoxHorizontalAlignment.Left:
-				anchorX += (data.text?.box?.offset?.x || 0);
+				anchorX += (data.text.box.offset?.x || 0);
 				break;
 			case BoxHorizontalAlignment.Center:
 				anchorX -= boxWidth / 2;
 				break;
 			case BoxHorizontalAlignment.Right:
-				anchorX -= boxWidth + (data.text?.box?.offset?.x || 0);
+				anchorX -= boxWidth + (data.text.box.offset?.x || 0);
 		}
-		switch (ensureDefined(data.text?.alignment)) {
+		switch (ensureDefined(data.text.alignment)) {
 			case TextAlignment.Start:
 			case TextAlignment.Left: {
 				textAlign = TextAlignment.Start;
 				textX = anchorX + inflationPaddingX;
 
 				if (isRtl()) {
-					if (data.text?.forceTextAlign) {
+					if (data.text.forceTextAlign) {
 						textAlign = TextAlignment.Left;
 					} else {
 						textX = anchorX + boxWidth - inflationPaddingX;
@@ -313,7 +313,7 @@ export class TextRenderer implements IPaneRenderer {
 			case TextAlignment.End:
 				textAlign = TextAlignment.End;
 				textX = anchorX + boxWidth - inflationPaddingX;
-				if (isRtl() && data.text?.forceTextAlign) {
+				if (isRtl() && data.text.forceTextAlign) {
 					textAlign = TextAlignment.Right;
 				}
 				break;
@@ -337,8 +337,8 @@ export class TextRenderer implements IPaneRenderer {
 		cacheCanvas.textBaseline = 'alphabetic';
 		cacheCanvas.font = this.fontStyle();
 
-		if (this._data !== null && this._data.text?.wordWrapWidth && !this._data.text?.forceCalculateMaxLineWidth) {
-			return this._data.text?.wordWrapWidth * getFontAwareScale(this._data);
+		if (this._data !== null && this._data.text.wordWrapWidth && !this._data.text.forceCalculateMaxLineWidth) {
+			return this._data.text.wordWrapWidth * getFontAwareScale(this._data);
 		}
 
 		let maxWidth = 0;
@@ -351,10 +351,10 @@ export class TextRenderer implements IPaneRenderer {
 	private _getLinesInfo(): LinesInfo {
 		if (null === this._linesInfo) {
 			const data = ensureNotNull(this._data);
-			let lines = this.wordWrap(data.text?.value || '', data.text?.wordWrapWidth);
+			let lines = this.wordWrap(data.text.value || '', data.text.wordWrapWidth);
 
-			if (data.text?.box?.maxHeight !== undefined) {
-				const maxHeight = ensureDefined(data.text?.box?.maxHeight);
+			if (data.text.box?.maxHeight !== undefined) {
+				const maxHeight = ensureDefined(data.text.box.maxHeight);
 				const scaledFontSize = getScaledFontSize(data);
 				const scaledPadding = getScaledPadding(data);
 				const maxLines = Math.floor((maxHeight + scaledPadding) / (scaledFontSize + scaledPadding));
@@ -370,7 +370,7 @@ export class TextRenderer implements IPaneRenderer {
 		if (this._fontInfo === null) {
 			const data = ensureNotNull(this._data);
 			const fontSize = getScaledFontSize(data);
-			const fontStyle = (data.text?.font?.bold ? 'bold ' : '') + (data.text?.font?.italic ? 'italic ' : '') + fontSize + 'px ' + data.text?.font?.family;
+			const fontStyle = (data.text.font?.bold ? 'bold ' : '') + (data.text.font?.italic ? 'italic ' : '') + fontSize + 'px ' + data.text.font?.family;
 			this._fontInfo = { fontStyle: fontStyle, fontSize: fontSize };
 		}
 		return this._fontInfo;
@@ -394,7 +394,7 @@ export class TextRenderer implements IPaneRenderer {
 
 		const { boxLeft, boxTop, boxWidth, boxHeight } = this._getInternalData();
 		const pivot = this._getRotationPoint();
-		const angleDegrees = this._data.text?.box?.angle || 0;
+		const angleDegrees = this._data.text.box?.angle || 0;
 		const angle = -angleDegrees * Math.PI / 180;
 		this._polygonPoints = [
 			rotatePoint(new Point(boxLeft, boxTop), pivot, angle),
@@ -408,7 +408,7 @@ export class TextRenderer implements IPaneRenderer {
 
 	private _getRotationPoint(): Point {
 		const { boxLeft, boxTop, boxWidth, boxHeight } = this._getInternalData();
-		const { horizontal, vertical } = ensureDefined(this._data?.text?.box?.alignment);
+		const { horizontal, vertical } = ensureDefined(this._data?.text.box?.alignment);
 		let x = 0;
 		let y = 0;
 
@@ -522,23 +522,23 @@ function getBoxHeight(data: TextRendererData, linesCount: number): number {
 }
 
 function getScaledBoxPaddingY(data: TextRendererData): number {
-	return data.text?.box?.padding?.y !== undefined ? data.text?.box?.padding?.y * getFontAwareScale(data) : getScaledFontSize(data) / 3;
+	return data.text.box?.padding?.y !== undefined ? data.text.box.padding.y * getFontAwareScale(data) : getScaledFontSize(data) / 3;
 }
 
 function getScaledBoxPaddingX(data: TextRendererData): number {
-	return data.text?.box?.padding?.x ? data.text?.box?.padding?.x * getFontAwareScale(data) : getScaledFontSize(data) / 3;
+	return data.text.box?.padding?.x ? data.text.box.padding.x * getFontAwareScale(data) : getScaledFontSize(data) / 3;
 }
 
 function getScaledBackgroundInflationY(data: TextRendererData): number {
-	return (data.text?.box?.background?.inflation?.y || 0) * getFontAwareScale(data);
+	return (data.text.box?.background?.inflation?.y || 0) * getFontAwareScale(data);
 }
 
 function getScaledBackgroundInflationX(data: TextRendererData): number {
-	return (data.text?.box?.background?.inflation?.x || 0) * getFontAwareScale(data);
+	return (data.text.box?.background?.inflation?.x || 0) * getFontAwareScale(data);
 }
 
 function getScaledPadding(data: TextRendererData): number {
-	return (data.text?.padding || 0) * getFontAwareScale(data);
+	return (data.text.padding || 0) * getFontAwareScale(data);
 }
 
 function getScaledFontSize(data: TextRendererData): number {
@@ -546,11 +546,11 @@ function getScaledFontSize(data: TextRendererData): number {
 }
 
 function getFontSize(data: TextRendererData): number {
-	return data.text?.font?.size || 30;
+	return data.text.font?.size || 30;
 }
 
 function getFontAwareScale(data: TextRendererData): number {
-	const scale = Math.min(1, Math.max(0.2, data.text?.box?.scale || 1));
+	const scale = Math.min(1, Math.max(0.2, data.text.box?.scale || 1));
 	if (scale === 1) {return scale;}
 	const fontSize = getFontSize(data);
 	return Math.ceil(scale * fontSize) / fontSize;

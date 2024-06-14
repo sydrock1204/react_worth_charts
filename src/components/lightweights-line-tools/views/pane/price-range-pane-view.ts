@@ -20,7 +20,7 @@ export class PriceRangePaneView extends LineToolPaneView {
 	protected _labelRenderer: TextRenderer = new TextRenderer();
 	protected _labelRendererPermanent: TextRenderer = new TextRenderer();
 
-	public constructor(source: LineTool<LineToolType>, model: ChartModel) {
+	public constructor(source: LineTool, model: ChartModel) {
 		super(source, model);
 		this._renderer = null;
 	}
@@ -128,9 +128,9 @@ export class PriceRangePaneView extends LineToolPaneView {
 					// const price = priceScale.coordinateToPrice(point1.y, firstValue);
 					// labelOptionsPermanent.value = String(priceScale.formatPrice(price, firstValue));
 					// labelOptionsPermanent.value = String(Number(priceScale.formatPrice(priceScale.coordinateToPrice(point1.y, firstValue), firstValue)) - Number(priceScale.formatPrice(priceScale.coordinateToPrice(point0.y, firstValue), firstValue)));
-					let price1 = Number(priceScale.formatPrice(priceScale.coordinateToPrice(point1.y, firstValue), firstValue))
-					let price2 = Number(priceScale.formatPrice(priceScale.coordinateToPrice(point0.y, firstValue), firstValue))
-					let stringPercent = String((price1/price2*100).toFixed(3)) + "%"
+					const price1 = Number(priceScale.formatPrice(priceScale.coordinateToPrice(point1.y, firstValue), firstValue))
+					const price2 = Number(priceScale.formatPrice(priceScale.coordinateToPrice(point0.y, firstValue), firstValue))
+					const stringPercent = String((price1/price2*100).toFixed(3)) + "%"
 					labelOptionsPermanent.value = stringPercent
 				}
 			}
@@ -142,9 +142,9 @@ export class PriceRangePaneView extends LineToolPaneView {
 					// labelOptionsPermanent.value = String(priceScale.coordinateToPrice(point1.y, firstValue));
 					// const price = priceScale.coordinateToPrice(point1.y, firstValue);
 					// labelOptionsPermanent.value = String(priceScale.formatPrice(price, firstValue));
-					let price1 = Number(priceScale.formatPrice(priceScale.coordinateToPrice(point1.y, firstValue), firstValue))
-					let price2 = Number(priceScale.formatPrice(priceScale.coordinateToPrice(point0.y, firstValue), firstValue))
-					let stringPercent = String((price1/price2*100).toFixed(3)) + "%"
+					const price1 = Number(priceScale.formatPrice(priceScale.coordinateToPrice(point1.y, firstValue), firstValue))
+					const price2 = Number(priceScale.formatPrice(priceScale.coordinateToPrice(point0.y, firstValue), firstValue))
+					const stringPercent = String((price1/price2*100).toFixed(3)) + "%"
 					// labelOptionsPermanent.value = '+' + String(Number(priceScale.formatPrice(priceScale.coordinateToPrice(point1.y, firstValue), firstValue)) - Number(priceScale.formatPrice(priceScale.coordinateToPrice(point0.y, firstValue), firstValue)));
 					labelOptionsPermanent.value = stringPercent
 				}

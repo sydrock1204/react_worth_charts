@@ -419,7 +419,7 @@ export class ChartModel implements IDestroyable {
 	public applyOptions(options: DeepPartial<ChartOptionsInternal>): void {
 		merge(this._options, options);
 
-		this._panes.forEach((p: Pane) => p.applyScaleOptions(options));
+		this._panes.forEach((p: Pane) => { p.applyScaleOptions(options); });
 
 		if (options.timeScale !== undefined) {
 			this._timeScale.applyOptions(options.timeScale);
@@ -527,7 +527,7 @@ export class ChartModel implements IDestroyable {
 	public setWidth(width: number): void {
 		this._width = width;
 		this._timeScale.setWidth(this._width);
-		this._panes.forEach((pane: Pane) => pane.setWidth(width));
+		this._panes.forEach((pane: Pane) => { pane.setWidth(width); });
 		this.recalculateAllPanes();
 	}
 
@@ -779,7 +779,7 @@ export class ChartModel implements IDestroyable {
 
 	public recalculateAllPanes(): void {
 		this._watermark.updateAllViews();
-		this._panes.forEach((p: Pane) => p.recalculate());
+		this._panes.forEach((p: Pane) => { p.recalculate(); });
 		this.updateCrosshair();
 	}
 
@@ -792,7 +792,7 @@ export class ChartModel implements IDestroyable {
 	}
 
 	public destroy(): void {
-		this._panes.forEach((p: Pane) => p.destroy());
+		this._panes.forEach((p: Pane) => { p.destroy(); });
 		this._panes.length = 0;
 
 		// to avoid memleaks
@@ -964,7 +964,7 @@ export class ChartModel implements IDestroyable {
 			this._invalidateHandler(mask);
 		}
 
-		this._panes.forEach((pane: Pane) => pane.grid().paneView().update());
+		this._panes.forEach((pane: Pane) => { pane.grid().paneView().update(); });
 	}
 
 	private _createSeries<T extends SeriesType>(options: SeriesOptionsInternal<T>, seriesType: T, pane: Pane): Series<T> {

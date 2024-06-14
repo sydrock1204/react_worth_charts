@@ -22,7 +22,7 @@ interface User {
 
 export const SocialMediaContact: FC<User> = ({ user }) => {
   const goToLink = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    e: React.MouseEvent<HTMLButtonElement>,
     link: string,
   ) => {
     e.stopPropagation()
@@ -31,44 +31,44 @@ export const SocialMediaContact: FC<User> = ({ user }) => {
 
   return (
     <div className="flex gap-2 items-center h-full">
-      {user?.socialMedia?.instagram && (
+      {user.socialMedia.instagram && (
         <button
           className="cursor:pointer"
           onClick={(e) =>
-            goToLink(
+            { goToLink(
               e,
               `https://www.instagram.com/${user.socialMedia.instagram}`,
-            )
+            ); }
           }
         >
           <IconInstagram />
         </button>
       )}
-      {user?.socialMedia?.facebook && (
+      {user.socialMedia.facebook && (
         <button
           className="cursor:pointer"
           onClick={(e) =>
-            goToLink(e, `https://www.facebook.com/${user.socialMedia.facebook}`)
+            { goToLink(e, `https://www.facebook.com/${user.socialMedia.facebook}`); }
           }
         >
           <IconFacebook />
         </button>
       )}
-      {user?.socialMedia?.whatsapp && (
+      {user.socialMedia.whatsapp && (
         <button
           className="cursor:pointer"
           onClick={(e) =>
-            goToLink(e, `https://wa.me/${user.socialMedia.whatsapp}`)
+            { goToLink(e, `https://wa.me/${user.socialMedia.whatsapp}`); }
           }
         >
           <IconWhatsapp />
         </button>
       )}
-      {user?.socialMedia?.telegram && (
+      {user.socialMedia.telegram && (
         <button
           className="cursor:pointer"
           onClick={(e) =>
-            goToLink(e, `https://telegram.me/${user.socialMedia.telegram}`)
+            { goToLink(e, `https://telegram.me/${user.socialMedia.telegram}`); }
           }
         >
           <IconTelegram />

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Series } from '../../model/series';
 import { PriceLineSource } from '../../model/series-options';
 

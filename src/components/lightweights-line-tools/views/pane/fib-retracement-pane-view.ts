@@ -17,7 +17,7 @@ export class FibRetracementPaneView extends LineToolPaneView {
 	protected _labelRenderers: TextRenderer[] = [];
 	protected _lineRenderers: SegmentRenderer[] = [];
 
-	public constructor(source: LineTool<LineToolType>, model: ChartModel) {
+	public constructor(source: LineTool, model: ChartModel) {
 		super(source, model);
 		this._renderer = null;
 	}

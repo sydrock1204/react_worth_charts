@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { assert } from '../../helpers/assertions';
 import { applyAlpha } from '../../helpers/color';
 

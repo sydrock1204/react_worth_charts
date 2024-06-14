@@ -26,8 +26,8 @@ export class Point {
 
 	public constructor(x: number, y: number)
 	public constructor(x: Coordinate, y: Coordinate) {
-		(this.x as Coordinate) = x;
-		(this.y as Coordinate) = y;
+		(this.x) = x;
+		(this.y) = y;
 	}
 
 	public add(point: Point): Point {

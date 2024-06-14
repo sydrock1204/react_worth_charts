@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { generateContrastColors } from '../../helpers/color';
 
 import { LastValueDataResultWithData, Series } from '../../model/series';

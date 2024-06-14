@@ -62,7 +62,7 @@ export const Pagination: FC<Props> = ({ page, take, total, setPage }) => {
                 <div key={index}>
                   <button
                     aria-current="page"
-                    onClick={() => setPage(index + 1)}
+                    onClick={() => { setPage(index + 1); }}
                     className={index + 1 === page ? activeStyle : neutralStyle}
                   >
                     {index + 1}

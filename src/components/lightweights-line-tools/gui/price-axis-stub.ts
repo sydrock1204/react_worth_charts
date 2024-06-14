@@ -130,5 +130,5 @@ export class PriceAxisStub implements IDestroyable {
 		});
 	}
 
-	private readonly _canvasConfiguredHandler = () => this.paint(InvalidationLevel.Full);
+	private readonly _canvasConfiguredHandler = () => { this.paint(InvalidationLevel.Full); };
 }

@@ -1,4 +1,4 @@
-/// <reference types="_build-time-constants" />
+// @ts-nocheck
 
 export function warn(msg: string): void {
 	if (process.env.NODE_ENV === 'development') {

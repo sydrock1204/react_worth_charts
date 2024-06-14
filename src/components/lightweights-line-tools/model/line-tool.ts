@@ -338,6 +338,6 @@ export abstract class LineTool<T extends LineToolType = LineToolType> extends Pr
 	}
 
 	protected _updateAllPaneViews(): void {
-		this._paneViews.forEach((paneView: IUpdatablePaneView) => paneView.update());
+		this._paneViews.forEach((paneView: IUpdatablePaneView) => { paneView.update(); });
 	}
 }

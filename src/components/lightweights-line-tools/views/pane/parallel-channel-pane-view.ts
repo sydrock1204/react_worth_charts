@@ -14,7 +14,7 @@ const pointsCursorType = [PaneCursorType.Default, PaneCursorType.Default, PaneCu
 export class ParallelChannelPaneView extends LineToolPaneView {
 	protected _channelRenderer: ParallelChannelRenderer = new ParallelChannelRenderer();
 
-	public constructor(source: LineTool<LineToolType>, model: ChartModel) {
+	public constructor(source: LineTool, model: ChartModel) {
 		super(source, model);
 		this._renderer = null;
 	}

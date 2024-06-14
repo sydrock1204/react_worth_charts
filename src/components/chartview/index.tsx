@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useRef, useState } from 'react'
 
 import {
@@ -62,7 +63,9 @@ export const ChartComponent = (props: any) => {
       return
     }
 
-    let pointPrice = candleStickSeries.current?.coordinateToPrice(param.point.y)
+    const pointPrice = candleStickSeries.current?.coordinateToPrice(
+      param.point.y
+    )
     handleTemplePoint({
       price: pointPrice,
       timestamp: param.time,
@@ -103,16 +106,16 @@ export const ChartComponent = (props: any) => {
   }, [save])
 
   useEffect(() => {
-    let options = chart.current?.options()
-    let crosshair = options?.crosshair
+    const options = chart.current?.options()
+    const crosshair = options?.crosshair
     if (magnet) {
-      let newCrosshair = { ...crosshair, magnetThreshold: 40 }
-      let newOptions = { ...options, crosshair: newCrosshair }
+      const newCrosshair = { ...crosshair, magnetThreshold: 40 }
+      const newOptions = { ...options, crosshair: newCrosshair }
       console.log(newOptions)
       chart.current?.applyOptions(newOptions)
     } else {
-      let newCrosshair = { ...crosshair, magnetThreshold: 14 }
-      let newOptions = { ...options, crosshair: newCrosshair }
+      const newCrosshair = { ...crosshair, magnetThreshold: 14 }
+      const newOptions = { ...options, crosshair: newCrosshair }
       chart.current?.applyOptions(newOptions)
     }
   }, [magnet])
@@ -165,10 +168,10 @@ export const ChartComponent = (props: any) => {
     //   to: 60,
     // })
 
-    chart.current?.subscribeClick(getPointInformation)
-    chart.current?.subscribeCrosshairMove(myCrosshairMoveHandler)
+    chart.current.subscribeClick(getPointInformation)
+    chart.current.subscribeCrosshairMove(myCrosshairMoveHandler)
     chart.current
-      ?.timeScale()
+      .timeScale()
       .subscribeVisibleLogicalRangeChange(myVisibleLogicalRangeChangeHandler)
 
     window.addEventListener('resize', handleResize)

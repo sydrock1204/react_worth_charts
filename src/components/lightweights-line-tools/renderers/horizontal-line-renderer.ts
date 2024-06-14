@@ -40,7 +40,7 @@ export class HorizontalLineRenderer implements IPaneRenderer {
 
 		let start = 0;
 
-		if (this._data.ray === true) {
+		if (this._data.ray) {
 			start = this._data.rayStart;
 		}
 

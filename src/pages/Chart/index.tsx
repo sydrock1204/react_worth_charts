@@ -67,7 +67,7 @@ const Chart: FC = () => {
   const [calloutPoint, setCalloutPoint] = useState<PointXY | null>(null)
   const [priceRangePoint, setPriceRangePoint] = useState<PointXY | null>(null)
 
-  const [magnet, setMagnet] = useState<Boolean>(false)
+  const [magnet, setMagnet] = useState<boolean>(false)
   const [editType, setEditType] = useState<string>('arrow')
   const [editClickCounts, setEditClickCounts] = useState<number>(0)
   const [tempPoint, setTempPoint] = useState<Point | null>(null)
@@ -95,7 +95,7 @@ const Chart: FC = () => {
       return
     }
 
-    let { data: savedData, error: savedDataError } = await supabase
+    const { data: savedData, error: savedDataError } = await supabase
       .from('linedata')
       .select('id')
       .eq('user_id', user?.id)
@@ -107,7 +107,7 @@ const Chart: FC = () => {
     console.log('data: ', savedData, 'error: ', savedDataError)
     if (savedData && savedData.length > 0) {
       console.log('exportlines: ', exportLines)
-      let { data, error } = await supabase
+      const { data, error } = await supabase
         .from('linedata')
         .update({ linedata: exportLines })
         .eq('id', savedData[0].id)
@@ -135,8 +135,8 @@ const Chart: FC = () => {
   }
 
   const loadLineData = async (symbol: string, interval: string) => {
-    if (!user) return navigate('/auth/login')
-    let { data, error } = await supabase
+    if (!user) { navigate('/auth/login'); return; }
+    const { data, error } = await supabase
       .from('linedata')
       .select('linedata')
       .eq('user_id', user.id)
@@ -146,7 +146,7 @@ const Chart: FC = () => {
       .select()
 
     if (data && data.length > 0) {
-      let lineDataArray = JSON.parse(data[0].linedata)
+      const lineDataArray = JSON.parse(data[0].linedata)
       console.log(lineDataArray)
       lineDataArray.map(lineData => {
         switch (lineData.toolType) {
@@ -194,7 +194,7 @@ const Chart: FC = () => {
       setVolume(Volume)
     }
 
-    fetchWrapper().catch(e => console.log(e))
+    fetchWrapper().catch(e => { console.log(e); })
   }, [])
 
   useEffect(() => {
@@ -208,7 +208,7 @@ const Chart: FC = () => {
       setVolume(Volume)
     }
 
-    fetchWrapper().catch(e => console.log(e))
+    fetchWrapper().catch(e => { console.log(e); })
   }, [symbol, interval])
 
   useEffect(() => {
@@ -326,7 +326,7 @@ const Chart: FC = () => {
                   ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
                   : 'w-[40px] cursor-pointer hover:bg-gray5'
               }
-              onClick={() => setInterval('1min')}
+              onClick={() => { setInterval('1min'); }}
             >
               1m
             </button>
@@ -336,7 +336,7 @@ const Chart: FC = () => {
                   ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
                   : 'w-[40px] cursor-pointer hover:bg-gray5'
               }
-              onClick={() => setInterval('30min')}
+              onClick={() => { setInterval('30min'); }}
             >
               30m
             </button>
@@ -346,7 +346,7 @@ const Chart: FC = () => {
                   ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
                   : 'w-[40px] cursor-pointer hover:bg-gray5'
               }
-              onClick={() => setInterval('60min')}
+              onClick={() => { setInterval('60min'); }}
             >
               1h
             </button>
@@ -356,7 +356,7 @@ const Chart: FC = () => {
                   ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
                   : 'w-[40px] cursor-pointer hover:bg-gray5'
               }
-              onClick={() => setInterval('D')}
+              onClick={() => { setInterval('D'); }}
             >
               D
             </button>
@@ -400,61 +400,61 @@ const Chart: FC = () => {
           alt="Text"
           width={50}
           className="cursor-pointer"
-          onClick={() => setEditType('arrow')}
+          onClick={() => { setEditType('arrow'); }}
         />
         <img
           src={editType == 'label' ? TextSelectedSvg : TextSvg}
           alt="Text"
           width={30}
           className="ml-2 cursor-pointer"
-          onClick={() => setEditType('label')}
+          onClick={() => { setEditType('label'); }}
         />
         <img
           src={editType == 'circle' ? CircleSelectedSvg : CircleSvg}
           alt="Circle"
           width={50}
-          onClick={() => setEditType('circle')}
+          onClick={() => { setEditType('circle'); }}
           className="cursor-pointer"
         />
         <img
           src={editType == 'vertical' ? VerticalSelectedSvg : VerticalSvg}
           alt="Vertical"
-          onClick={() => setEditType('vertical')}
+          onClick={() => { setEditType('vertical'); }}
           className="cursor-pointer"
         />
         <img
           src={editType == 'trendline' ? TrendSelectedSvg : TrendSvg}
           alt="Trend"
           width={50}
-          onClick={() => setEditType('trendline')}
+          onClick={() => { setEditType('trendline'); }}
           className="cursor-pointer"
         />
         <img
           src={editType == 'horizontal' ? HorizontalSelectedSvg : HorizontalSvg}
           alt="Horizontal"
           width={50}
-          onClick={() => setEditType('horizontal')}
+          onClick={() => { setEditType('horizontal'); }}
           className="cursor-pointer"
         />
         <img
           src={editType == 'rectangle' ? RectangleSelectedSvg : RectangleSvg}
           alt="Rectangle"
           width={50}
-          onClick={() => setEditType('rectangle')}
+          onClick={() => { setEditType('rectangle'); }}
           className="cursor-pointer"
         />
         <img
           src={editType == 'callout' ? CalloutSelectedSvg : CalloutSvg}
           alt="Callout"
           width={50}
-          onClick={() => setEditType('callout')}
+          onClick={() => { setEditType('callout'); }}
           className="cursor-pointer"
         />
         <img
           src={editType == 'pricerange' ? PriceRangeSelectedSvg : PriceRangeSvg}
           alt="priceRange"
           width={50}
-          onClick={() => setEditType('pricerange')}
+          onClick={() => { setEditType('pricerange'); }}
           className="cursor-pointer"
         />
         <img
@@ -462,7 +462,7 @@ const Chart: FC = () => {
           alt="magnet"
           width={50}
           className="cursor-pointer"
-          onClick={() => setMagnet(!magnet)}
+          onClick={() => { setMagnet(!magnet); }}
         />
         <img
           src={RemoveSvg}

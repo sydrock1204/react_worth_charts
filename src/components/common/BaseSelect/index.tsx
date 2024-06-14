@@ -90,7 +90,7 @@ export const BaseSelect: FC<Props> = ({
     if (Array.isArray(value)) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      return options.filter((option) => value.includes(option?.value))
+      return options.filter((option) => value.includes(option.value))
     } else {
       return options.find((option) => option.value === value) || null
     }

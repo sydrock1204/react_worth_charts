@@ -9,7 +9,7 @@ import { LineToolPaneView } from './line-tool-pane-view';
 export class TrianglePaneView extends LineToolPaneView {
 	protected _triangleRenderer: TriangleRenderer = new TriangleRenderer();
 
-	public constructor(source: LineTool<LineToolType>, model: ChartModel) {
+	public constructor(source: LineTool, model: ChartModel) {
 		super(source, model);
 		this._renderer = null;
 	}

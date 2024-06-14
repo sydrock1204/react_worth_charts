@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { assert } from '../helpers/assertions';
 
 import { PriceLineOptions } from '../model/price-line-options';

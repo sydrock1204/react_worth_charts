@@ -26,7 +26,7 @@ export class TimeAxisViewRenderer implements ITimeAxisViewRenderer {
 	}
 
 	public draw(ctx: CanvasRenderingContext2D, rendererOptions: TimeAxisViewRendererOptions, pixelRatio: number): void {
-		if (this._data === null || this._data.visible === false || this._data.text.length === 0) {
+		if (this._data === null || !this._data.visible || this._data.text.length === 0) {
 			return;
 		}
 

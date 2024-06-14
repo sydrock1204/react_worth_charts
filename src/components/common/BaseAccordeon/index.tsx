@@ -30,7 +30,7 @@ export const BaseAccordeon: FC<Props> = ({
             ? 'flex items-center justify-between cursor-pointer p-2 text-primary-950 rounded bg-primary-100'
             : 'flex items-center justify-between cursor-pointer p-2 text-primary-950 rounded'
         }
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => { setIsOpen(!isOpen); }}
       >
         <div className="flex items-center gap-2">
           <div className="w-[50px] iconTitle">{icon}</div>

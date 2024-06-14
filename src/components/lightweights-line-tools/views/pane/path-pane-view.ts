@@ -11,7 +11,7 @@ import { LineToolPaneView } from './line-tool-pane-view';
 export class PathPaneView extends LineToolPaneView {
 	protected _polygonRenderer: PolygonRenderer = new PolygonRenderer();
 
-	public constructor(source: LineTool<LineToolType>, model: ChartModel) {
+	public constructor(source: LineTool, model: ChartModel) {
 		super(source, model);
 		this._renderer = null;
 	}

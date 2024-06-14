@@ -33,7 +33,7 @@ export class Delegate<T1 = void, T2 = void> implements ISubscription<T1, T2> {
 	public fire(param1: T1, param2: T2): void {
 		const listenersSnapshot = [...this._listeners];
 		this._listeners = this._listeners.filter((listener: Listener<T1, T2>) => !listener.singleshot);
-		listenersSnapshot.forEach((listener: Listener<T1, T2>) => listener.callback(param1, param2));
+		listenersSnapshot.forEach((listener: Listener<T1, T2>) => { listener.callback(param1, param2); });
 	}
 
 	public hasListeners(): boolean {

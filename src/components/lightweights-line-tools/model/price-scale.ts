@@ -548,7 +548,7 @@ export class PriceScale {
 	}
 
 	public addDataSource(source: IPriceDataSource): void {
-		if (this._dataSources.indexOf(source) !== -1) {
+		if (this._dataSources.includes(source)) {
 			return;
 		}
 
@@ -785,7 +785,7 @@ export class PriceScale {
 	}
 
 	public updateAllViews(): void {
-		this._dataSources.forEach((s: IPriceDataSource) => s.updateAllViews());
+		this._dataSources.forEach((s: IPriceDataSource) => { s.updateAllViews(); });
 	}
 
 	public updateFormatter(): void {

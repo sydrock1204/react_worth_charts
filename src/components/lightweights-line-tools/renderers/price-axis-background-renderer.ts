@@ -24,7 +24,7 @@ export class PriceAxisBackgroundRenderer {
 	}
 
 	public drawBackground(ctx: CanvasRenderingContext2D, rendererOptions: PriceAxisViewRendererOptions, pixelRatio: number): void {
-		if (this._data === null || this._data.visible === false) {
+		if (this._data === null || !this._data.visible) {
 			return;
 		}
 
