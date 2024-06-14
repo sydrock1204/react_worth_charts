@@ -1,10 +1,15 @@
-import { FC } from 'react'
-import { Link, Outlet } from 'react-router-dom'
+import { FC, useContext } from 'react'
+import { Link, Outlet, useLocation, Navigate } from 'react-router-dom'
 
-import Header from '../../components/header'
-import Footer from '../../components/footer'
+import { useAuthContext } from '../../context/authContext'
 
-const Navigation: FC = () => {
+import Header from '../header'
+import Footer from '../footer'
+
+const GuestRoute: FC = () => {
+  const location = useLocation()
+  const { user, session } = useAuthContext()
+
   return (
     <>
       <Header />
@@ -48,7 +53,7 @@ const Navigation: FC = () => {
           </Link>
         </div>
         <div className="flex flex-col">
-          <Outlet />
+          {session ? <Navigate to="/chart" /> : <Outlet />}
         </div>
       </div>
       <Footer />
@@ -56,4 +61,4 @@ const Navigation: FC = () => {
   )
 }
 
-export default Navigation
+export default GuestRoute

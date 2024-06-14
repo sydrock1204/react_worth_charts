@@ -6,7 +6,7 @@ export const fetchData = async (
 ): Promise<any> => {
   try {
     const response = await axios.get(
-      `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&apikey=J30ZPSULV5F2HHGR `
+      `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=full&apikey=J30ZPSULV5F2HHGR `
     )
     // console.log(Object.entries(response.data["Time Series (1min)"]))
     return response.data[`Time Series (${interval})`]

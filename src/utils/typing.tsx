@@ -7,7 +7,7 @@ export interface StockPriceData {
 }
 
 export interface VolumeData {
-  time: string
+  time: number
   value: number
   color?: string
 }
@@ -20,4 +20,13 @@ export interface Point {
 export interface PointXY {
   point1: Point | null
   point2: Point | null
+}
+
+export interface UserInfo {
+  id: number
+  email: string
+  phone: number
+  uid: string
+  role: string
+  fullname: string
 }

@@ -1,10 +1,10 @@
-import { FC, useEffect, useState } from 'react'
+import { useState, useContext, createContext } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
 
-import ReactLogo from './assets/react.svg'
-import WorthChartLogo from './assets/WorthCharting.png'
-import viteLogo from '/vite.svg'
 import './App.css'
+
+import { AuthProvider } from './context/authContext.tsx'
 
 import Home from './pages/Home'
 import About from './pages/About'
@@ -12,13 +12,14 @@ import Chart from './pages/Chart/index'
 import Techmethod from './pages/Techmethod'
 import Testimonials from './pages/Testimonials'
 import Contact from './pages/Contact'
-import Navigation from './components/navigation'
-import WorthAuth from './pages/Auth'
+import ProtectedRoute from './components/navigation/ProtectedRoute.tsx'
+import GuestRoute from './components/navigation/GuestRoute.tsx'
+import WorthAuth from './pages/Auth/signin.tsx'
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Navigation />,
+    element: <ProtectedRoute />,
     children: [
       {
         path: '/home',
@@ -44,17 +45,28 @@ const router = createBrowserRouter([
         path: '/contact',
         element: <Contact />,
       },
+    ],
+  },
+  {
+    path: '/auth',
+    element: <GuestRoute />,
+    children: [
       {
-        path: '/auth',
+        index: true,
+        path: 'login',
         element: <WorthAuth />,
       },
     ],
   },
 ])
+
 const App = () => {
   return (
     <div>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+        <Toaster />
+      </AuthProvider>
     </div>
   )
 }

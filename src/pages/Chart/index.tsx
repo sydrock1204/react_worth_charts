@@ -1,8 +1,19 @@
-import { FC, useState, useEffect, useRef, SetStateAction } from 'react'
+import {
+  FC,
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+  SetStateAction,
+} from 'react'
+import { useNavigate, redirect } from 'react-router-dom'
+import { toast } from 'react-hot-toast'
 
 import { StockPriceData, VolumeData, Point, PointXY } from '../../utils/typing'
 import { fetchData } from '../../api/fetchData'
+import { fetchStockData } from '../../api/fetchStockData'
 import { getTimeStamp } from '../../utils/getTimeStamp'
+import { supabase } from '../../context/supabase'
 
 import RemoveSvg from '../../assets/icons/Remove.png'
 import {
@@ -33,12 +44,15 @@ import {
   SettingsSvg,
   IndicatorsSvg,
 } from '../../assets/icons'
+import { useAuthContext } from '../../context/authContext'
 
 import { rawData2, rawData1, rawData3 } from './rawData'
 
 import { ChartComponent } from '../../components/chartview'
 
 const Chart: FC = () => {
+  const navigate = useNavigate()
+
   const [data, setData] = useState<StockPriceData[]>([])
   const [tempData, setTempData] = useState<any | null>(null)
   const [startPoint, setStartPoint] = useState<Point | null>(null)
@@ -60,68 +74,145 @@ const Chart: FC = () => {
   const [symbol, setSymbol] = useState('AAPL')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [interval, setInterval] = useState('60min')
+  // const [exportLines, setExportLines] = useState([])
+  const [save, setSave] = useState<boolean>(false)
+  const { session, user, signOutHandler } = useAuthContext()
 
   const handleTemplePoint = (point: Point) => {
-    console.log('point: ', point)
+    // console.log('point: ', point)
 
     setTempPoint(point)
+  }
+
+  const onSaveLines = () => {
+    if (!save) setSave(true)
+  }
+
+  const handleExportData = async exportLines => {
+    if (!session && signOutHandler) {
+      toast('session is expired!')
+      signOutHandler()
+      return
+    }
+
+    let { data: savedData, error: savedDataError } = await supabase
+      .from('linedata')
+      .select('id')
+      .eq('user_id', user?.id)
+      .eq('interval', interval)
+      .eq('symbol', symbol)
+      .limit(1)
+      .select()
+
+    console.log('data: ', savedData, 'error: ', savedDataError)
+    if (savedData && savedData.length > 0) {
+      console.log('exportlines: ', exportLines)
+      let { data, error } = await supabase
+        .from('linedata')
+        .update({ linedata: exportLines })
+        .eq('id', savedData[0].id)
+        .select()
+      console.log('update res:', data, error)
+    } else if (savedData && savedData.length == 0) {
+      await supabase
+        .from('linedata')
+        .insert([
+          { user_id: user?.id, symbol, interval, linedata: exportLines },
+        ])
+    }
+
+    // setExportLines(exportLines)
+    setSave(false)
+  }
+
+  const onLoadLines = async () => {
+    await loadLineData(symbol, interval)
   }
 
   const handleCrosshairMove = (time: number) => {
     // const Index
     // console.log('O H L C', tempData.get(time))
   }
+
+  const loadLineData = async (symbol: string, interval: string) => {
+    if (!user) return navigate('/auth/login')
+    let { data, error } = await supabase
+      .from('linedata')
+      .select('linedata')
+      .eq('user_id', user.id)
+      .eq('interval', interval)
+      .eq('symbol', symbol)
+      .limit(1)
+      .select()
+
+    if (data && data.length > 0) {
+      let lineDataArray = JSON.parse(data[0].linedata)
+      console.log(lineDataArray)
+      lineDataArray.map(lineData => {
+        switch (lineData.toolType) {
+          case 'Rectangle':
+            setRectanglePoints({
+              point1: lineData.points[0],
+              point2: lineData.points[1],
+            })
+            break
+          case 'Circle':
+            setCirclePoints({
+              point1: lineData.points[0],
+              point2: lineData.points[1],
+            })
+            break
+          case 'Callout':
+            setCalloutPoint({
+              point1: lineData.points[0],
+              point2: lineData.points[1],
+            })
+            break
+          case 'Text':
+            setLabelPoint(lineData.points[0])
+            break
+          case 'TrendLine':
+            setTrendPoints({
+              point1: lineData.points[0],
+              point2: lineData.points[1],
+            })
+            break
+        }
+      })
+      // setExportLines(JSON.parse(lineDataArray))
+    }
+  }
+
   useEffect(() => {
-    // fetchData(symbol, interval).then(value => {
-    //   console.log(value)
-    const Data = Object.entries(rawData3)
-      .map(data => {
-        let stockData = {
-          time: getTimeStamp(data[0]),
-          open: Number(data[1]['1. open']),
-          high: Number(data[1]['2. high']),
-          low: Number(data[1]['3. low']),
-          close: Number(data[1]['4. close']),
-        }
-        return stockData
-      })
-      .reverse()
-    setData(Data)
-    const timeData = Data.map(data => {
-      return [
-        data.time,
-        { open: data.open, close: data.close, high: data.high, low: data.low },
-      ]
-    })
-    // console.log(timeData)
-    const tempDataArray = new Map(timeData)
-    setTempData(tempDataArray)
+    const fetchWrapper = async () => {
+      const { stockDataSeries, tempDataArray, Volume } = await fetchStockData(
+        symbol,
+        interval
+      )
+      setData(stockDataSeries)
+      setTempData(tempDataArray)
+      setVolume(Volume)
+    }
 
-    let start = Math.floor(Data.length / 2)
-    let startTime = Data[start].time
-    let startPrice = Data[start].low
-    let startPoint = { price: startPrice, timestamp: startTime }
-
-    setStartPoint(startPoint)
-
-    const Volume = Object.entries(rawData3)
-      .map((data, index) => {
-        let volumeData = {
-          time: getTimeStamp(data[0]),
-          value: Number(data[1]['5. volume']),
-          color: index % 2 === 0 ? '#26a69a' : '#ef5350',
-        }
-        // console.log(volumeData)
-        return volumeData
-      })
-      .reverse()
-    // console.log(Volume)
-    setVolume(Volume)
-    // })
+    fetchWrapper().catch(e => console.log(e))
   }, [])
 
   useEffect(() => {
-    console.log('tempPoint', tempPoint, 'editClickCounts', editClickCounts)
+    const fetchWrapper = async () => {
+      const { stockDataSeries, tempDataArray, Volume } = await fetchStockData(
+        symbol,
+        interval
+      )
+      setData(stockDataSeries)
+      setTempData(tempDataArray)
+      setVolume(Volume)
+    }
+
+    fetchWrapper().catch(e => console.log(e))
+  }, [symbol, interval])
+
+  useEffect(() => {
+    // console.log('tempPoint', tempPoint, 'editClickCounts', editClickCounts)
     switch (editType) {
       case 'trendline':
         if (editClickCounts == 0) {
@@ -224,7 +315,7 @@ const Chart: FC = () => {
                 src={CompareSvg}
                 alt="compare"
                 className="flex p-2 cursor-pointer hover:bg-gray5 border-r-2 border-b-gray-800"
-                // onClick={fetchSeriesData}
+                // onClick={() => setSymbol(symbol)}
               />
             </div>
           </div>
@@ -251,11 +342,11 @@ const Chart: FC = () => {
             </button>
             <button
               className={
-                interval == '1h'
+                interval == '60min'
                   ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
                   : 'w-[40px] cursor-pointer hover:bg-gray5'
               }
-              onClick={() => setInterval('1h')}
+              onClick={() => setInterval('60min')}
             >
               1h
             </button>
@@ -287,6 +378,18 @@ const Chart: FC = () => {
               src={IndicatorsSvg}
               className="cursor-pointer hover:bg-gray5"
             />
+            <button
+              className="ml-8 w-16 bg-color-brand-green rounded-md text-white"
+              onClick={onSaveLines}
+            >
+              Save
+            </button>
+            <button
+              className="ml-8 w-16 bg-gray3 rounded-md text-white"
+              onClick={onLoadLines}
+            >
+              Load
+            </button>
           </div>
         </div>
         <div className="h-[40px] bg-transparent" />
@@ -386,6 +489,8 @@ const Chart: FC = () => {
         magnet={magnet}
         handleTemplePoint={handleTemplePoint}
         handleCrosshairMove={handleCrosshairMove}
+        save={save}
+        handleExportData={handleExportData}
       />
       {/* <ReactModal isOpen={isModalOpen}>
         <p>Select the Symbol</p>

@@ -38,6 +38,8 @@ export const ChartComponent = (props: any) => {
     handleTemplePoint,
     magnet,
     handleCrosshairMove,
+    save,
+    handleExportData,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -77,13 +79,13 @@ export const ChartComponent = (props: any) => {
     // )
   }
 
-  function myVisibleLogicalRangeChangeHandler(newVisibleLogicalRange: any) {
+  const myVisibleLogicalRangeChangeHandler = (newVisibleLogicalRange: any) => {
     if (newVisibleLogicalRange === null) {
       // handle null
       return
     }
     // console.log(Math.floor(newVisibleLogicalRange.from))
-    console.log(chart.current?.timeScale().getVisibleLogicalRange())
+    // console.log(chart.current?.timeScale().getVisibleLogicalRange())
     // handle new logical range
   }
 
@@ -92,6 +94,13 @@ export const ChartComponent = (props: any) => {
       // width: chartContainerRef.current?.clientWidth,
     })
   }
+
+  useEffect(() => {
+    if (save) {
+      const lineData = chart.current?.exportLineTools()
+      handleExportData(lineData)
+    }
+  }, [save])
 
   useEffect(() => {
     let options = chart.current?.options()
@@ -148,13 +157,13 @@ export const ChartComponent = (props: any) => {
 
     volumeSeries.setData(volume)
 
-    // chart.current.timeScale().fitContent()
-    chart.current.timeScale().setVisibleLogicalRange({
-      //   from: new Date('2024-06-01').getTime() / 1000,
-      //   to: new Date('2024-06-06').getTime() / 1000,
-      from: 30,
-      to: 60,
-    })
+    chart.current.timeScale().fitContent()
+    // chart.current.timeScale().setVisibleLogicalRange({
+    //   from: new Date('2024-06-01').getTime() / 1000,
+    //   to: new Date('2024-06-06').getTime() / 1000,
+    //   from: 30,
+    //   to: 60,
+    // })
 
     chart.current?.subscribeClick(getPointInformation)
     chart.current?.subscribeCrosshairMove(myCrosshairMoveHandler)
@@ -347,13 +356,13 @@ export const ChartComponent = (props: any) => {
   }, [priceRangePoint])
 
   useEffect(() => {
-    console.log(chart.current?.timeScale().options())
-    console.log(chart.current?.getSelectedLineTools())
-    calloutPointLineSeries?.applyOptions({
-      text: {
-        value: 'hello callout',
-      },
-    })
+    // console.log(chart.current?.timeScale().options())
+    // console.log(chart.current?.getSelectedLineTools())
+    // calloutPointLineSeries?.applyOptions({
+    //   text: {
+    //     value: 'hello callout',
+    //   },
+    // })
     chart.current?.removeSelectedLineTools()
   }, [selectDelete])
 
