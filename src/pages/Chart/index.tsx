@@ -132,7 +132,10 @@ const Chart: FC = () => {
 
   const handleCrosshairMove = (time: number) => {
     console.log('O H L C', tempData.get(time))
-    setHoverData(tempData.get(time))
+    if (tempData.get(time)) {
+      // console.log('!!!')
+      setHoverData(tempData.get(time))
+    }
   }
 
   const loadLineData = async (symbol: string, interval: string) => {
