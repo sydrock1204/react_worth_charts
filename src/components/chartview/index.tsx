@@ -360,7 +360,7 @@ export const ChartComponent = (props: any) => {
 
   useEffect(() => {
     // console.log(chart.current?.timeScale().options())
-    // console.log(chart.current?.getSelectedLineTools())
+    console.log(chart.current?.getSelectedLineTools())
     // calloutPointLineSeries?.applyOptions({
     //   text: {
     //     value: 'hello callout',

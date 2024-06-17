@@ -15,6 +15,7 @@ import Contact from './pages/Contact'
 import ProtectedRoute from './components/navigation/ProtectedRoute.tsx'
 import GuestRoute from './components/navigation/GuestRoute.tsx'
 import WorthAuth from './pages/Auth/signin.tsx'
+import SignUp from './pages/Auth/signup.tsx'
 
 const router = createBrowserRouter([
   {
@@ -52,9 +53,12 @@ const router = createBrowserRouter([
     element: <GuestRoute />,
     children: [
       {
-        index: true,
         path: 'login',
         element: <WorthAuth />,
+      },
+      {
+        path: '/auth/signup',
+        element: <SignUp />,
       },
     ],
   },

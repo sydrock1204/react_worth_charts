@@ -30,3 +30,12 @@ export interface UserInfo {
   role: string
   fullname: string
 }
+
+export interface HoverInfo {
+  index: number
+  open: number
+  close: number
+  high: number
+  low: number
+  volume: number
+}

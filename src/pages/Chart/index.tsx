@@ -1,18 +1,15 @@
-import {
-  FC,
-  useState,
-  useEffect,
-  useContext,
-  useRef,
-  SetStateAction,
-} from 'react'
-import { useNavigate, redirect } from 'react-router-dom'
+import { FC, useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 
-import { StockPriceData, VolumeData, Point, PointXY } from '../../utils/typing'
-import { fetchData } from '../../api/fetchData'
+import {
+  StockPriceData,
+  VolumeData,
+  Point,
+  PointXY,
+  HoverInfo,
+} from '../../utils/typing'
 import { fetchStockData } from '../../api/fetchStockData'
-import { getTimeStamp } from '../../utils/getTimeStamp'
 import { supabase } from '../../context/supabase'
 
 import RemoveSvg from '../../assets/icons/Remove.png'
@@ -46,8 +43,6 @@ import {
 } from '../../assets/icons'
 import { useAuthContext } from '../../context/authContext'
 
-import { rawData2, rawData1, rawData3 } from './rawData'
-
 import { ChartComponent } from '../../components/chartview'
 
 const Chart: FC = () => {
@@ -77,6 +72,15 @@ const Chart: FC = () => {
   // const [exportLines, setExportLines] = useState([])
   const [save, setSave] = useState<boolean>(false)
   const { session, user, signOutHandler } = useAuthContext()
+  const [isVisibleDaily, setIsVisibleDaily] = useState<boolean>(false)
+  const [hoverData, setHoverData] = useState<HoverInfo>({
+    index: 0,
+    open: 0,
+    close: 0,
+    high: 0,
+    low: 0,
+    volume: 0,
+  })
 
   const handleTemplePoint = (point: Point) => {
     // console.log('point: ', point)
@@ -104,15 +108,12 @@ const Chart: FC = () => {
       .limit(1)
       .select()
 
-    console.log('data: ', savedData, 'error: ', savedDataError)
     if (savedData && savedData.length > 0) {
-      console.log('exportlines: ', exportLines)
       const { data, error } = await supabase
         .from('linedata')
         .update({ linedata: exportLines })
         .eq('id', savedData[0].id)
         .select()
-      console.log('update res:', data, error)
     } else if (savedData && savedData.length == 0) {
       await supabase
         .from('linedata')
@@ -130,12 +131,15 @@ const Chart: FC = () => {
   }
 
   const handleCrosshairMove = (time: number) => {
-    // const Index
-    // console.log('O H L C', tempData.get(time))
+    console.log('O H L C', tempData.get(time))
+    setHoverData(tempData.get(time))
   }
 
   const loadLineData = async (symbol: string, interval: string) => {
-    if (!user) { navigate('/auth/login'); return; }
+    if (!user) {
+      navigate('/auth/login')
+      return
+    }
     const { data, error } = await supabase
       .from('linedata')
       .select('linedata')
@@ -147,8 +151,8 @@ const Chart: FC = () => {
 
     if (data && data.length > 0) {
       const lineDataArray = JSON.parse(data[0].linedata)
-      console.log(lineDataArray)
       lineDataArray.map(lineData => {
+        console.log(lineData)
         switch (lineData.toolType) {
           case 'Rectangle':
             setRectanglePoints({
@@ -177,6 +181,18 @@ const Chart: FC = () => {
               point2: lineData.points[1],
             })
             break
+          case 'PriceRange':
+            setPriceRangePoint({
+              point1: lineData.point[0],
+              point2: lineData.point[1],
+            })
+            break
+          case 'HorizontalLine':
+            setHorizontalPoint(lineData.points[0])
+            break
+          case 'VerticalLine':
+            setVerticalPoint(lineData.points[0])
+            break
         }
       })
       // setExportLines(JSON.parse(lineDataArray))
@@ -194,7 +210,9 @@ const Chart: FC = () => {
       setVolume(Volume)
     }
 
-    fetchWrapper().catch(e => { console.log(e); })
+    fetchWrapper().catch(e => {
+      console.log(e)
+    })
   }, [])
 
   useEffect(() => {
@@ -208,7 +226,9 @@ const Chart: FC = () => {
       setVolume(Volume)
     }
 
-    fetchWrapper().catch(e => { console.log(e); })
+    fetchWrapper().catch(e => {
+      console.log(e)
+    })
   }, [symbol, interval])
 
   useEffect(() => {
@@ -326,7 +346,9 @@ const Chart: FC = () => {
                   ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
                   : 'w-[40px] cursor-pointer hover:bg-gray5'
               }
-              onClick={() => { setInterval('1min'); }}
+              onClick={() => {
+                setInterval('1min')
+              }}
             >
               1m
             </button>
@@ -336,7 +358,9 @@ const Chart: FC = () => {
                   ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
                   : 'w-[40px] cursor-pointer hover:bg-gray5'
               }
-              onClick={() => { setInterval('30min'); }}
+              onClick={() => {
+                setInterval('30min')
+              }}
             >
               30m
             </button>
@@ -346,21 +370,59 @@ const Chart: FC = () => {
                   ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
                   : 'w-[40px] cursor-pointer hover:bg-gray5'
               }
-              onClick={() => { setInterval('60min'); }}
+              onClick={() => {
+                setInterval('60min')
+              }}
             >
               1h
             </button>
-            <button
+            <p
               className={
-                interval == 'D'
-                  ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
-                  : 'w-[40px] cursor-pointer hover:bg-gray5'
+                ['daily', 'weekly', 'monthly'].includes(interval)
+                  ? 'flex justify-center items-center w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
+                  : 'flex justify-center items-center w-[40px] cursor-pointer hover:bg-gray5'
               }
-              onClick={() => { setInterval('D'); }}
             >
-              D
-            </button>
-            <img src={IntervalSvg} className="cursor-pointer hover:bg-gray5" />
+              {['daily', 'weekly', 'monthly'].includes(interval)
+                ? interval.slice(0, 1).toUpperCase()
+                : 'D'}
+            </p>
+            <img
+              src={IntervalSvg}
+              className="cursor-pointer hover:bg-gray5"
+              onClick={() => setIsVisibleDaily(!isVisibleDaily)}
+            />
+            {isVisibleDaily && (
+              <div className="flex flex-col absolute top-12 gap-1 left-[340px]">
+                <button
+                  className="w-24 bg-color-brand-green text-red-600 rounded-md"
+                  onClick={() => {
+                    setInterval('daily')
+                    setIsVisibleDaily(!isVisibleDaily)
+                  }}
+                >
+                  Daily
+                </button>
+                <button
+                  className="w-24 bg-color-brand-green text-red-600 rounded-md"
+                  onClick={() => {
+                    setInterval('weekly')
+                    setIsVisibleDaily(!isVisibleDaily)
+                  }}
+                >
+                  Weekly
+                </button>
+                <button
+                  className="w-24 bg-color-brand-green text-red-600 rounded-md"
+                  onClick={() => {
+                    setInterval('monthly')
+                    setIsVisibleDaily(!isVisibleDaily)
+                  }}
+                >
+                  Monthly
+                </button>
+              </div>
+            )}
             <div className="w-2 border-r-2 border-b-gray-800" />
             <img
               src={StickSvg}
@@ -392,7 +454,18 @@ const Chart: FC = () => {
             </button>
           </div>
         </div>
-        <div className="h-[40px] bg-transparent" />
+        <div className="flex flex-row h-[40px] bg-transparent">
+          <p>{`Open: `}</p>
+          <span className="text-red-700">{hoverData.open}&nbsp;</span>
+          <p>{`Close: `}</p>
+          <span className="text-red-700">{hoverData.close}&nbsp;</span>
+          <p>{`High: `}</p>
+          <span className="text-red-700">{hoverData.high}&nbsp;</span>
+          <p>{`Low: `}</p>
+          <span className="text-red-700">{hoverData.low}&nbsp;</span>
+          <p>{`Volume: `}</p>
+          <span className="text-red-700">{hoverData.volume}&nbsp;</span>
+        </div>
       </div>
       <div className="absolute z-20 flex flex-col w-[61px] h-[640px]  bg-white top-[40px] pt-10 pb-4 px-2 gap-4">
         <img
@@ -400,61 +473,79 @@ const Chart: FC = () => {
           alt="Text"
           width={50}
           className="cursor-pointer"
-          onClick={() => { setEditType('arrow'); }}
+          onClick={() => {
+            setEditType('arrow')
+          }}
         />
         <img
           src={editType == 'label' ? TextSelectedSvg : TextSvg}
           alt="Text"
           width={30}
           className="ml-2 cursor-pointer"
-          onClick={() => { setEditType('label'); }}
+          onClick={() => {
+            setEditType('label')
+          }}
         />
         <img
           src={editType == 'circle' ? CircleSelectedSvg : CircleSvg}
           alt="Circle"
           width={50}
-          onClick={() => { setEditType('circle'); }}
+          onClick={() => {
+            setEditType('circle')
+          }}
           className="cursor-pointer"
         />
         <img
           src={editType == 'vertical' ? VerticalSelectedSvg : VerticalSvg}
           alt="Vertical"
-          onClick={() => { setEditType('vertical'); }}
+          onClick={() => {
+            setEditType('vertical')
+          }}
           className="cursor-pointer"
         />
         <img
           src={editType == 'trendline' ? TrendSelectedSvg : TrendSvg}
           alt="Trend"
           width={50}
-          onClick={() => { setEditType('trendline'); }}
+          onClick={() => {
+            setEditType('trendline')
+          }}
           className="cursor-pointer"
         />
         <img
           src={editType == 'horizontal' ? HorizontalSelectedSvg : HorizontalSvg}
           alt="Horizontal"
           width={50}
-          onClick={() => { setEditType('horizontal'); }}
+          onClick={() => {
+            setEditType('horizontal')
+          }}
           className="cursor-pointer"
         />
         <img
           src={editType == 'rectangle' ? RectangleSelectedSvg : RectangleSvg}
           alt="Rectangle"
           width={50}
-          onClick={() => { setEditType('rectangle'); }}
+          onClick={() => {
+            setEditType('rectangle')
+          }}
           className="cursor-pointer"
         />
         <img
           src={editType == 'callout' ? CalloutSelectedSvg : CalloutSvg}
           alt="Callout"
           width={50}
-          onClick={() => { setEditType('callout'); }}
+          onClick={() => {
+            setEditType('callout')
+          }}
           className="cursor-pointer"
         />
         <img
           src={editType == 'pricerange' ? PriceRangeSelectedSvg : PriceRangeSvg}
           alt="priceRange"
           width={50}
-          onClick={() => { setEditType('pricerange'); }}
+          onClick={() => {
+            setEditType('pricerange')
+          }}
           className="cursor-pointer"
         />
         <img
@@ -462,7 +553,9 @@ const Chart: FC = () => {
           alt="magnet"
           width={50}
           className="cursor-pointer"
-          onClick={() => { setMagnet(!magnet); }}
+          onClick={() => {
+            setMagnet(!magnet)
+          }}
         />
         <img
           src={RemoveSvg}
@@ -492,9 +585,6 @@ const Chart: FC = () => {
         save={save}
         handleExportData={handleExportData}
       />
-      {/* <ReactModal isOpen={isModalOpen}>
-        <p>Select the Symbol</p>
-      </ReactModal> */}
     </div>
   )
 }

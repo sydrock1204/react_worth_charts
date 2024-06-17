@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react'
-import { useNavigate, redirect } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 
 import { useAuthContext } from '../../context/authContext'
 import { BaseInput } from '../../components/common/BaseInput'
@@ -36,7 +36,6 @@ export default function WorthAuth() {
           setPassword(e.target.value)
         }}
       />
-
       <button
         className=" bg-red-600 rounded-md p-3 mt-4 text-white"
         onClick={() => {
@@ -49,6 +48,10 @@ export default function WorthAuth() {
       >
         LogIn
       </button>
+      <div className="flex flex-row mt-2">
+        <p>Don't you have account?</p>
+        <Link to="/auth/signup">SignUp</Link>
+      </div>
     </div>
   )
   // }

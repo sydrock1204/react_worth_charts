@@ -9,6 +9,7 @@ interface AuthContextProps {
   user: User | null
   userInfo: UserInfo
   users: UserInfo[]
+  signUpHandler: null | ((e: string, p: string) => {})
   signInHandler: null | ((e: string, p: string) => void)
   signOutHandler: null | (() => void)
   loadUsers: () => void
@@ -22,6 +23,7 @@ export const AuthContext = createContext<AuthContextProps>({
   signInHandler: (e: string, p: string) => {},
   signOutHandler: () => {},
   loadUsers: () => {},
+  signUpHandler: (e: string, p: string) => null,
 })
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -36,7 +38,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       email: email,
       password: password,
     })
-    console.log('signInHandler', data)
     if (!data.user) {
       return
     }
@@ -52,6 +53,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(null)
     setSession(null)
     setUserInfo({} as UserInfo)
+  }
+
+  const signUpHandler = async (email: string, password: string) => {
+    // console.log('email: ', email, 'string: ', password)
+    const { error } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+    })
+
+    return error
+    console.log(error)
   }
 
   const loadUsers = async () => {
@@ -74,6 +86,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         signInHandler,
         signOutHandler,
         loadUsers,
+        signUpHandler,
       }}
     >
       {children}
