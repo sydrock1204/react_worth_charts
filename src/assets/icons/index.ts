@@ -45,6 +45,7 @@ import IntervalSvg from './interval.svg'
 import StickSvg from './stick.svg'
 import SettingsSvg from './settings.svg'
 import IndicatorsSvg from './indicators.svg'
+import CandleSvg from './candle.svg'
 
 export {
   IconCalendarStats,
@@ -93,5 +94,6 @@ export {
   IntervalSvg,
   StickSvg,
   SettingsSvg,
-  IndicatorsSvg
+  IndicatorsSvg,
+  CandleSvg,
 }

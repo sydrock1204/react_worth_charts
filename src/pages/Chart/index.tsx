@@ -10,6 +10,7 @@ import {
   HoverInfo,
 } from '../../utils/typing'
 import { fetchStockData } from '../../api/fetchStockData'
+import { fetchCompanyData } from '../../api/fetchCompanyData'
 import { supabase } from '../../context/supabase'
 
 import RemoveSvg from '../../assets/icons/Remove.png'
@@ -40,6 +41,7 @@ import {
   StickSvg,
   SettingsSvg,
   IndicatorsSvg,
+  CandleSvg,
 } from '../../assets/icons'
 import { useAuthContext } from '../../context/authContext'
 
@@ -81,6 +83,9 @@ const Chart: FC = () => {
     low: 0,
     volume: 0,
   })
+  const [companyData, setCompanyData] = useState<string>('')
+  const [hoverTime, setHoverTime] = useState<any>(null)
+  const [lineSeries, setLineSeries] = useState<string>('candlestick')
 
   const handleTemplePoint = (point: Point) => {
     // console.log('point: ', point)
@@ -131,10 +136,27 @@ const Chart: FC = () => {
   }
 
   const handleCrosshairMove = (time: number) => {
-    console.log('O H L C', tempData.get(time))
     if (tempData.get(time)) {
-      // console.log('!!!')
       setHoverData(tempData.get(time))
+
+      const dateObject = new Date(time * 1000)
+
+      // Get year, month (0-indexed), day, hours, minutes
+      const year = dateObject.getFullYear()
+      const month = dateObject.getMonth() + 1 // Add 1 to get actual month
+      const day = dateObject.getDate()
+      const hours = dateObject.getHours()
+      const minutes = dateObject.getMinutes().toString().padStart(2, '0') // Pad minutes with leading 0 if needed
+
+      // Format the AM/PM part
+      const amPm = hours >= 12 ? 'PM' : 'AM'
+
+      // Adjust hours for 12-hour format (if past noon, subtract 12)
+      const adjustedHours = hours % 12 || 12
+
+      setHoverTime(
+        `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${amPm} ${adjustedHours}:${minutes}`
+      )
     }
   }
 
@@ -224,6 +246,9 @@ const Chart: FC = () => {
         symbol,
         interval
       )
+      const companyName = await fetchCompanyData(symbol)
+      // console.log('companyName: ', companyName)
+      setCompanyData(companyName)
       setData(stockDataSeries)
       setTempData(tempDataArray)
       setVolume(Volume)
@@ -309,6 +334,14 @@ const Chart: FC = () => {
 
   const handleOpenModal = () => {
     setIsModalOpen(true)
+  }
+
+  const selectLineStyle = () => {
+    if (lineSeries == 'candlestick') {
+      setLineSeries('bar')
+    } else if (lineSeries == 'bar') {
+      setLineSeries('candlestick')
+    }
   }
 
   const handleCloseModal = () => {
@@ -428,9 +461,10 @@ const Chart: FC = () => {
             )}
             <div className="w-2 border-r-2 border-b-gray-800" />
             <img
-              src={StickSvg}
+              src={lineSeries === 'candlestick' ? CandleSvg : StickSvg}
               alt="stick"
               className="cursor-pointer hover:bg-gray5 mr-4"
+              onClick={selectLineStyle}
             />
             <img
               src={SettingsSvg}
@@ -457,7 +491,8 @@ const Chart: FC = () => {
             </button>
           </div>
         </div>
-        <div className="flex flex-row h-[40px] bg-transparent">
+        <div className="flex flex-row h-[40px] bg-transparent text-sm">
+          <span>{`${companyData} * ${hoverTime} :`}</span>
           <p>{`Open: `}</p>
           <span className="text-red-700">{hoverData.open}&nbsp;</span>
           <p>{`Close: `}</p>
@@ -587,6 +622,7 @@ const Chart: FC = () => {
         handleCrosshairMove={handleCrosshairMove}
         save={save}
         handleExportData={handleExportData}
+        lineSeries={lineSeries}
       />
     </div>
   )

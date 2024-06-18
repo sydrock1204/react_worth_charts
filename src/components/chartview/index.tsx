@@ -41,6 +41,7 @@ export const ChartComponent = (props: any) => {
     handleCrosshairMove,
     save,
     handleExportData,
+    lineSeries,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -133,10 +134,17 @@ export const ChartComponent = (props: any) => {
       height: 800,
     })
 
-    candleStickSeries.current = chart.current.addCandlestickSeries({
-      upColor: 'green',
-      downColor: 'red',
-    })
+    if (lineSeries == 'candlestick') {
+      candleStickSeries.current = chart.current.addCandlestickSeries({
+        upColor: 'green',
+        downColor: 'red',
+      })
+    } else if (lineSeries == 'bar') {
+      candleStickSeries.current = chart.current.addBarSeries({
+        upColor: 'green',
+        downColor: 'red',
+      })
+    }
     candleStickSeries.current.setData(data)
 
     const volumeSeries = chart.current.addHistogramSeries({
@@ -190,6 +198,7 @@ export const ChartComponent = (props: any) => {
   }, [
     data,
     volume,
+    lineSeries,
     backgroundColor,
     lineColor,
     textColor,
