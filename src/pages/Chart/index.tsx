@@ -1,6 +1,7 @@
 import { FC, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
+import Draggable from 'react-draggable'
 
 import {
   StockPriceData,
@@ -12,6 +13,7 @@ import {
 import { fetchStockData } from '../../api/fetchStockData'
 import { fetchCompanyData } from '../../api/fetchCompanyData'
 import { supabase } from '../../context/supabase'
+import { BaseInput } from '../../components/common/BaseInput'
 
 import RemoveSvg from '../../assets/icons/Remove.png'
 import {
@@ -71,7 +73,7 @@ const Chart: FC = () => {
   const [symbol, setSymbol] = useState('AAPL')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [interval, setInterval] = useState('60min')
-  // const [exportLines, setExportLines] = useState([])
+  const [importLines, setImportLines] = useState<string>('')
   const [save, setSave] = useState<boolean>(false)
   const { session, user, signOutHandler } = useAuthContext()
   const [isVisibleDaily, setIsVisibleDaily] = useState<boolean>(false)
@@ -86,11 +88,26 @@ const Chart: FC = () => {
   const [companyData, setCompanyData] = useState<string>('')
   const [hoverTime, setHoverTime] = useState<any>(null)
   const [lineSeries, setLineSeries] = useState<string>('candlestick')
+  const [selectedLine, setSelectedLine] = useState<any>(null)
+  const [isLineSelected, setIsLineSelected] = useState<boolean>(false)
+  const [selectedLineText, setSelectedLineText] = useState<string>('')
 
   const handleTemplePoint = (point: Point) => {
     // console.log('point: ', point)
 
     setTempPoint(point)
+  }
+
+  const handleSelectedLine = (line: any) => {
+    console.log('line: ', line)
+    let lineJSON = JSON.parse(line)
+    if (line !== '[]') {
+      setSelectedLine(line)
+      setIsLineSelected(true)
+      setSelectedLineText(lineJSON[0].options.text.value)
+    } else {
+      setIsLineSelected(false)
+    }
   }
 
   const onSaveLines = () => {
@@ -175,53 +192,29 @@ const Chart: FC = () => {
       .select()
 
     if (data && data.length > 0) {
-      const lineDataArray = JSON.parse(data[0].linedata)
-      lineDataArray.map(lineData => {
-        console.log(lineData)
-        switch (lineData.toolType) {
-          case 'Rectangle':
-            setRectanglePoints({
-              point1: lineData.points[0],
-              point2: lineData.points[1],
-            })
-            break
-          case 'Circle':
-            setCirclePoints({
-              point1: lineData.points[0],
-              point2: lineData.points[1],
-            })
-            break
-          case 'Callout':
-            setCalloutPoint({
-              point1: lineData.points[0],
-              point2: lineData.points[1],
-            })
-            break
-          case 'Text':
-            setLabelPoint(lineData.points[0])
-            break
-          case 'TrendLine':
-            setTrendPoints({
-              point1: lineData.points[0],
-              point2: lineData.points[1],
-            })
-            break
-          case 'PriceRange':
-            setPriceRangePoint({
-              point1: lineData.point[0],
-              point2: lineData.point[1],
-            })
-            break
-          case 'HorizontalLine':
-            setHorizontalPoint(lineData.points[0])
-            break
-          case 'VerticalLine':
-            setVerticalPoint(lineData.points[0])
-            break
-        }
-      })
-      // setExportLines(JSON.parse(lineDataArray))
+      console.log('lineData: ', data[0].lineData)
+      setImportLines(data[0].linedata)
     }
+  }
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true)
+  }
+
+  const selectLineStyle = () => {
+    if (lineSeries == 'candlestick') {
+      setLineSeries('bar')
+    } else if (lineSeries == 'bar') {
+      setLineSeries('candlestick')
+    }
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+  }
+
+  const handleChange = event => {
+    setSymbol(event.target.value.toUpperCase())
   }
 
   useEffect(() => {
@@ -331,26 +324,6 @@ const Chart: FC = () => {
         break
     }
   }, [tempPoint])
-
-  const handleOpenModal = () => {
-    setIsModalOpen(true)
-  }
-
-  const selectLineStyle = () => {
-    if (lineSeries == 'candlestick') {
-      setLineSeries('bar')
-    } else if (lineSeries == 'bar') {
-      setLineSeries('candlestick')
-    }
-  }
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-  }
-
-  const handleChange = event => {
-    setSymbol(event.target.value.toUpperCase())
-  }
 
   return (
     <div id="Chart" className="relative flex flex-row">
@@ -623,7 +596,26 @@ const Chart: FC = () => {
         save={save}
         handleExportData={handleExportData}
         lineSeries={lineSeries}
+        importLines={importLines}
+        handleSelectedLine={handleSelectedLine}
+        selectedLine={selectedLine}
+        selectedLineText={selectedLineText}
       />
+      {isLineSelected && (
+        <Draggable defaultPosition={{ x: 550, y: 100 }}>
+          <div className="absolute p-2 z-30 bg-white w-[200px] h-[150px] border border-black rounded-md cursor-pointer">
+            <BaseInput
+              name="text"
+              label="text"
+              placeholder=""
+              value={selectedLineText}
+              handleChange={e => {
+                setSelectedLineText(e.target.value)
+              }}
+            />
+          </div>
+        </Draggable>
+      )}
     </div>
   )
 }

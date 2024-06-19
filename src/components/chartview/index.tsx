@@ -42,6 +42,10 @@ export const ChartComponent = (props: any) => {
     save,
     handleExportData,
     lineSeries,
+    importLines,
+    handleSelectedLine,
+    selectedLine,
+    selectedLineText,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -50,6 +54,8 @@ export const ChartComponent = (props: any) => {
       areaBottomColor = 'rgba(41, 98, 255, 0.28)',
     } = {},
   } = props
+
+  // chart.current.addLineSeries()
 
   const chartContainerRef = useRef<IChartApi | null>(null)
   const chart = useRef<IChartApi | null>(null)
@@ -63,6 +69,8 @@ export const ChartComponent = (props: any) => {
     if (!param.point) {
       return
     }
+
+    handleSelectedLine(chart.current?.getSelectedLineTools())
 
     const pointPrice = candleStickSeries.current?.coordinateToPrice(
       param.point.y
@@ -169,13 +177,6 @@ export const ChartComponent = (props: any) => {
     volumeSeries.setData(volume)
 
     chart.current.timeScale().fitContent()
-    // chart.current.timeScale().setVisibleLogicalRange({
-    //   from: new Date('2024-06-01').getTime() / 1000,
-    //   to: new Date('2024-06-06').getTime() / 1000,
-    //   from: 30,
-    //   to: 60,
-    // })
-
     chart.current.subscribeClick(getPointInformation)
     chart.current.subscribeCrosshairMove(myCrosshairMoveHandler)
     chart.current
@@ -205,6 +206,20 @@ export const ChartComponent = (props: any) => {
     areaTopColor,
     areaBottomColor,
   ])
+
+  useEffect(() => {
+    if (selectedLine !== '[]' && selectedLine) {
+      let selectedLineTextJSON = JSON.parse(selectedLine)
+      chart.current.applyLineToolOptions({
+        ...selectedLineTextJSON[0],
+        options: {
+          text: {
+            value: selectedLineText,
+          },
+        },
+      })
+    }
+  }, [selectedLineText])
 
   useEffect(() => {
     if (circlePoint) {
@@ -377,6 +392,11 @@ export const ChartComponent = (props: any) => {
     // })
     chart.current?.removeSelectedLineTools()
   }, [selectDelete])
+
+  useEffect(() => {
+    chart.current?.importLineTools(importLines)
+    chart.current?.timeScale().fitContent()
+  }, [importLines])
 
   return <div ref={chartContainerRef} />
 }
