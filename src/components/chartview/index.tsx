@@ -22,6 +22,8 @@ import { horizontalLineDefaultOption } from './horizontalDefaultOption'
 import { verticalDefaultOption } from './verticalDefaultOption'
 import { calloutDefaultOption } from './calloutDefaultOption'
 import { pricerangeDefaultOption } from './pricerangeDefaultOption'
+import { fetchStockIndicator } from '../../api/fetchStockIndicator'
+import { getTimeStamp } from '../../utils/getTimeStamp'
 
 export const ChartComponent = (props: any) => {
   const {
@@ -46,6 +48,9 @@ export const ChartComponent = (props: any) => {
     handleSelectedLine,
     selectedLine,
     selectedLineText,
+    indicatorArray,
+    symbol,
+    interval,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -206,6 +211,46 @@ export const ChartComponent = (props: any) => {
     areaTopColor,
     areaBottomColor,
   ])
+
+  useEffect(() => {
+    const indicatorLineSeries = chart.current.addLineSeries({
+      color: '#2962FF',
+    })
+
+    const indifunction = indicatorArray[indicatorArray.length - 1]
+
+    const fetchWrapper = async () => {
+      const indicatorSeries = await fetchStockIndicator(
+        indifunction,
+        symbol,
+        interval,
+        20,
+        'high'
+      )
+
+      const indicatorData = Object.entries(indicatorSeries)
+        .map((data, index) => {
+          const indiData = {
+            time: getTimeStamp(data[0]),
+            // value: Number(data[1]['Real Upper Band']),
+            value: Number(data[1][indifunction]),
+          }
+          return indiData
+        })
+        .reverse()
+      console.log('indicatorData: ', indicatorData)
+
+      indicatorLineSeries.setData(indicatorData)
+    }
+
+    fetchWrapper().catch(e => {
+      console.log(e)
+    })
+    // console.log(
+    //   'last index indicator: ',
+    //   indicatorArray[indicatorArray.length - 1]
+    // )
+  }, [indicatorArray])
 
   useEffect(() => {
     if (selectedLine !== '[]' && selectedLine) {
@@ -384,6 +429,7 @@ export const ChartComponent = (props: any) => {
 
   useEffect(() => {
     // console.log(chart.current?.timeScale().options())
+    console.log(chart.current.options())
     console.log(chart.current?.getSelectedLineTools())
     // calloutPointLineSeries?.applyOptions({
     //   text: {

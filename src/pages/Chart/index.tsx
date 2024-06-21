@@ -91,6 +91,8 @@ const Chart: FC = () => {
   const [selectedLine, setSelectedLine] = useState<any>(null)
   const [isLineSelected, setIsLineSelected] = useState<boolean>(false)
   const [selectedLineText, setSelectedLineText] = useState<string>('')
+  const [isVisibleIndicator, setIsVisibleIndicator] = useState<boolean>(false)
+  const [indicatorArray, setIndicatorArray] = useState<string[]>([])
 
   const handleTemplePoint = (point: Point) => {
     // console.log('point: ', point)
@@ -449,7 +451,33 @@ const Chart: FC = () => {
             <img
               src={IndicatorsSvg}
               className="cursor-pointer hover:bg-gray5"
+              onClick={() => {
+                setIsVisibleIndicator(!isVisibleIndicator)
+              }}
             />
+            {isVisibleIndicator && (
+              <div className="flex flex-col absolute top-12 gap-1 left-[520px]">
+                <button
+                  className="w-24 bg-color-brand-green text-red-600 rounded-md"
+                  onClick={() => {
+                    setIndicatorArray([...indicatorArray, 'SMA'])
+                    setIsVisibleIndicator(!isVisibleIndicator)
+                  }}
+                >
+                  SMA
+                </button>
+                <button
+                  className="w-24 bg-color-brand-green text-red-600 rounded-md"
+                  onClick={() => {
+                    setIndicatorArray([...indicatorArray, 'BBANDS'])
+                    setIsVisibleIndicator(!isVisibleIndicator)
+                  }}
+                >
+                  BBANDS
+                </button>
+              </div>
+            )}
+
             <button
               className="ml-8 w-16 bg-color-brand-green rounded-md text-white"
               onClick={onSaveLines}
@@ -600,6 +628,9 @@ const Chart: FC = () => {
         handleSelectedLine={handleSelectedLine}
         selectedLine={selectedLine}
         selectedLineText={selectedLineText}
+        indicatorArray={indicatorArray}
+        symbol={symbol}
+        interval={interval}
       />
       {isLineSelected && (
         <Draggable defaultPosition={{ x: 550, y: 100 }}>

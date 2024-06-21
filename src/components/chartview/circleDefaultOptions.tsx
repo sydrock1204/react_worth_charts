@@ -6,7 +6,7 @@ import {
 
 export const circleDefaultOption = {
   text: {
-    value: 'circle text',
+    value: '',
     alignment: TextAlignment.Center,
     font: {
       color: 'rgba(255,255,255,1)',
