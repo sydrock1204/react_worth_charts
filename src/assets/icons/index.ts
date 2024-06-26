@@ -46,6 +46,11 @@ import StickSvg from './stick.svg'
 import SettingsSvg from './settings.svg'
 import IndicatorsSvg from './indicators.svg'
 import CandleSvg from './candle.svg'
+import ThumbSvg from './thumb.svg'
+import OpenListSvg from './openlist.svg'
+import CloseListSvg from './closelist.svg'
+import CloseSvg from './close.svg'
+import RecycleBinSvg from './recycleBin.svg'
 
 export {
   IconCalendarStats,
@@ -96,4 +101,9 @@ export {
   SettingsSvg,
   IndicatorsSvg,
   CandleSvg,
+  ThumbSvg,
+  OpenListSvg,
+  CloseListSvg,
+  CloseSvg,
+  RecycleBinSvg,
 }

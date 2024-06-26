@@ -6,7 +6,7 @@ import {
 
 export const trendlineDefaultOption = {
   text: {
-    value: 'TrendLine with box',
+    value: '',
     alignment: TextAlignment.Left,
     font: {
       color: 'rgba(255,255,255,1)',

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import Select, { MultiValue, StylesConfig } from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 
-interface Option {
+export interface Option {
   value: string
   label: string
 }
@@ -23,7 +23,7 @@ interface Props {
   isMulti?: boolean | false
   setFieldValue: (
     field: string,
-    value: string | number | File | null | MultiValue<unknown>,
+    value: string | number | File | null | MultiValue<unknown>
   ) => void
 }
 export const BaseSelect: FC<Props> = ({
@@ -41,7 +41,7 @@ export const BaseSelect: FC<Props> = ({
 }) => {
   const { t } = useTranslation()
 
-  const translatedOptions = options?.map((option) => ({
+  const translatedOptions = options?.map(option => ({
     ...option,
     label: translation ? t(`common:${option.label}`) : option.label,
   }))
@@ -53,7 +53,7 @@ export const BaseSelect: FC<Props> = ({
       backgroundColor: 'white',
       zIndex: 98, // also ensuring z-index here as a safety
     }),
-    clearIndicator: (provided) => ({
+    clearIndicator: provided => ({
       ...provided,
       zIndex: 99,
     }),
@@ -90,9 +90,9 @@ export const BaseSelect: FC<Props> = ({
     if (Array.isArray(value)) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      return options.filter((option) => value.includes(option.value))
+      return options.filter(option => value.includes(option.value))
     } else {
-      return options.find((option) => option.value === value) || null
+      return options.find(option => option.value === value) || null
     }
   }
 
@@ -107,7 +107,7 @@ export const BaseSelect: FC<Props> = ({
         <CreatableSelect
           isMulti
           placeholder={placeholder}
-          onChange={(option) => {
+          onChange={option => {
             setFieldValue && setFieldValue(name, option)
           }}
         />
@@ -120,7 +120,7 @@ export const BaseSelect: FC<Props> = ({
           placeholder={placeholder}
           options={translatedOptions}
           value={translatedOptions && setValues(translatedOptions, value)}
-          onChange={(option) => {
+          onChange={option => {
             setFieldValue(name, option ? option.value : null)
           }}
         />

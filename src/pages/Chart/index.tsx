@@ -14,6 +14,7 @@ import { fetchStockData } from '../../api/fetchStockData'
 import { fetchCompanyData } from '../../api/fetchCompanyData'
 import { supabase } from '../../context/supabase'
 import { BaseInput } from '../../components/common/BaseInput'
+import { WatchList } from './watchList'
 
 import RemoveSvg from '../../assets/icons/Remove.png'
 import {
@@ -44,6 +45,9 @@ import {
   SettingsSvg,
   IndicatorsSvg,
   CandleSvg,
+  ThumbSvg,
+  OpenListSvg,
+  CloseListSvg,
 } from '../../assets/icons'
 import { useAuthContext } from '../../context/authContext'
 
@@ -75,7 +79,7 @@ const Chart: FC = () => {
   const [interval, setInterval] = useState('60min')
   const [importLines, setImportLines] = useState<string>('')
   const [save, setSave] = useState<boolean>(false)
-  const { session, user, signOutHandler } = useAuthContext()
+  const { session, user, signOutHandler, userInfo } = useAuthContext()
   const [isVisibleDaily, setIsVisibleDaily] = useState<boolean>(false)
   const [hoverData, setHoverData] = useState<HoverInfo>({
     index: 0,
@@ -93,6 +97,8 @@ const Chart: FC = () => {
   const [selectedLineText, setSelectedLineText] = useState<string>('')
   const [isVisibleIndicator, setIsVisibleIndicator] = useState<boolean>(false)
   const [indicatorArray, setIndicatorArray] = useState<string[]>([])
+
+  const indicators = ['RSI', 'SMA', 'EMA', 'WMA', 'ADX']
 
   const handleTemplePoint = (point: Point) => {
     // console.log('point: ', point)
@@ -155,7 +161,7 @@ const Chart: FC = () => {
   }
 
   const handleCrosshairMove = (time: number) => {
-    if (tempData.get(time)) {
+    if (tempData && tempData.get(time)) {
       setHoverData(tempData.get(time))
 
       const dateObject = new Date(time * 1000)
@@ -406,7 +412,7 @@ const Chart: FC = () => {
             {isVisibleDaily && (
               <div className="flex flex-col absolute top-12 gap-1 left-[340px]">
                 <button
-                  className="w-24 bg-color-brand-green text-red-600 rounded-md"
+                  className="w-24 bg-[#f9f9f9] text-red-600 rounded-md"
                   onClick={() => {
                     setInterval('daily')
                     setIsVisibleDaily(!isVisibleDaily)
@@ -415,7 +421,7 @@ const Chart: FC = () => {
                   Daily
                 </button>
                 <button
-                  className="w-24 bg-color-brand-green text-red-600 rounded-md"
+                  className="w-24 bg-[#f9f9f9] text-red-600 rounded-md"
                   onClick={() => {
                     setInterval('weekly')
                     setIsVisibleDaily(!isVisibleDaily)
@@ -424,7 +430,7 @@ const Chart: FC = () => {
                   Weekly
                 </button>
                 <button
-                  className="w-24 bg-color-brand-green text-red-600 rounded-md"
+                  className="w-24 bg-[#f9f9f9] text-red-600 rounded-md"
                   onClick={() => {
                     setInterval('monthly')
                     setIsVisibleDaily(!isVisibleDaily)
@@ -457,7 +463,35 @@ const Chart: FC = () => {
             />
             {isVisibleIndicator && (
               <div className="flex flex-col absolute top-12 gap-1 left-[520px]">
-                <button
+                {indicators.map((value, index) => {
+                  const buttonColor = indicatorArray.includes(value)
+                    ? 'bg-gray4'
+                    : `bg-[#f9f9f9]`
+
+                  const indicatorButtonSelect = () => {
+                    let nextIndicatorArray = indicatorArray.includes(value)
+                      ? indicatorArray.filter(e => e != value)
+                      : [...indicatorArray, value]
+                    setIndicatorArray(nextIndicatorArray)
+                    setIsVisibleIndicator(!isVisibleIndicator)
+                  }
+                  // console.log(
+                  //   'buttonColor: ',
+                  //   buttonColor,
+                  //   indicatorArray,
+                  //   indicatorArray.includes(value)
+                  // )
+                  return (
+                    <button
+                      className={`w-24 ${buttonColor} text-red-600 rounded-md`}
+                      onClick={indicatorButtonSelect}
+                      key={index}
+                    >
+                      {value}
+                    </button>
+                  )
+                })}
+                {/* <button
                   className="w-24 bg-color-brand-green text-red-600 rounded-md"
                   onClick={() => {
                     setIndicatorArray([...indicatorArray, 'SMA'])
@@ -469,12 +503,12 @@ const Chart: FC = () => {
                 <button
                   className="w-24 bg-color-brand-green text-red-600 rounded-md"
                   onClick={() => {
-                    setIndicatorArray([...indicatorArray, 'BBANDS'])
+                    setIndicatorArray([...indicatorArray, 'RSI'])
                     setIsVisibleIndicator(!isVisibleIndicator)
                   }}
                 >
-                  BBANDS
-                </button>
+                  RSI
+                </button> */}
               </div>
             )}
 
@@ -647,6 +681,7 @@ const Chart: FC = () => {
           </div>
         </Draggable>
       )}
+      <WatchList />
     </div>
   )
 }

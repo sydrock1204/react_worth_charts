@@ -213,34 +213,38 @@ export const ChartComponent = (props: any) => {
   ])
 
   useEffect(() => {
-    const indicatorLineSeries = chart.current.addLineSeries({
-      color: '#2962FF',
-    })
-
-    const indifunction = indicatorArray[indicatorArray.length - 1]
-
     const fetchWrapper = async () => {
-      const indicatorSeries = await fetchStockIndicator(
-        indifunction,
-        symbol,
-        interval,
-        20,
-        'high'
-      )
-
-      const indicatorData = Object.entries(indicatorSeries)
-        .map((data, index) => {
-          const indiData = {
-            time: getTimeStamp(data[0]),
-            // value: Number(data[1]['Real Upper Band']),
-            value: Number(data[1][indifunction]),
-          }
-          return indiData
+      if (indicatorArray.length > 0) {
+        const indicatorLineSeries = chart.current.addLineSeries({
+          color: '#2962FF',
         })
-        .reverse()
-      console.log('indicatorData: ', indicatorData)
 
-      indicatorLineSeries.setData(indicatorData)
+        console.log('indicatorArray', indicatorArray)
+
+        const indifunction = indicatorArray[indicatorArray.length - 1]
+        const indicatorSeries = await fetchStockIndicator(
+          indifunction,
+          symbol,
+          interval,
+          20,
+          'high'
+        )
+
+        const indicatorData = Object.entries(indicatorSeries)
+          .map((data, index) => {
+            const indiData = {
+              time: getTimeStamp(data[0]),
+              // value: Number(data[1]['Real Upper Band']),
+              value: Number(data[1][indifunction]),
+            }
+            return indiData
+          })
+          .reverse()
+        console.log('indicatorData: ', indicatorData)
+
+        indicatorLineSeries.setData(indicatorData)
+        chart.current.timeScale().fitContent()
+      }
     }
 
     fetchWrapper().catch(e => {
@@ -284,7 +288,7 @@ export const ChartComponent = (props: any) => {
         [trendPoints.point1, trendPoints.point2],
         {
           text: {
-            value: 'TrendLine with box',
+            value: '',
             alignment: TextAlignment.Left,
             font: {
               color: 'rgba(255,255,255,1)',

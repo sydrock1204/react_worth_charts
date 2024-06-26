@@ -1,3 +1,5 @@
+import { UUID } from 'crypto'
+
 export interface StockPriceData {
   time: number
   open: number
@@ -38,4 +40,23 @@ export interface HoverInfo {
   high: number
   low: number
   volume: number
+}
+
+export interface stockWatchList {
+  visible: boolean
+  lists: string[]
+}
+
+export interface stockWatchLists {
+  [key: string]: stockWatchList
+}
+
+export interface stockWatchListState {
+  watchLists: stockWatchLists
+  initWatchLists: () => void
+  updateWatchLists: (header: string, stock: string) => void
+  deleteWatchLists: (header: string, stock: string) => void
+  saveWatchLists: (userId: any) => void
+  loadWatchLists: (userId: any) => void
+  setWatchLists: (watchLists: stockWatchLists) => void
 }
