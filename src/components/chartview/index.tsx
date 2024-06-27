@@ -136,12 +136,23 @@ export const ChartComponent = (props: any) => {
 
   useEffect(() => {
     chart.current = createChart(chartContainerRef.current, {
+      crosshair: {
+        horzLine: {
+          visible: false,
+        },
+        vertLine: {
+          visible: false,
+        },
+      },
       layout: {
         background: { type: ColorType.Solid, color: backgroundColor },
         textColor,
       },
       leftPriceScale: {
         visible: true,
+        autoScale: false,
+        minimize: false,
+        borderVisible: false,
       },
       width: 800,
       height: 800,
@@ -432,14 +443,8 @@ export const ChartComponent = (props: any) => {
   }, [priceRangePoint])
 
   useEffect(() => {
-    // console.log(chart.current?.timeScale().options())
     console.log(chart.current.options())
     console.log(chart.current?.getSelectedLineTools())
-    // calloutPointLineSeries?.applyOptions({
-    //   text: {
-    //     value: 'hello callout',
-    //   },
-    // })
     chart.current?.removeSelectedLineTools()
   }, [selectDelete])
 

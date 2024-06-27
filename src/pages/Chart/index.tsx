@@ -475,12 +475,6 @@ const Chart: FC = () => {
                     setIndicatorArray(nextIndicatorArray)
                     setIsVisibleIndicator(!isVisibleIndicator)
                   }
-                  // console.log(
-                  //   'buttonColor: ',
-                  //   buttonColor,
-                  //   indicatorArray,
-                  //   indicatorArray.includes(value)
-                  // )
                   return (
                     <button
                       className={`w-24 ${buttonColor} text-red-600 rounded-md`}
@@ -491,24 +485,6 @@ const Chart: FC = () => {
                     </button>
                   )
                 })}
-                {/* <button
-                  className="w-24 bg-color-brand-green text-red-600 rounded-md"
-                  onClick={() => {
-                    setIndicatorArray([...indicatorArray, 'SMA'])
-                    setIsVisibleIndicator(!isVisibleIndicator)
-                  }}
-                >
-                  SMA
-                </button>
-                <button
-                  className="w-24 bg-color-brand-green text-red-600 rounded-md"
-                  onClick={() => {
-                    setIndicatorArray([...indicatorArray, 'RSI'])
-                    setIsVisibleIndicator(!isVisibleIndicator)
-                  }}
-                >
-                  RSI
-                </button> */}
               </div>
             )}
 
@@ -540,12 +516,13 @@ const Chart: FC = () => {
           <span className="text-red-700">{hoverData.volume}&nbsp;</span>
         </div>
       </div>
-      <div className="absolute z-20 flex flex-col w-[61px] h-[640px]  bg-white top-[40px] pt-10 pb-4 px-2 gap-4">
+      <div className="absolute z-20 flex flex-col w-[60px] h-[580px] bg-white top-[40px] pt-10 pb-4 px-2 gap-4">
+        <div className="absolute -ml-[10px] bg-transparent w-[60px] h-[696px] border-t border-t-gray3 border-r border-r-gray3"></div>
         <img
           src={editType == 'arrow' ? ArrowSelectedSvg : ArrowSvg}
           alt="Text"
           width={50}
-          className="cursor-pointer"
+          className="cursor-pointer p-[10px]"
           onClick={() => {
             setEditType('arrow')
           }}
@@ -554,28 +531,20 @@ const Chart: FC = () => {
           src={editType == 'label' ? TextSelectedSvg : TextSvg}
           alt="Text"
           width={30}
-          className="ml-2 cursor-pointer"
+          className="ml-2 cursor-pointer p-1"
           onClick={() => {
             setEditType('label')
           }}
         />
-        <img
+        {/* <img
           src={editType == 'circle' ? CircleSelectedSvg : CircleSvg}
           alt="Circle"
           width={50}
           onClick={() => {
             setEditType('circle')
           }}
-          className="cursor-pointer"
-        />
-        <img
-          src={editType == 'vertical' ? VerticalSelectedSvg : VerticalSvg}
-          alt="Vertical"
-          onClick={() => {
-            setEditType('vertical')
-          }}
-          className="cursor-pointer"
-        />
+          className="cursor-pointer p-[6px]"
+        /> */}
         <img
           src={editType == 'trendline' ? TrendSelectedSvg : TrendSvg}
           alt="Trend"
@@ -583,7 +552,15 @@ const Chart: FC = () => {
           onClick={() => {
             setEditType('trendline')
           }}
-          className="cursor-pointer"
+          className="cursor-pointer p-1"
+        />
+        <img
+          src={editType == 'vertical' ? VerticalSelectedSvg : VerticalSvg}
+          alt="Vertical"
+          onClick={() => {
+            setEditType('vertical')
+          }}
+          className="cursor-pointer p-1"
         />
         <img
           src={editType == 'horizontal' ? HorizontalSelectedSvg : HorizontalSvg}
@@ -592,16 +569,7 @@ const Chart: FC = () => {
           onClick={() => {
             setEditType('horizontal')
           }}
-          className="cursor-pointer"
-        />
-        <img
-          src={editType == 'rectangle' ? RectangleSelectedSvg : RectangleSvg}
-          alt="Rectangle"
-          width={50}
-          onClick={() => {
-            setEditType('rectangle')
-          }}
-          className="cursor-pointer"
+          className="cursor-pointer p-1"
         />
         <img
           src={editType == 'callout' ? CalloutSelectedSvg : CalloutSvg}
@@ -610,7 +578,7 @@ const Chart: FC = () => {
           onClick={() => {
             setEditType('callout')
           }}
-          className="cursor-pointer"
+          className="cursor-pointer p-1"
         />
         <img
           src={editType == 'pricerange' ? PriceRangeSelectedSvg : PriceRangeSvg}
@@ -619,13 +587,13 @@ const Chart: FC = () => {
           onClick={() => {
             setEditType('pricerange')
           }}
-          className="cursor-pointer"
+          className="cursor-pointer p-2"
         />
         <img
           src={magnet ? MagnetSelectedSvg : MagnetSvg}
           alt="magnet"
           width={50}
-          className="cursor-pointer"
+          className="cursor-pointer p-2"
           onClick={() => {
             setMagnet(!magnet)
           }}
@@ -637,7 +605,7 @@ const Chart: FC = () => {
           onClick={() => {
             setSelectDelete(!selectDelete)
           }}
-          className="cursor-pointer"
+          className="cursor-pointer p-2"
         />
       </div>
       <ChartComponent
