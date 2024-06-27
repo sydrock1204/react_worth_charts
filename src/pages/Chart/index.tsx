@@ -503,40 +503,41 @@ const Chart: FC = () => {
           </div>
         </div>
         <div className="flex flex-row h-[40px] bg-transparent text-sm">
-          <span>{`${companyData} * ${hoverTime} :`}</span>
-          <p>{`Open: `}</p>
-          <span className="text-red-700">{hoverData.open}&nbsp;</span>
-          <p>{`Close: `}</p>
-          <span className="text-red-700">{hoverData.close}&nbsp;</span>
-          <p>{`High: `}</p>
-          <span className="text-red-700">{hoverData.high}&nbsp;</span>
-          <p>{`Low: `}</p>
-          <span className="text-red-700">{hoverData.low}&nbsp;</span>
-          <p>{`Volume: `}</p>
-          <span className="text-red-700">{hoverData.volume}&nbsp;</span>
+          <span>{`${companyData} * ${interval} :`}</span>
+          <p>{`O `}</p>
+          <span className="text-green-700">&nbsp;{hoverData.open}&nbsp;</span>
+          <p>{`C `}</p>
+          <span className="text-green-700">&nbsp;{hoverData.close}&nbsp;</span>
+          <p>{`H `}</p>
+          <span className="text-green-700">&nbsp;{hoverData.high}&nbsp;</span>
+          <p>{`L `}</p>
+          <span className="text-green-700">&nbsp;{hoverData.low}&nbsp;</span>
+          <p>{`Vol`}</p>
+          <span className="text-red-700">&nbsp;{hoverData.volume}&nbsp;</span>
         </div>
       </div>
-      <div className="absolute z-20 flex flex-col w-[60px] h-[580px] bg-white top-[40px] pt-10 pb-4 px-2 gap-4">
-        <div className="absolute -ml-[10px] bg-transparent w-[60px] h-[696px] border-t border-t-gray3 border-r border-r-gray3"></div>
-        <img
-          src={editType == 'arrow' ? ArrowSelectedSvg : ArrowSvg}
-          alt="Text"
-          width={50}
-          className="cursor-pointer p-[10px]"
-          onClick={() => {
-            setEditType('arrow')
-          }}
-        />
-        <img
-          src={editType == 'label' ? TextSelectedSvg : TextSvg}
-          alt="Text"
-          width={30}
-          className="ml-2 cursor-pointer p-1"
-          onClick={() => {
-            setEditType('label')
-          }}
-        />
-        {/* <img
+      <div className="absolute z-20 flex flex-col w-[60px] h-[580px] bg-white top-[40px] pt-10 pb-4 px-2">
+        {/* <div className="absolute -ml-[10px] bg-transparent w-[60px] h-[696px] border-t border-t-gray3 border-r border-r-gray3"></div> */}
+        <div className="absolute flex flex-col -ml-[10px] bg-transparent w-[60px] h-[696px] border-t border-t-gray3 border-r border-r-gray3 px-2 gap-4">
+          <img
+            src={editType == 'arrow' ? ArrowSelectedSvg : ArrowSvg}
+            alt="Text"
+            width={50}
+            className=" cursor-pointer p-[10px]"
+            onClick={() => {
+              setEditType('arrow')
+            }}
+          />
+          <img
+            src={editType == 'label' ? TextSelectedSvg : TextSvg}
+            alt="Text"
+            width={30}
+            className="ml-2 cursor-pointer p-1"
+            onClick={() => {
+              setEditType('label')
+            }}
+          />
+          {/* <img
           src={editType == 'circle' ? CircleSelectedSvg : CircleSvg}
           alt="Circle"
           width={50}
@@ -545,68 +546,74 @@ const Chart: FC = () => {
           }}
           className="cursor-pointer p-[6px]"
         /> */}
-        <img
-          src={editType == 'trendline' ? TrendSelectedSvg : TrendSvg}
-          alt="Trend"
-          width={50}
-          onClick={() => {
-            setEditType('trendline')
-          }}
-          className="cursor-pointer p-1"
-        />
-        <img
-          src={editType == 'vertical' ? VerticalSelectedSvg : VerticalSvg}
-          alt="Vertical"
-          onClick={() => {
-            setEditType('vertical')
-          }}
-          className="cursor-pointer p-1"
-        />
-        <img
-          src={editType == 'horizontal' ? HorizontalSelectedSvg : HorizontalSvg}
-          alt="Horizontal"
-          width={50}
-          onClick={() => {
-            setEditType('horizontal')
-          }}
-          className="cursor-pointer p-1"
-        />
-        <img
-          src={editType == 'callout' ? CalloutSelectedSvg : CalloutSvg}
-          alt="Callout"
-          width={50}
-          onClick={() => {
-            setEditType('callout')
-          }}
-          className="cursor-pointer p-1"
-        />
-        <img
-          src={editType == 'pricerange' ? PriceRangeSelectedSvg : PriceRangeSvg}
-          alt="priceRange"
-          width={50}
-          onClick={() => {
-            setEditType('pricerange')
-          }}
-          className="cursor-pointer p-2"
-        />
-        <img
-          src={magnet ? MagnetSelectedSvg : MagnetSvg}
-          alt="magnet"
-          width={50}
-          className="cursor-pointer p-2"
-          onClick={() => {
-            setMagnet(!magnet)
-          }}
-        />
-        <img
-          src={RemoveSvg}
-          alt="Remove"
-          width={50}
-          onClick={() => {
-            setSelectDelete(!selectDelete)
-          }}
-          className="cursor-pointer p-2"
-        />
+          <img
+            src={editType == 'trendline' ? TrendSelectedSvg : TrendSvg}
+            alt="Trend"
+            width={50}
+            onClick={() => {
+              setEditType('trendline')
+            }}
+            className="cursor-pointer p-1"
+          />
+          <img
+            src={editType == 'vertical' ? VerticalSelectedSvg : VerticalSvg}
+            alt="Vertical"
+            onClick={() => {
+              setEditType('vertical')
+            }}
+            className="cursor-pointer p-1"
+          />
+          <img
+            src={
+              editType == 'horizontal' ? HorizontalSelectedSvg : HorizontalSvg
+            }
+            alt="Horizontal"
+            width={50}
+            onClick={() => {
+              setEditType('horizontal')
+            }}
+            className="cursor-pointer p-1"
+          />
+          <img
+            src={editType == 'callout' ? CalloutSelectedSvg : CalloutSvg}
+            alt="Callout"
+            width={50}
+            onClick={() => {
+              setEditType('callout')
+            }}
+            className="cursor-pointer p-1"
+          />
+          <img
+            src={
+              editType == 'pricerange' ? PriceRangeSelectedSvg : PriceRangeSvg
+            }
+            alt="priceRange"
+            width={50}
+            onClick={() => {
+              setEditType('pricerange')
+            }}
+            className="cursor-pointer p-2"
+          />
+          <img
+            src={magnet ? MagnetSelectedSvg : MagnetSvg}
+            alt="magnet"
+            width={50}
+            className="cursor-pointer p-2"
+            onClick={() => {
+              setMagnet(!magnet)
+            }}
+          />
+          <img
+            src={RemoveSvg}
+            alt="Remove"
+            width={50}
+            onClick={() => {
+              setSelectDelete(!selectDelete)
+              setIsLineSelected(false)
+            }}
+            className="cursor-pointer p-2"
+          />
+        </div>
       </div>
       <ChartComponent
         selectDelete={selectDelete}

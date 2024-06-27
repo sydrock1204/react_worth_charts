@@ -150,9 +150,13 @@ export const ChartComponent = (props: any) => {
       },
       leftPriceScale: {
         visible: true,
-        autoScale: false,
+        autoScale: true,
         minimize: false,
         borderVisible: false,
+        scaleMargins: {
+          top: 0.1,
+          bottom: 0,
+        },
       },
       width: 800,
       height: 800,
@@ -254,17 +258,12 @@ export const ChartComponent = (props: any) => {
         console.log('indicatorData: ', indicatorData)
 
         indicatorLineSeries.setData(indicatorData)
-        chart.current.timeScale().fitContent()
       }
     }
 
     fetchWrapper().catch(e => {
       console.log(e)
     })
-    // console.log(
-    //   'last index indicator: ',
-    //   indicatorArray[indicatorArray.length - 1]
-    // )
   }, [indicatorArray])
 
   useEffect(() => {
@@ -370,7 +369,8 @@ export const ChartComponent = (props: any) => {
         }
       )
     }
-    chart.current?.timeScale().fitContent()
+
+    chart.current?.applyOptions({})
   }, [trendPoints])
 
   useEffect(() => {
@@ -389,7 +389,8 @@ export const ChartComponent = (props: any) => {
       chart.current?.addLineTool('Text', [labelPoint], labelDefaultOption)
     }
 
-    chart.current?.timeScale().fitContent()
+    // chart.current?.timeScale().fitContent()
+    chart.current.applyOptions({})
   }, [labelPoint])
 
   useEffect(() => {
@@ -401,7 +402,7 @@ export const ChartComponent = (props: any) => {
       )
     }
 
-    chart.current?.timeScale().fitContent()
+    chart.current.applyOptions({})
   }, [horizontalPoint])
 
   useEffect(() => {
@@ -412,8 +413,7 @@ export const ChartComponent = (props: any) => {
         verticalDefaultOption
       )
     }
-
-    chart.current?.timeScale().fitContent()
+    chart.current.applyOptions({})
   }, [verticalPoint])
 
   useEffect(() => {
@@ -427,7 +427,7 @@ export const ChartComponent = (props: any) => {
       )
     }
 
-    chart.current?.timeScale().fitContent()
+    chart.current.applyOptions({})
   }, [calloutPoint])
 
   useEffect(() => {
@@ -439,7 +439,7 @@ export const ChartComponent = (props: any) => {
       )
     }
 
-    chart.current?.timeScale().fitContent()
+    chart.current.applyOptions({})
   }, [priceRangePoint])
 
   useEffect(() => {
