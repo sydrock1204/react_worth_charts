@@ -51,6 +51,7 @@ export const ChartComponent = (props: any) => {
     indicatorArray,
     symbol,
     interval,
+    selectLineColor,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -61,6 +62,12 @@ export const ChartComponent = (props: any) => {
   } = props
 
   // chart.current.addLineSeries()
+
+  const colorJSON = {
+    red: '#FF0000',
+    green: '#00FF00',
+    blue: '#0000FF',
+  }
 
   const chartContainerRef = useRef<IChartApi | null>(null)
   const chart = useRef<IChartApi | null>(null)
@@ -196,7 +203,11 @@ export const ChartComponent = (props: any) => {
 
     volumeSeries.setData(volume)
 
-    chart.current.timeScale().fitContent()
+    // chart.current.timeScale().fitContent()
+    chart.current.timeScale().setVisibleLogicalRange({
+      from: data.length - 50,
+      to: data.length,
+    })
     chart.current.subscribeClick(getPointInformation)
     chart.current.subscribeCrosshairMove(myCrosshairMoveHandler)
     chart.current
@@ -279,6 +290,23 @@ export const ChartComponent = (props: any) => {
       })
     }
   }, [selectedLineText])
+
+  useEffect(() => {
+    if (selectedLine !== '[]' && selectedLine) {
+      let selectedLineTextJSON = JSON.parse(selectedLine)
+      chart.current.applyLineToolOptions({
+        ...selectedLineTextJSON[0],
+        options: {
+          line: {
+            color: colorJSON[selectLineColor],
+          },
+          text: {
+            value: selectedLineText,
+          },
+        },
+      })
+    }
+  }, [selectLineColor])
 
   useEffect(() => {
     if (circlePoint) {

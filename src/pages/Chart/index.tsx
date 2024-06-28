@@ -14,6 +14,7 @@ import { fetchStockData } from '../../api/fetchStockData'
 import { fetchCompanyData } from '../../api/fetchCompanyData'
 import { supabase } from '../../context/supabase'
 import { BaseInput } from '../../components/common/BaseInput'
+import { BaseSelect } from '../../components/common/BaseSelect'
 import { WatchList } from './watchList'
 
 import RemoveSvg from '../../assets/icons/Remove.png'
@@ -52,6 +53,7 @@ import {
 import { useAuthContext } from '../../context/authContext'
 
 import { ChartComponent } from '../../components/chartview'
+import { set } from 'date-fns'
 
 const Chart: FC = () => {
   const navigate = useNavigate()
@@ -91,10 +93,11 @@ const Chart: FC = () => {
   })
   const [companyData, setCompanyData] = useState<string>('')
   const [hoverTime, setHoverTime] = useState<any>(null)
-  const [lineSeries, setLineSeries] = useState<string>('candlestick')
+  const [lineSeries, setLineSeries] = useState<string>('bar')
   const [selectedLine, setSelectedLine] = useState<any>(null)
   const [isLineSelected, setIsLineSelected] = useState<boolean>(false)
   const [selectedLineText, setSelectedLineText] = useState<string>('')
+  const [selectedLineColor, setSelectedLineColor] = useState<string>('green')
   const [isVisibleIndicator, setIsVisibleIndicator] = useState<boolean>(false)
   const [indicatorArray, setIndicatorArray] = useState<string[]>([])
 
@@ -223,6 +226,10 @@ const Chart: FC = () => {
 
   const handleChange = event => {
     setSymbol(event.target.value.toUpperCase())
+  }
+
+  const handleSelectedLineColor = (name: any, option: any) => {
+    setSelectedLineColor(option)
   }
 
   useEffect(() => {
@@ -502,18 +509,32 @@ const Chart: FC = () => {
             </button>
           </div>
         </div>
-        <div className="flex flex-row h-[40px] bg-transparent text-sm">
-          <span>{`${companyData} * ${interval} :`}</span>
-          <p>{`O `}</p>
-          <span className="text-green-700">&nbsp;{hoverData.open}&nbsp;</span>
-          <p>{`C `}</p>
-          <span className="text-green-700">&nbsp;{hoverData.close}&nbsp;</span>
-          <p>{`H `}</p>
-          <span className="text-green-700">&nbsp;{hoverData.high}&nbsp;</span>
-          <p>{`L `}</p>
-          <span className="text-green-700">&nbsp;{hoverData.low}&nbsp;</span>
-          <p>{`Vol`}</p>
-          <span className="text-red-700">&nbsp;{hoverData.volume}&nbsp;</span>
+        <div className="flex flex-col h-[40px] bg-transparent text-sm ml-2">
+          <div className="flex flex-row">
+            <span>{`${companyData} * ${interval} :`}</span>
+            <p>{`O `}</p>
+            <span className="text-green-700">&nbsp;{hoverData.open}&nbsp;</span>
+            <p>{`C `}</p>
+            <span className="text-green-700">
+              &nbsp;{hoverData.close}&nbsp;
+            </span>
+            <p>{`H `}</p>
+            <span className="text-green-700">&nbsp;{hoverData.high}&nbsp;</span>
+            <p>{`L `}</p>
+            <span className="text-green-700">&nbsp;{hoverData.low}&nbsp;</span>
+            <span className="text-green-700">
+              {/* &nbsp;{(hoverData.high - hoverData.low).toFixed(3)}(
+              {(
+                ((hoverData.high - hoverData.low) * 100) /
+                hoverData.low
+              ).toFixed(2)}
+              %) */}
+            </span>
+          </div>
+          <div className="flex flex-row gap-2">
+            <p>{`Vol`}</p>
+            <span className="text-red-700">&nbsp;{hoverData.volume}&nbsp;</span>
+          </div>
         </div>
       </div>
       <div className="absolute z-20 flex flex-col w-[60px] h-[580px] bg-white top-[40px] pt-10 pb-4 px-2">
@@ -640,6 +661,7 @@ const Chart: FC = () => {
         indicatorArray={indicatorArray}
         symbol={symbol}
         interval={interval}
+        selectLineColor={selectedLineColor}
       />
       {isLineSelected && (
         <Draggable defaultPosition={{ x: 550, y: 100 }}>
@@ -652,6 +674,17 @@ const Chart: FC = () => {
               handleChange={e => {
                 setSelectedLineText(e.target.value)
               }}
+            />
+            <BaseSelect
+              name="color"
+              label="color"
+              options={[
+                { value: 'red', label: 'Red' },
+                { value: 'green', label: 'Green' },
+                { value: 'blue', label: 'Blue' },
+              ]}
+              value={selectedLineColor}
+              setFieldValue={handleSelectedLineColor}
             />
           </div>
         </Draggable>
