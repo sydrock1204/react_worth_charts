@@ -98,19 +98,12 @@ export const ChartComponent = (props: any) => {
       return
     }
     handleCrosshairMove(param.time)
-    // console.log(
-    //   `Crosshair moved to ${param.point.x}, ${param.point.y}. The time is ${param.time}.`
-    // )
   }
 
   const myVisibleLogicalRangeChangeHandler = (newVisibleLogicalRange: any) => {
     if (newVisibleLogicalRange === null) {
-      // handle null
       return
     }
-    // console.log(Math.floor(newVisibleLogicalRange.from))
-    // console.log(chart.current?.timeScale().getVisibleLogicalRange())
-    // handle new logical range
   }
 
   const handleResize = () => {

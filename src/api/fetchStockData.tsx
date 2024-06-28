@@ -16,7 +16,7 @@ export const fetchStockData = async (symbol: string, interval: string) => {
       return stockData
     })
     .reverse()
-  // setData(stockDataSeries)
+
   const timeData = Object.entries(rawData)
     .map((data, index) => {
       const stockData = [
@@ -55,14 +55,26 @@ export const fetchStockData = async (symbol: string, interval: string) => {
         time: getTimeStamp(data[0]),
         value: Number(data[1]['5. volume']),
         color: index % 2 === 0 ? '#26a69a' : '#ef5350',
+        index: index,
       }
       return volumeData
     })
     .reverse()
   // setVolume(Volume)
+
+  const timeIndex = Object.entries(rawData).map((data, index) => {
+    // const timeData = {
+    //   [getTimeStamp(data[0])]: index,
+    // }
+    return getTimeStamp(data[0])
+  })
+
+  console.log(timeIndex)
+
   return {
     stockDataSeries,
     tempDataArray,
     Volume,
+    timeIndex,
   }
 }

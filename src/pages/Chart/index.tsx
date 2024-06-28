@@ -100,6 +100,11 @@ const Chart: FC = () => {
   const [selectedLineColor, setSelectedLineColor] = useState<string>('green')
   const [isVisibleIndicator, setIsVisibleIndicator] = useState<boolean>(false)
   const [indicatorArray, setIndicatorArray] = useState<string[]>([])
+  const [timeIndexArray, setTimeIndexArray] = useState<any>([])
+  const [changeValue, setChangeValue] = useState({
+    value: 0,
+    percent: 0,
+  })
 
   const indicators = ['RSI', 'SMA', 'EMA', 'WMA', 'ADX']
 
@@ -166,6 +171,17 @@ const Chart: FC = () => {
   const handleCrosshairMove = (time: number) => {
     if (tempData && tempData.get(time)) {
       setHoverData(tempData.get(time))
+      // console.log('tempDataIndex: ', tempData.get(time)['index'])
+      let pastTime = timeIndexArray[tempData.get(time)['index'] + 1]
+
+      setChangeValue({
+        value: tempData.get(time)['close'] - tempData.get(pastTime)['close'],
+        percent:
+          ((tempData.get(time)['close'] - tempData.get(pastTime)['close']) /
+            tempData.get(pastTime)['close']) *
+          100,
+      })
+      // console.log('PastData: ', tempData.get(pastTime))
 
       const dateObject = new Date(time * 1000)
 
@@ -234,13 +250,12 @@ const Chart: FC = () => {
 
   useEffect(() => {
     const fetchWrapper = async () => {
-      const { stockDataSeries, tempDataArray, Volume } = await fetchStockData(
-        symbol,
-        interval
-      )
+      const { stockDataSeries, tempDataArray, Volume, timeIndex } =
+        await fetchStockData(symbol, interval)
       setData(stockDataSeries)
       setTempData(tempDataArray)
       setVolume(Volume)
+      setTimeIndexArray(timeIndex)
     }
 
     fetchWrapper().catch(e => {
@@ -261,14 +276,12 @@ const Chart: FC = () => {
       setTempData(tempDataArray)
       setVolume(Volume)
     }
-
     fetchWrapper().catch(e => {
       console.log(e)
     })
   }, [symbol, interval])
 
   useEffect(() => {
-    // console.log('tempPoint', tempPoint, 'editClickCounts', editClickCounts)
     switch (editType) {
       case 'trendline':
         if (editClickCounts == 0) {
@@ -513,22 +526,48 @@ const Chart: FC = () => {
           <div className="flex flex-row">
             <span>{`${companyData} * ${interval} :`}</span>
             <p>{`O `}</p>
-            <span className="text-green-700">&nbsp;{hoverData.open}&nbsp;</span>
+            <span
+              // className="text-green-700"
+              className={
+                changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+              }
+            >
+              &nbsp;{hoverData.open}&nbsp;
+            </span>
             <p>{`C `}</p>
-            <span className="text-green-700">
+            <span
+              // className="text-green-700"
+              className={
+                changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+              }
+            >
               &nbsp;{hoverData.close}&nbsp;
             </span>
             <p>{`H `}</p>
-            <span className="text-green-700">&nbsp;{hoverData.high}&nbsp;</span>
+            <span
+              // className="text-green-700"
+              className={
+                changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+              }
+            >
+              &nbsp;{hoverData.high}&nbsp;
+            </span>
             <p>{`L `}</p>
-            <span className="text-green-700">&nbsp;{hoverData.low}&nbsp;</span>
-            <span className="text-green-700">
-              {/* &nbsp;{(hoverData.high - hoverData.low).toFixed(3)}(
-              {(
-                ((hoverData.high - hoverData.low) * 100) /
-                hoverData.low
-              ).toFixed(2)}
-              %) */}
+            <span
+              // className="text-green-700"
+              className={
+                changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+              }
+            >
+              &nbsp;{hoverData.low}&nbsp;
+            </span>
+            <span
+              className={
+                changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+              }
+            >
+              &nbsp;{changeValue.value.toFixed(2)}(
+              {changeValue.percent.toFixed(2)}%)
             </span>
           </div>
           <div className="flex flex-row gap-2">
