@@ -34,20 +34,8 @@ export const fetchStockData = async (symbol: string, interval: string) => {
     })
     .reverse()
 
-  // const timeData = stockDataSeries.map(data => {
-  //   return [
-  //     data.time,
-  //     {
-  //       open: data.open,
-  //       close: data.close,
-  //       high: data.high,
-  //       low: data.low,
-  //     },
-  //   ]
-  // })
   // @ts-ignore
   const tempDataArray = new Map(timeData)
-  // setTempData(tempDataArray)
 
   const Volume = Object.entries(rawData)
     .map((data, index) => {
@@ -60,16 +48,10 @@ export const fetchStockData = async (symbol: string, interval: string) => {
       return volumeData
     })
     .reverse()
-  // setVolume(Volume)
 
   const timeIndex = Object.entries(rawData).map((data, index) => {
-    // const timeData = {
-    //   [getTimeStamp(data[0])]: index,
-    // }
     return getTimeStamp(data[0])
   })
-
-  console.log(timeIndex)
 
   return {
     stockDataSeries,

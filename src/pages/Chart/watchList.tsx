@@ -145,7 +145,7 @@ export const WatchList: FC = () => {
   }, [addStock])
 
   return (
-    <div className="flex flex-col ml-2 w-[400px] h-[800px] bg-white pt-2">
+    <div className="flex flex-col ml-2 w-[600px] h-[800px] bg-white pt-2">
       <div className="flex flex-row mr-4 mb-4">
         <div className="w-1/4 flex flex-row">
           <img src={ThumbSvg} />
@@ -153,7 +153,7 @@ export const WatchList: FC = () => {
         </div>
         <div className="w-1/4 text-right">Last</div>
         <div className="w-1/4 text-right pr-2">Chg</div>
-        <div className="w-1/4 text-right pr-4">Chg%</div>
+        <div className="w-1/4 text-right pr-4 mr-2">Chg%</div>
       </div>
       {Object.keys(watchLists).map((header: string, index: number) => {
         return (
@@ -203,16 +203,23 @@ export const WatchList: FC = () => {
                   >
                     <div className="w-1/4 text-left">{stock}</div>
                     <div className="w-1/4 text-right">
-                      {endQuote[stock] && endQuote[stock]['05. price']}
+                      {endQuote[stock] &&
+                        Number(endQuote[stock]['05. price']).toFixed(2)}
                     </div>
                     <div className={`w-1/4 text-right ${changeColor}`}>
-                      {endQuote[stock] && endQuote[stock]['09. change']}
+                      {endQuote[stock] &&
+                        Number(endQuote[stock]['09. change']).toFixed(2)}
                     </div>
                     <div className={`w-1/4 text-right ${changeColor}`}>
-                      {endQuote[stock] && endQuote[stock]['10. change percent']}
+                      {endQuote[stock] &&
+                        Number(
+                          endQuote[stock]['10. change percent'].replace('%', '')
+                        )
+                          .toFixed(2)
+                          .toString() + '%'}
                     </div>
                     <button
-                      className="p-1 bg-gray4 rounded-sm"
+                      className="ml-2 p-1 bg-gray4 rounded-sm"
                       onClick={() => deleteStock(header, stock)}
                     >
                       <img src={RecycleBinSvg} width={15} />

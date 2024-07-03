@@ -8,6 +8,7 @@ import {
   BoxHorizontalAlignment,
   BoxVerticalAlignment,
 } from '../lightweights-line-tools'
+
 import {
   IChartApi,
   MouseEventParams,
@@ -60,8 +61,6 @@ export const ChartComponent = (props: any) => {
       areaBottomColor = 'rgba(41, 98, 255, 0.28)',
     } = {},
   } = props
-
-  // chart.current.addLineSeries()
 
   const colorJSON = {
     red: '#FF0000',

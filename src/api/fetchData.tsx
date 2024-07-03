@@ -33,7 +33,7 @@ export const fetchData = async (
       case 'monthly':
         url = `https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${symbol}&outputsize=full&apikey=${import.meta.env.VITE_ALPHAVANTAGE_PREMIUM_KEY}`
         response = await axios.get(url)
-        return response.data['Montly Time Series']
+        return response.data['Monthly Time Series']
         break
     }
     // console.log(Object.entries(response.data["Time Series (1min)"]))
