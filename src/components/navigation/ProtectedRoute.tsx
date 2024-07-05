@@ -90,7 +90,7 @@ const ProtectedRoute: FC = () => {
               Contact
             </Link>
           </div>
-          <div className="flex flex-col w-full">
+          <div className="flex flex-col w-full lg:ml-2 xl:ml-4">
             {/* {session ? <Outlet /> : <Navigate to="/auth/login" />} */}
             <Outlet />
           </div>
