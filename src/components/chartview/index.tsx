@@ -121,7 +121,7 @@ export const ChartComponent = (props: any) => {
     if (width > 1440) {
       tempWidth = width - 510 - headerWidth
     } else if (width > 1024) {
-      tempWidth = width - 348 - headerWidth
+      tempWidth = width - 358 - headerWidth
     } else if (width <= 1024) {
       tempWidth = width - 18 - headerWidth
     }
@@ -158,7 +158,7 @@ export const ChartComponent = (props: any) => {
     if (width > 1440) {
       tempWidth = width - 510 - headerWidth
     } else if (width > 1024) {
-      tempWidth = width - 346 - headerWidth
+      tempWidth = width - 358 - headerWidth
     } else if (width <= 1024) {
       tempWidth = width - 18 - headerWidth
     }

@@ -91,7 +91,7 @@ export const ChartOnlyView = (props: any) => {
   useEffect(() => {
     if (width > 1024) {
       chart.current?.applyOptions({
-        width: (width - headerWidth - 30) / 2,
+        width: (width - headerWidth - 38) / 2,
       })
     } else if (width <= 1024) {
       chart.current?.applyOptions({
@@ -102,7 +102,7 @@ export const ChartOnlyView = (props: any) => {
 
   useEffect(() => {
     let tempWidth =
-      width > 1024 ? (width - headerWidth - 30) / 2 : width - headerWidth - 18
+      width > 1024 ? (width - headerWidth - 38) / 2 : width - headerWidth - 18
     chart.current = createChart(chartContainerRef.current, {
       crosshair: {
         horzLine: {

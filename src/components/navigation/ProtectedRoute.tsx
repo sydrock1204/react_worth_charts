@@ -33,7 +33,7 @@ const ProtectedRoute: FC = () => {
 
   useEffect(() => {
     window.addEventListener('resize', handleResize)
-    setTimeout(handleResize, 400)
+    setTimeout(handleResize, 1500)
     return () => {
       window.removeEventListener('resize', handleResize)
     }
@@ -103,7 +103,7 @@ const ProtectedRoute: FC = () => {
       <>
         <Header />
         <div className="flex flex-row border-t-2 border-b-2 border-color-white min-h-[90vh] h-[2000px]">
-          <div className="flex flex-col w-[320px] border-r-2 border-color-white">
+          <div className="flex flex-col w-[320px] border-r-2 bsorder-color-white">
             <Link
               to="/home"
               className="flex text-[18px] h-20 items-center border-b-2 border-color-white pl-9"
