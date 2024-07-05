@@ -9,6 +9,12 @@ export default {
       fontFamily: {
         mono: ["IBM Plex Mono", "monospace"]
       },
+      width: {
+        "watchList-sm": "80px",
+        "watchList-md": "160px",
+        "watchList-lg": "320px",
+        "watchList-xl": "480px",
+      },
       colors: {
         "color-brand-green": "#008C48",
         "color-brand-yello": "#ffff66",

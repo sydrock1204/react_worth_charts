@@ -51,6 +51,7 @@ import {
   CloseListSvg,
 } from '../../assets/icons'
 import { useAuthContext } from '../../context/authContext'
+import useWindowWidth from '../../context/useScreenWidth'
 
 import { ChartComponent } from '../../components/chartview'
 import { ChartView } from './chartView'
@@ -72,6 +73,7 @@ const Chart: FC = () => {
   const [calloutPoint, setCalloutPoint] = useState<PointXY | null>(null)
   const [priceRangePoint, setPriceRangePoint] = useState<PointXY | null>(null)
 
+  const width = useWindowWidth()
   const [magnet, setMagnet] = useState<boolean>(false)
   const [editType, setEditType] = useState<string>('arrow')
   const [editClickCounts, setEditClickCounts] = useState<number>(0)
@@ -113,7 +115,6 @@ const Chart: FC = () => {
   }
 
   const handleSelectedLine = (line: any) => {
-    console.log('line: ', line)
     let lineJSON = JSON.parse(line)
     if (line !== '[]') {
       setSelectedLine(line)
@@ -170,7 +171,6 @@ const Chart: FC = () => {
     if (tempData && tempData.get(time)) {
       setHoverData(tempData.get(time))
       let pastTime = timeIndexArray[tempData.get(time)['index'] + 1]
-
       setChangeValue({
         value: tempData.get(time)['close'] - tempData.get(pastTime)['close'],
         percent:
@@ -212,7 +212,6 @@ const Chart: FC = () => {
       .select()
 
     if (data && data.length > 0) {
-      console.log('lineData: ', data[0].lineData)
       setImportLines(data[0].linedata)
     }
   }
@@ -254,15 +253,13 @@ const Chart: FC = () => {
 
   useEffect(() => {
     const fetchWrapper = async () => {
-      const { stockDataSeries, tempDataArray, Volume } = await fetchStockData(
-        symbol,
-        interval
-      )
-      console.log('stockDataSeries: ', stockDataSeries)
+      const { stockDataSeries, tempDataArray, Volume, timeIndex } =
+        await fetchStockData(symbol, interval)
       const companyName = await fetchCompanyData(symbol)
       setCompanyData(companyName)
       setData(stockDataSeries)
       setTempData(tempDataArray)
+      setTimeIndexArray(timeIndex)
       setVolume(Volume)
     }
     fetchWrapper().catch(e => {
@@ -343,10 +340,10 @@ const Chart: FC = () => {
   }, [tempPoint])
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2">
       <div id="Chart" className="relative flex flex-row">
-        <div className="absolute w-[800px] flex flex-col z-30 ">
-          <div className="flex flex-row h-[40px] bg-white border-color-[#E0E3EB] border-b-2">
+        <div className="absolute w-[800px] flex flex-col z-30 md:w-[660px]">
+          <div className="flex flex-row h-[40px] bg-white border-color-[#E0E3EB] border-b-2 ">
             <div className="flex flex-row">
               <div className="flex">
                 <img src={MagnifierSvg} alt="magnifier" className="flex p-2" />
@@ -572,7 +569,6 @@ const Chart: FC = () => {
           </div>
         </div>
         <div className="absolute z-20 flex flex-col w-[60px] h-[580px] bg-white top-[40px] pt-10 pb-4 px-2">
-          {/* <div className="absolute -ml-[10px] bg-transparent w-[60px] h-[696px] border-t border-t-gray3 border-r border-r-gray3"></div> */}
           <div className="absolute flex flex-col -ml-[10px] bg-transparent w-[60px] h-[696px] border-t border-t-gray3 border-r border-r-gray3 px-2 gap-4">
             <img
               src={editType == 'arrow' ? ArrowSelectedSvg : ArrowSvg}
@@ -592,15 +588,6 @@ const Chart: FC = () => {
                 setEditType('label')
               }}
             />
-            {/* <img
-          src={editType == 'circle' ? CircleSelectedSvg : CircleSvg}
-          alt="Circle"
-          width={50}
-          onClick={() => {
-            setEditType('circle')
-          }}
-          className="cursor-pointer p-[6px]"
-        /> */}
             <img
               src={editType == 'trendline' ? TrendSelectedSvg : TrendSvg}
               alt="Trend"
@@ -670,33 +657,35 @@ const Chart: FC = () => {
             />
           </div>
         </div>
-        <ChartComponent
-          selectDelete={selectDelete}
-          data={data}
-          volume={volume}
-          circlePoint={circlePoints}
-          trendPoints={trendPoints}
-          rectanglePoints={rectanglePoints}
-          labelPoint={labelPoint}
-          horizontalPoint={horizontalPoint}
-          verticalPoint={verticalPoint}
-          calloutPoint={calloutPoint}
-          priceRangePoint={priceRangePoint}
-          magnet={magnet}
-          handleTemplePoint={handleTemplePoint}
-          handleCrosshairMove={handleCrosshairMove}
-          save={save}
-          handleExportData={handleExportData}
-          lineSeries={lineSeries}
-          importLines={importLines}
-          handleSelectedLine={handleSelectedLine}
-          selectedLine={selectedLine}
-          selectedLineText={selectedLineText}
-          indicatorArray={indicatorArray}
-          symbol={symbol}
-          interval={interval}
-          selectLineColor={selectedLineColor}
-        />
+        <div className="flex items-center">
+          <ChartComponent
+            selectDelete={selectDelete}
+            data={data}
+            volume={volume}
+            circlePoint={circlePoints}
+            trendPoints={trendPoints}
+            rectanglePoints={rectanglePoints}
+            labelPoint={labelPoint}
+            horizontalPoint={horizontalPoint}
+            verticalPoint={verticalPoint}
+            calloutPoint={calloutPoint}
+            priceRangePoint={priceRangePoint}
+            magnet={magnet}
+            handleTemplePoint={handleTemplePoint}
+            handleCrosshairMove={handleCrosshairMove}
+            save={save}
+            handleExportData={handleExportData}
+            lineSeries={lineSeries}
+            importLines={importLines}
+            handleSelectedLine={handleSelectedLine}
+            selectedLine={selectedLine}
+            selectedLineText={selectedLineText}
+            indicatorArray={indicatorArray}
+            symbol={symbol}
+            interval={interval}
+            selectLineColor={selectedLineColor}
+          />
+        </div>
         {isLineSelected && (
           <Draggable defaultPosition={{ x: 550, y: 100 }}>
             <div className="absolute p-2 z-30 bg-white w-[200px] h-[150px] border border-black rounded-md cursor-pointer">
@@ -725,14 +714,26 @@ const Chart: FC = () => {
         )}
         <WatchList />
       </div>
-      <div className="flex flex-row gap-2">
-        <ChartView />
-        <ChartView />
-      </div>
-      <div className="flex flex-row gap-2">
-        <ChartView />
-        <ChartView />
-      </div>
+      {width < 1024 && (
+        <div className="flex flex-col gap-2">
+          <ChartView />
+          <ChartView />
+          <ChartView />
+          <ChartView />
+        </div>
+      )}
+      {width > 1024 && (
+        <>
+          <div className="flex flex-row gap-2">
+            <ChartView />
+            <ChartView />
+          </div>
+          <div className="flex flex-row gap-2">
+            <ChartView />
+            <ChartView />
+          </div>
+        </>
+      )}
     </div>
   )
 }

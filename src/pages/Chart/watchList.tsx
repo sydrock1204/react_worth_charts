@@ -6,6 +6,7 @@ import { useWatchListsStore } from '../../context/watchListStore'
 import { useAuthContext } from '../../context/authContext'
 import { fetchCompanyName } from '../../api/fetchCompanyName'
 import { fetchEndQuote } from '../../api/fetchEndQuote'
+import useWindowWidth from '../../context/useScreenWidth'
 
 interface companyData {
   [key: string]: string
@@ -37,6 +38,9 @@ export const WatchList: FC = () => {
   const [addStock, setAddStock] = useState<string>('')
   const [companyData, setCompanyData] = useState<companyData[]>([])
   const [endQuote, setEndQuote] = useState<endQuoteMap>({})
+  const [watchListWidth, setWatchListWidth] = useState<string>('lg')
+
+  const width = useWindowWidth()
 
   const onVisibleHeader = (header: string) => {
     setWatchLists({
@@ -115,11 +119,9 @@ export const WatchList: FC = () => {
 
   useEffect(() => {
     const fetchWrapper = async () => {
-      console.log('loadWatchlists!')
       await loadWatchLists(user.id)
     }
     const saveWrapper = async () => {
-      console.log('saveWatchLists!')
       try {
         await saveWatchLists(user.id)
       } catch (e) {
@@ -144,137 +146,158 @@ export const WatchList: FC = () => {
     fetchWrapper().catch(e => console.log(e))
   }, [addStock])
 
-  return (
-    <div className="flex flex-col ml-2 w-[600px] h-[800px] bg-white pt-2">
-      <div className="flex flex-row mr-4 mb-4">
-        <div className="w-1/4 flex flex-row">
-          <img src={ThumbSvg} />
-          Symbol
+  useEffect(() => {
+    if (width > 1440) {
+      setWatchListWidth('xl')
+    } else if (width > 1024 && width <= 1440) {
+      setWatchListWidth('lg')
+    } else if (width > 768 && width <= 1024) {
+      setWatchListWidth('md')
+    } else if (width <= 768) {
+      setWatchListWidth('sm')
+    }
+  }, [width])
+
+  if (width > 1024) {
+    return (
+      <div
+        className={`flex flex-col ml-2 xl:w-watchList-xl xl:visible lg:w-watchList-lg lg:visible h-[800px] bg-white pt-2`}
+      >
+        <div className="flex flex-row mr-4 mb-4">
+          <div className="w-1/4 flex flex-row">
+            <img src={ThumbSvg} />
+            Symbol
+          </div>
+          <div className="w-1/4 text-right">Last</div>
+          <div className="w-1/4 text-right pr-2">Chg</div>
+          <div className="w-1/4 text-right pr-4 mr-2">Chg%</div>
         </div>
-        <div className="w-1/4 text-right">Last</div>
-        <div className="w-1/4 text-right pr-2">Chg</div>
-        <div className="w-1/4 text-right pr-4 mr-2">Chg%</div>
-      </div>
-      {Object.keys(watchLists).map((header: string, index: number) => {
-        return (
-          <div
-            className="flex flex-col py-2 px-4 border-b-[#008C48] border-b-2 ml-2"
-            key={index}
-          >
-            <div className="flex flex-row">
-              <img
-                src={CloseListSvg}
-                className="hover:bg-gray4 hover:cursor-pointer"
-                onClick={() => onVisibleHeader(header)}
-              />
-              {header}
-              <div className="flex-grow grid place-items-end">
-                <button
-                  className="flex px-2 rounded-sm bg-gray4"
+        {Object.keys(watchLists).map((header: string, index: number) => {
+          return (
+            <div
+              className="flex flex-col py-2 px-4 border-b-[#008C48] border-b-2 ml-2"
+              key={index}
+            >
+              <div className="flex flex-row">
+                <img
+                  src={CloseListSvg}
+                  className="hover:bg-gray4 hover:cursor-pointer"
+                  onClick={() => onVisibleHeader(header)}
+                />
+                {header}
+                <div className="flex-grow grid place-items-end">
+                  <button
+                    className="flex px-2 rounded-sm bg-gray4"
+                    onClick={() => {
+                      setAddCategory(header)
+                      setIsVisibleAddList(true)
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+              {watchLists[header].visible &&
+                watchLists[header].lists.map((stock: string, index: number) => {
+                  let changeColor = 'text-black'
+                  if (
+                    endQuote[stock] &&
+                    endQuote[stock]['09. change'] &&
+                    Number(endQuote[stock]['09. change']) > 0
+                  ) {
+                    changeColor = 'text-green-500'
+                  } else if (
+                    endQuote[stock] &&
+                    endQuote[stock]['09. change'] &&
+                    Number(endQuote[stock]['09. change']) < 0
+                  ) {
+                    changeColor = 'text-red-500'
+                  }
+                  return (
+                    <div
+                      className="flex flex-row ml-4 my-1"
+                      key={`${header}-${index}`}
+                    >
+                      <div className="w-1/4 text-left">{stock}</div>
+                      <div className="w-1/4 text-right">
+                        {endQuote[stock] &&
+                          Number(endQuote[stock]['05. price']).toFixed(2)}
+                      </div>
+                      <div className={`w-1/4 text-right ${changeColor}`}>
+                        {endQuote[stock] &&
+                          Number(endQuote[stock]['09. change']).toFixed(2)}
+                      </div>
+                      <div className={`w-1/4 text-right ${changeColor}`}>
+                        {endQuote[stock] &&
+                          Number(
+                            endQuote[stock]['10. change percent'].replace(
+                              '%',
+                              ''
+                            )
+                          )
+                            .toFixed(2)
+                            .toString() + '%'}
+                      </div>
+                      <button
+                        className="ml-2 p-1 bg-gray4 rounded-sm"
+                        onClick={() => deleteStock(header, stock)}
+                      >
+                        <img src={RecycleBinSvg} width={15} />
+                      </button>
+                    </div>
+                  )
+                })}
+            </div>
+          )
+        })}
+        {isVisibleAddList && (
+          <Draggable defaultPosition={{ x: 100, y: 350 }}>
+            <div className="absolute flex flex-col p-2 z-30 bg-white w-[500px] h-[550px] border border-black rounded-md cursor-pointer">
+              <div className="flex flex-row">
+                {/* Add {addCategory} */}
+                <div className="grid w-1/2 place-items-start ml-2">
+                  Add {addCategory}
+                </div>
+                <div className="grid w-1/2 place-items-end mr-1">
+                  <button
+                    className="bg-color-brand-black w-20 px-4 py-1 rounded-md text-white text-sm"
+                    onClick={() => setIsVisibleAddList(false)}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+              <div className="flex justify-center mt-2 mb-4">
+                <input
+                  className="flex w-4/5 place-items-center border border-gray2"
+                  onChange={e => setAddStock(e.target.value)}
+                  value={addStock}
+                ></input>
+              </div>
+              <div className="flex flex-column">
+                <div className="flex flex-row">
+                  <div className="flex w-[120px]">Symbol</div>
+                  <div className="flex w-">Name</div>
+                </div>
+              </div>
+              {companyData.map((data, index) => (
+                <div
+                  className="flex flex-row hover:bg-gray4"
+                  key={index}
                   onClick={() => {
-                    setAddCategory(header)
-                    setIsVisibleAddList(true)
+                    handleAddStock(data['1. symbol'])
                   }}
                 >
-                  +
-                </button>
-              </div>
+                  <div className="flex w-[120px]">{data['1. symbol']}</div>
+                  <div className="flex">{data['2. name']}</div>
+                </div>
+              ))}
             </div>
-            {watchLists[header].visible &&
-              watchLists[header].lists.map((stock: string, index: number) => {
-                let changeColor = 'text-black'
-                if (
-                  endQuote[stock] &&
-                  endQuote[stock]['09. change'] &&
-                  Number(endQuote[stock]['09. change']) > 0
-                ) {
-                  changeColor = 'text-green-500'
-                } else if (
-                  endQuote[stock] &&
-                  endQuote[stock]['09. change'] &&
-                  Number(endQuote[stock]['09. change']) < 0
-                ) {
-                  changeColor = 'text-red-500'
-                }
-                return (
-                  <div
-                    className="flex flex-row ml-4 my-1"
-                    key={`${header}-${index}`}
-                  >
-                    <div className="w-1/4 text-left">{stock}</div>
-                    <div className="w-1/4 text-right">
-                      {endQuote[stock] &&
-                        Number(endQuote[stock]['05. price']).toFixed(2)}
-                    </div>
-                    <div className={`w-1/4 text-right ${changeColor}`}>
-                      {endQuote[stock] &&
-                        Number(endQuote[stock]['09. change']).toFixed(2)}
-                    </div>
-                    <div className={`w-1/4 text-right ${changeColor}`}>
-                      {endQuote[stock] &&
-                        Number(
-                          endQuote[stock]['10. change percent'].replace('%', '')
-                        )
-                          .toFixed(2)
-                          .toString() + '%'}
-                    </div>
-                    <button
-                      className="ml-2 p-1 bg-gray4 rounded-sm"
-                      onClick={() => deleteStock(header, stock)}
-                    >
-                      <img src={RecycleBinSvg} width={15} />
-                    </button>
-                  </div>
-                )
-              })}
-          </div>
-        )
-      })}
-      {isVisibleAddList && (
-        <Draggable defaultPosition={{ x: 100, y: 350 }}>
-          <div className="absolute flex flex-col p-2 z-30 bg-white w-[500px] h-[550px] border border-black rounded-md cursor-pointer">
-            <div className="flex flex-row">
-              {/* Add {addCategory} */}
-              <div className="grid w-1/2 place-items-start ml-2">
-                Add {addCategory}
-              </div>
-              <div className="grid w-1/2 place-items-end mr-1">
-                <button
-                  className="bg-color-brand-black w-20 px-4 py-1 rounded-md text-white text-sm"
-                  onClick={() => setIsVisibleAddList(false)}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-            <div className="flex justify-center mt-2 mb-4">
-              <input
-                className="flex w-4/5 place-items-center border border-gray2"
-                onChange={e => setAddStock(e.target.value)}
-                value={addStock}
-              ></input>
-            </div>
-            <div className="flex flex-column">
-              <div className="flex flex-row">
-                <div className="flex w-[120px]">Symbol</div>
-                <div className="flex w-">Name</div>
-              </div>
-            </div>
-            {companyData.map((data, index) => (
-              <div
-                className="flex flex-row hover:bg-gray4"
-                key={index}
-                onClick={() => {
-                  handleAddStock(data['1. symbol'])
-                }}
-              >
-                <div className="flex w-[120px]">{data['1. symbol']}</div>
-                <div className="flex">{data['2. name']}</div>
-              </div>
-            ))}
-          </div>
-        </Draggable>
-      )}
-    </div>
-  )
+          </Draggable>
+        )}
+      </div>
+    )
+  } else if (width <= 1024) {
+    return <></>
+  }
 }

@@ -1,12 +1,15 @@
-import { FC, useContext, useEffect, useState } from 'react'
+import { FC, useContext, useEffect, useRef } from 'react'
 import { Link, Outlet, useLocation, Navigate } from 'react-router-dom'
 
 import { useAuthContext } from '../../context/authContext'
 
 import Header from '../header'
 import Footer from '../footer'
+import useHeaderWidthStore from '../../context/useHeadherWidth'
 
 const ProtectedRoute: FC = () => {
+  const ref = useRef<HTMLDivElement>(null)
+  const setWidth = useHeaderWidthStore(state => state.setWidth)
   const location = useLocation()
   const { session, user, isLoading, loadUsers } = useAuthContext()
 
@@ -20,6 +23,22 @@ const ProtectedRoute: FC = () => {
     console.log('location: ', location, 'user: ', user)
   }, [])
 
+  const handleResize = () => {
+    console.log('handleResize: ', ref.current.offsetWidth)
+    if (ref.current) {
+      console.log('handleResized: ', ref.current.offsetWidth)
+      setWidth(ref.current.offsetWidth + 1)
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('resize', handleResize)
+    setTimeout(handleResize, 400)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
   if (isLoading) {
     console.log('loading...')
     return <div>Loading...</div>
@@ -29,8 +48,11 @@ const ProtectedRoute: FC = () => {
     return (
       <>
         <Header />
-        <div className="flex flex-row border-t-2 border-b-2 border-color-white min-h-[90vh] h-[2000px]">
-          <div className="flex flex-col w-[324px] border-r-2 border-color-white">
+        <div className="flex flex-row border-t-2 border-b-2 border-color-white min-h-[2000px]">
+          <div
+            ref={ref}
+            className="flex flex-col !w-[320px] border-r-2 border-color-white"
+          >
             <Link
               to="/home"
               className="flex text-[18px] h-20 items-center border-b-2 border-color-white pl-9"
@@ -68,7 +90,7 @@ const ProtectedRoute: FC = () => {
               Contact
             </Link>
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col w-full">
             {/* {session ? <Outlet /> : <Navigate to="/auth/login" />} */}
             <Outlet />
           </div>
@@ -81,7 +103,7 @@ const ProtectedRoute: FC = () => {
       <>
         <Header />
         <div className="flex flex-row border-t-2 border-b-2 border-color-white min-h-[90vh] h-[2000px]">
-          <div className="flex flex-col w-[324px] border-r-2 border-color-white">
+          <div className="flex flex-col w-[320px] border-r-2 border-color-white">
             <Link
               to="/home"
               className="flex text-[18px] h-20 items-center border-b-2 border-color-white pl-9"

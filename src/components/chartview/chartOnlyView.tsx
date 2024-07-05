@@ -18,6 +18,8 @@ import {
 import { ISeriesApi } from '../lightweights-line-tools/api/iseries-api'
 import { fetchStockIndicator } from '../../api/fetchStockIndicator'
 import { getTimeStamp } from '../../utils/getTimeStamp'
+import useWindowWidth from '../../context/useScreenWidth'
+import useHeaderWidthStore from '../../context/useHeadherWidth'
 
 export const ChartOnlyView = (props: any) => {
   const {
@@ -38,6 +40,8 @@ export const ChartOnlyView = (props: any) => {
     } = {},
   } = props
 
+  const width = useWindowWidth()
+  const headerWidth = useHeaderWidthStore(state => state.width)
   const chartContainerRef = useRef<IChartApi | null>(null)
   const chart = useRef<IChartApi | null>(null)
   const candleStickSeries = useRef<ISeriesApi<'Candlestick'> | null>(null)
@@ -85,6 +89,20 @@ export const ChartOnlyView = (props: any) => {
   }
 
   useEffect(() => {
+    if (width > 1024) {
+      chart.current?.applyOptions({
+        width: (width - headerWidth - 40) / 2,
+      })
+    } else if (width <= 1024) {
+      chart.current?.applyOptions({
+        width: width - headerWidth - 18,
+      })
+    }
+  }, [width])
+
+  useEffect(() => {
+    let tempWidth =
+      width > 1024 ? (width - headerWidth - 40) / 2 : width - headerWidth - 18
     chart.current = createChart(chartContainerRef.current, {
       crosshair: {
         horzLine: {
@@ -116,7 +134,7 @@ export const ChartOnlyView = (props: any) => {
           bottom: 0,
         },
       },
-      width: 700,
+      width: tempWidth,
       height: 500,
     })
 

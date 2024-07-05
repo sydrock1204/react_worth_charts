@@ -25,6 +25,8 @@ import { calloutDefaultOption } from './calloutDefaultOption'
 import { pricerangeDefaultOption } from './pricerangeDefaultOption'
 import { fetchStockIndicator } from '../../api/fetchStockIndicator'
 import { getTimeStamp } from '../../utils/getTimeStamp'
+import useWindowWidth from '../../context/useScreenWidth'
+import useHeaderWidthStore from '../../context/useHeadherWidth'
 
 export const ChartComponent = (props: any) => {
   const {
@@ -75,6 +77,9 @@ export const ChartComponent = (props: any) => {
     useState<ILineToolApi<'Callout'>>()
   const [priorSelectDelete, setPriorSelectDelete] =
     useState<boolean>(selectDelete)
+  const width = useWindowWidth()
+  // const headerWidth = useHeaderWidthStore(state => state.width)
+  const { width: headerWidth } = useHeaderWidthStore()
 
   const getPointInformation = (param: MouseEventParams) => {
     if (!param.point) {
@@ -112,6 +117,21 @@ export const ChartComponent = (props: any) => {
   }
 
   useEffect(() => {
+    let tempWidth = 0
+    if (width > 1440) {
+      tempWidth = width - 510 - headerWidth
+    } else if (width > 1024) {
+      tempWidth = width - 348 - headerWidth
+    } else if (width <= 1024) {
+      tempWidth = width - 18 - headerWidth
+    }
+
+    chart.current?.applyOptions({
+      width: tempWidth,
+    })
+  }, [width])
+
+  useEffect(() => {
     if (save) {
       const lineData = chart.current?.exportLineTools()
       handleExportData(lineData)
@@ -134,6 +154,15 @@ export const ChartComponent = (props: any) => {
   }, [magnet])
 
   useEffect(() => {
+    let tempWidth = 0
+    if (width > 1440) {
+      tempWidth = width - 510 - headerWidth
+    } else if (width > 1024) {
+      tempWidth = width - 346 - headerWidth
+    } else if (width <= 1024) {
+      tempWidth = width - 18 - headerWidth
+    }
+
     chart.current = createChart(chartContainerRef.current, {
       crosshair: {
         horzLine: {
@@ -157,7 +186,7 @@ export const ChartComponent = (props: any) => {
           bottom: 0,
         },
       },
-      width: 800,
+      width: tempWidth,
       height: 800,
     })
 

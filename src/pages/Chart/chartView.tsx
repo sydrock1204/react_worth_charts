@@ -45,6 +45,8 @@ import { fetchStockData } from '../../api/fetchStockData'
 import { fetchCompanyData } from '../../api/fetchCompanyData'
 import { useAuthContext } from '../../context/authContext'
 import { ChartOnlyView } from '../../components/chartview/chartOnlyView'
+import useHeaderWidthStore from '../../context/useHeadherWidth'
+import useWindowWidth from '../../context/useScreenWidth'
 
 export const ChartView: FC = () => {
   const [data, setData] = useState<StockPriceData[]>([])
@@ -73,6 +75,10 @@ export const ChartView: FC = () => {
     percent: 0,
   })
   const [isVisibleIndicator, setIsVisibleIndicator] = useState<boolean>(false)
+  const [controlPanelWidth, setControlPanelWidth] = useState<number>(0)
+
+  const width = useWindowWidth()
+  const headerWidth = useHeaderWidthStore(state => state.width)
 
   const indicators = ['RSI', 'SMA', 'EMA', 'WMA', 'ADX']
 
@@ -145,7 +151,6 @@ export const ChartView: FC = () => {
         interval
       )
       const companyName = await fetchCompanyData(symbol)
-      console.log('companyName: ', companyName)
       setCompanyData(companyName)
       setData(stockDataSeries)
       setTempData(tempDataArray)
@@ -156,10 +161,20 @@ export const ChartView: FC = () => {
     })
   }, [symbol, interval])
 
+  useEffect(() => {
+    if (width > 1024) {
+      setControlPanelWidth((width - headerWidth - 12) / 2)
+    } else if (width <= 1024) {
+      setControlPanelWidth(width - headerWidth - 16)
+    }
+  }, [width])
+
   return (
     <div>
-      <div className="absolute w-[700px] flex flex-col z-30 ">
-        <div className="flex flex-row h-[40px] bg-white border-color-[#E0E3EB] border-b-2">
+      <div className="absolute w-[700px] flex flex-col z-30 lg:max-w-[370px]">
+        <div
+          className={`flex flex-row h-[40px] bg-white border-color-[#E0E3EB] border-b-2`}
+        >
           <div className="flex flex-row">
             <div className="flex">
               <img src={MagnifierSvg} alt="magnifier" className="flex p-2" />
@@ -283,7 +298,7 @@ export const ChartView: FC = () => {
               }}
             />
             {isVisibleIndicator && (
-              <div className="flex flex-col absolute top-12 gap-1 left-[520px]">
+              <div className="flex flex-col absolute top-12 gap-1 left-[520px] lg:left-[320px] xl:left-[480px]">
                 {indicators.map((value, index) => {
                   const buttonColor = indicatorArray.includes(value)
                     ? 'bg-gray4'
@@ -312,7 +327,9 @@ export const ChartView: FC = () => {
         </div>
         <div className="flex flex-col h-[40px] bg-white text-sm ml-2 mr-14">
           <div className="flex flex-row">
-            <span>{`${companyData} * ${interval} :`}</span>
+            {controlPanelWidth > 640 && (
+              <span>{`${companyData} * ${interval} :`}</span>
+            )}
             <p>{`O `}</p>
             <span
               // className="text-green-700"
