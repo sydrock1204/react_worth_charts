@@ -6,7 +6,7 @@ import {
 
 export const pricerangeDefaultOption = {
   text: {
-    value: 'Price Range Line Tool',
+    value: '',
     alignment: TextAlignment.Left,
     font: {
       color: 'rgba(41,98,255,1)',
@@ -66,7 +66,7 @@ export const pricerangeDefaultOption = {
     border: {
       color: 'rgba(39,176,80,1)',
       width: 3,
-      style: 3,
+      style: 0,
     },
     extend: {
       right: false,

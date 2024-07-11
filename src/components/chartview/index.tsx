@@ -55,6 +55,7 @@ export const ChartComponent = (props: any) => {
     symbol,
     interval,
     selectLineColor,
+    setLastLineJSON, // #
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -63,6 +64,9 @@ export const ChartComponent = (props: any) => {
       areaBottomColor = 'rgba(41, 98, 255, 0.28)',
     } = {},
   } = props
+
+
+  // console.log('priceRangePoint', priceRangePoint);
 
   const colorJSON = {
     red: '#FF0000',
@@ -435,7 +439,8 @@ export const ChartComponent = (props: any) => {
 
   useEffect(() => {
     if (labelPoint) {
-      chart.current?.addLineTool('Text', [labelPoint], labelDefaultOption)
+      const ret = chart.current?.addLineTool('Text', [labelPoint], labelDefaultOption)
+      setLastLineJSON (ret); // #
     }
 
     // chart.current?.timeScale().fitContent()
@@ -481,6 +486,8 @@ export const ChartComponent = (props: any) => {
 
   useEffect(() => {
     if (priceRangePoint) {
+      // console.log('price-range-point has changed.');
+      // console.log(chart.current);
       chart.current?.addLineTool(
         'PriceRange',
         [priceRangePoint.point1, priceRangePoint.point2],

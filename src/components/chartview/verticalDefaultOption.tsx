@@ -6,7 +6,7 @@ import {
 
 export const verticalDefaultOption = {
   text: {
-    value: 'VerticalLine Line Tool',
+    value: '',
     alignment: TextAlignment.Left,
     font: {
       color: 'rgba(41,98,255,1)',
@@ -62,7 +62,7 @@ export const verticalDefaultOption = {
   line: {
     color: 'rgba(41,98,255,1)',
     width: 2,
-    style: 1,
+    style: 0,
   },
   visible: true,
   editable: true,

@@ -103,12 +103,27 @@ const Chart: FC = () => {
   const [isVisibleIndicator, setIsVisibleIndicator] = useState<boolean>(false)
   const [indicatorArray, setIndicatorArray] = useState<string[]>([])
   const [timeIndexArray, setTimeIndexArray] = useState<any>([])
+  const [lastLineJSON, setLastLineJSON] = useState<any>() // #
   const [changeValue, setChangeValue] = useState({
     value: 0,
     percent: 0,
   })
 
+
   const indicators = ['RSI', 'SMA', 'EMA', 'WMA', 'ADX']
+
+  useEffect (() => { // #
+    if (lastLineJSON && lastLineJSON.lineTool) { // #
+      setSelectedLine(JSON.stringify([{ // #
+        id: lastLineJSON.lineTool.id(), // #
+        options: lastLineJSON.lineTool.options(), // #
+        points: lastLineJSON.lineTool.points(), // #
+        toolType: lastLineJSON.lineTool.toolType(), // #
+      }])) // #
+      setIsLineSelected(true) // #
+      setSelectedLineText('') // #
+    } // #
+  },  [lastLineJSON]); // #
 
   const handleTemplePoint = (point: Point) => {
     setTempPoint(point)
@@ -116,9 +131,11 @@ const Chart: FC = () => {
 
   const handleSelectedLine = (line: any) => {
     let lineJSON = JSON.parse(line)
+    console.log({lineJSON})
     if (line !== '[]') {
       setSelectedLine(line)
       setIsLineSelected(true)
+      console.log(lineJSON[0].options.text.value)
       setSelectedLineText(lineJSON[0].options.text.value)
     } else {
       setIsLineSelected(false)
@@ -245,7 +262,6 @@ const Chart: FC = () => {
       setVolume(Volume)
       setTimeIndexArray(timeIndex)
     }
-
     fetchWrapper().catch(e => {
       console.log(e)
     })
@@ -339,10 +355,12 @@ const Chart: FC = () => {
     }
   }, [tempPoint])
 
+
   return (
     <div className="flex flex-col gap-2">
       <div id="Chart" className="relative flex flex-row">
         <div className="absolute w-[800px] flex flex-col z-30 md:w-[660px]">
+          {/*Header bar-----*/}
           <div className="flex flex-row h-[40px] bg-white border-color-[#E0E3EB] border-b-2 ">
             <div className="flex flex-row">
               <div className="flex">
@@ -512,6 +530,9 @@ const Chart: FC = () => {
               </button>
             </div>
           </div>
+      {/* ---header bar */}
+
+      {/*coordinate header display---*/}
           <div className="flex flex-col h-[40px] bg-transparent text-sm ml-2">
             <div className="flex flex-row">
               <span>{`${companyData} * ${interval} :`}</span>
@@ -568,6 +589,9 @@ const Chart: FC = () => {
             </div>
           </div>
         </div>
+      {/*----coordinate header display*/}
+
+      {/* tool bar----*/}
         <div className="absolute z-20 flex flex-col w-[60px] h-[580px] bg-white top-[40px] pt-10 pb-4 px-2">
           <div className="absolute flex flex-col -ml-[10px] bg-transparent w-[60px] h-[696px] border-t border-t-gray3 border-r border-r-gray3 px-2 gap-4">
             <img
@@ -657,6 +681,9 @@ const Chart: FC = () => {
             />
           </div>
         </div>
+
+      {/* ------tool bar */}
+
         <div className="flex items-center">
           <ChartComponent
             selectDelete={selectDelete}
@@ -684,8 +711,10 @@ const Chart: FC = () => {
             symbol={symbol}
             interval={interval}
             selectLineColor={selectedLineColor}
+            setLastLineJSON={setLastLineJSON} // #
           />
         </div>
+
         {isLineSelected && (
           <Draggable defaultPosition={{ x: 550, y: 100 }}>
             <div className="absolute p-2 z-30 bg-white w-[200px] h-[150px] border border-black rounded-md cursor-pointer">
@@ -712,6 +741,15 @@ const Chart: FC = () => {
             </div>
           </Draggable>
         )}
+
+        {/* {
+          (editType == 'label' && tempPoint) && (
+            <input type="text" 
+            placeholder='labeltext'
+            />
+          )
+        } */}
+
         <WatchList />
       </div>
       {width < 1024 && (
