@@ -6,7 +6,7 @@ import {
 
 export const horizontalLineDefaultOption = {
   text: {
-    value: 'HorizontalLine Line Tool',
+    value: '',
     alignment: TextAlignment.Left,
     font: {
       color: 'rgba(41,98,255,1)',
@@ -61,7 +61,7 @@ export const horizontalLineDefaultOption = {
   },
   line: {
     color: 'rgba(41,98,255,1)',
-    width: 1,
+    width: 2,
     style: 0,
     end: {
       left: 0,
