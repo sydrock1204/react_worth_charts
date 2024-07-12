@@ -66,7 +66,8 @@ export const ChartComponent = (props: any) => {
   } = props
 
 
-  // console.log('priceRangePoint', priceRangePoint);
+  // console.log('------------chartviewprop----------', props);
+  console.log('------------chartviewprop-selectedDelete----------', selectDelete);
 
   const colorJSON = {
     red: '#FF0000',
@@ -148,7 +149,7 @@ export const ChartComponent = (props: any) => {
     if (magnet) {
       const newCrosshair = { ...crosshair, magnetThreshold: 40 }
       const newOptions = { ...options, crosshair: newCrosshair }
-      console.log(newOptions)
+      // console.log('-----------------newoptions----------',newOptions)
       chart.current?.applyOptions(newOptions)
     } else {
       const newCrosshair = { ...crosshair, magnetThreshold: 14 }
@@ -156,6 +157,31 @@ export const ChartComponent = (props: any) => {
       chart.current?.applyOptions(newOptions)
     }
   }, [magnet])
+
+
+  // delete the object when del key is pressed
+   useEffect(() => {
+    const handleDeleteKeyPressed = () => {
+      if(selectedLine !== " ") {
+        chart.current?.removeSelectedLineTools()
+      }
+    }
+
+    const handleKeyDown = (event) => {
+      if(event.key === 'Delete') {
+        handleDeleteKeyPressed();
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown',handleKeyDown);
+    }
+    
+   },[selectedLine])
+
+  // 
 
   useEffect(() => {
     let tempWidth = 0
@@ -270,7 +296,7 @@ export const ChartComponent = (props: any) => {
           color: '#2962FF',
         })
 
-        console.log('indicatorArray', indicatorArray)
+        // console.log('indicatorArray', indicatorArray)
 
         const indifunction = indicatorArray[indicatorArray.length - 1]
         const indicatorSeries = await fetchStockIndicator(
@@ -291,7 +317,7 @@ export const ChartComponent = (props: any) => {
             return indiData
           })
           .reverse()
-        console.log('indicatorData: ', indicatorData)
+        // console.log('indicatorData: ', indicatorData)
 
         indicatorLineSeries.setData(indicatorData)
       }
@@ -488,19 +514,19 @@ export const ChartComponent = (props: any) => {
     if (priceRangePoint) {
       // console.log('price-range-point has changed.');
       // console.log(chart.current);
-      chart.current?.addLineTool(
+     chart.current?.addLineTool(
         'PriceRange',
         [priceRangePoint.point1, priceRangePoint.point2],
         pricerangeDefaultOption
       )
     }
-
+    // console.log('--------chart-------------',chart.current.applyOptions({}))
     chart.current.applyOptions({})
   }, [priceRangePoint])
 
   useEffect(() => {
-    console.log(chart.current.options())
-    console.log(chart.current?.getSelectedLineTools())
+    // console.log(chart.current.options())
+    // console.log(chart.current?.getSelectedLineTools())
     chart.current?.removeSelectedLineTools()
   }, [selectDelete])
 

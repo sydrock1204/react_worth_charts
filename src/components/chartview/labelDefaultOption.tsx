@@ -6,11 +6,11 @@ import {
 
 export const labelDefaultOption = {
   text: {
-    value: '✔',
+    value: '',
     alignment: TextAlignment.Left,
     font: {
       color: 'black',
-      size: 16,
+      size: 14,
       bold: false,
       italic: false,
       family: 'Arial',

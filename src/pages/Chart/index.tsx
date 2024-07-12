@@ -131,11 +131,11 @@ const Chart: FC = () => {
 
   const handleSelectedLine = (line: any) => {
     let lineJSON = JSON.parse(line)
-    console.log({lineJSON})
+    // console.log({lineJSON})
     if (line !== '[]') {
       setSelectedLine(line)
       setIsLineSelected(true)
-      console.log(lineJSON[0].options.text.value)
+      // console.log(lineJSON[0].options.text.value)
       setSelectedLineText(lineJSON[0].options.text.value)
     } else {
       setIsLineSelected(false)
