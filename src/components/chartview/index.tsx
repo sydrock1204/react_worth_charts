@@ -66,8 +66,6 @@ export const ChartComponent = (props: any) => {
   } = props
 
 
-  // console.log('------------chartviewprop----------', props);
-  console.log('------------chartviewprop-selectedDelete----------', selectDelete);
 
   const colorJSON = {
     red: '#FF0000',
