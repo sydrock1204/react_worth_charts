@@ -116,17 +116,11 @@ const Chart: FC = () => {
 
   const handleSelectedLine = (line: any) => {
     let lineJSON = JSON.parse(line)
-<<<<<<< Updated upstream
+
     if (line !== '[]') {
       setSelectedLine(line)
       setIsLineSelected(true)
-=======
-    // console.log({lineJSON})
-    if (line !== '[]') {
-      setSelectedLine(line)
-      setIsLineSelected(true)
-      // console.log(lineJSON[0].options.text.value)
->>>>>>> Stashed changes
+
       setSelectedLineText(lineJSON[0].options.text.value)
     } else {
       setIsLineSelected(false)

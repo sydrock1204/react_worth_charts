@@ -64,13 +64,7 @@ export const ChartComponent = (props: any) => {
     } = {},
   } = props
 
-<<<<<<< Updated upstream
-=======
 
-  // console.log('------------chartviewprop----------', props);
-  console.log('------------chartviewprop-selectedDelete----------', selectDelete);
-
->>>>>>> Stashed changes
   const colorJSON = {
     red: '#FF0000',
     green: '#00FF00',
@@ -513,13 +507,7 @@ export const ChartComponent = (props: any) => {
 
   useEffect(() => {
     if (priceRangePoint) {
-<<<<<<< Updated upstream
       chart.current?.addLineTool(
-=======
-      // console.log('price-range-point has changed.');
-      // console.log(chart.current);
-     chart.current?.addLineTool(
->>>>>>> Stashed changes
         'PriceRange',
         [priceRangePoint.point1, priceRangePoint.point2],
         pricerangeDefaultOption
