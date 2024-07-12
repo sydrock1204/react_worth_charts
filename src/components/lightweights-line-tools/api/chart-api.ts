@@ -346,8 +346,12 @@ export class ChartApi implements IChartApi, DataUpdatesConsumer<SeriesType> {
 	}
 
 	public addLineTool<T extends LineToolType>(name: T, points: LineToolPoint[], options?: LineToolPartialOptionsMap[T]): LineToolApi<T> {
+		// console.log('---------addlinetoolname--------',name);
+		// console.log('---------addlinetoolpoints--------',points);
+		// console.log('---------addlinetooloptions--------',options);
 		const strictOptions = merge(clone(LineToolsOptionDefaults[name]), options || {}) as LineToolOptionsMap[T];
 		const tool = this._chartWidget.model().createLineTool(name, strictOptions, points);
+		// console.log('----tool----',tool);
 		return new LineToolApi<T>(tool);
 	}
 

@@ -6,10 +6,17 @@ import {
 
 export const labelDefaultOption = {
   text: {
+<<<<<<< Updated upstream
     value: 'Text Line Tool, below is highlighter',
     alignment: TextAlignment.Left,
     font: {
       color: 'rgba(255,255,255,1)',
+=======
+    value: '',
+    alignment: TextAlignment.Left,
+    font: {
+      color: 'black',
+>>>>>>> Stashed changes
       size: 14,
       bold: false,
       italic: false,
