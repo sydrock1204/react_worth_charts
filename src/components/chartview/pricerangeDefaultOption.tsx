@@ -10,7 +10,7 @@ export const pricerangeDefaultOption = {
     alignment: TextAlignment.Left,
     font: {
       color: 'rgba(41,98,255,1)',
-      size: 9,
+      size: 23,
       bold: false,
       italic: false,
       family: 'Arial',
