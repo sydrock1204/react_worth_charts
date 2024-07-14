@@ -65,6 +65,7 @@ export const ChartComponent = (props: any) => {
     } = {},
   } = props
 
+  // console.log('--------------trendpoints----',handleSelectedLine);
 
 
   const colorJSON = {
@@ -491,6 +492,7 @@ export const ChartComponent = (props: any) => {
         verticalDefaultOption
       )
     }
+    
     chart.current.applyOptions({})
   }, [verticalPoint])
 
@@ -510,21 +512,16 @@ export const ChartComponent = (props: any) => {
 
   useEffect(() => {
     if (priceRangePoint) {
-      // console.log('price-range-point has changed.');
-      // console.log(chart.current);
      chart.current?.addLineTool(
         'PriceRange',
         [priceRangePoint.point1, priceRangePoint.point2],
         pricerangeDefaultOption
       )
     }
-    // console.log('--------chart-------------',chart.current.applyOptions({}))
     chart.current.applyOptions({})
   }, [priceRangePoint])
 
   useEffect(() => {
-    // console.log(chart.current.options())
-    // console.log(chart.current?.getSelectedLineTools())
     chart.current?.removeSelectedLineTools()
   }, [selectDelete])
 
