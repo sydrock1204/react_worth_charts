@@ -55,6 +55,7 @@ import useWindowWidth from '../../context/useScreenWidth'
 
 import { ChartComponent } from '../../components/chartview'
 import { ChartView } from './chartView'
+import { FlatTree } from 'framer-motion'
 
 const Chart: FC = () => {
   const navigate = useNavigate()
@@ -124,6 +125,27 @@ const Chart: FC = () => {
       setSelectedLineText('') // #
     } // #
   },  [lastLineJSON]); // #
+
+  // 
+
+  const handleEscKey = (event) => {
+    if (event.key === 'Escape') {
+      // The function you want to execute when ESC is pressed
+      setIsLineSelected(false);
+      // Add your function here
+    }
+  };
+
+  useEffect(() => {
+    // Add event listener for keydown
+    document.addEventListener('keydown', handleEscKey);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, []);
+  // 
 
   const handleTemplePoint = (point: Point) => {
     setTempPoint(point)
@@ -327,7 +349,7 @@ const Chart: FC = () => {
           setStartPoint(tempPoint)
         }
         break
-      case 'pricerange':
+      case 'PriceRange':
         if (editClickCounts == 0) {
           setEditClickCounts(editClickCounts + 1)
           setStartPoint(tempPoint)
@@ -649,12 +671,12 @@ const Chart: FC = () => {
             />
             <img
               src={
-                editType == 'pricerange' ? PriceRangeSelectedSvg : PriceRangeSvg
+                editType == 'PriceRange' ? PriceRangeSelectedSvg : PriceRangeSvg
               }
               alt="priceRange"
               width={50}
               onClick={() => {
-                setEditType('pricerange')
+                setEditType('PriceRange')
               }}
               className="cursor-pointer p-2"
             />
@@ -710,6 +732,7 @@ const Chart: FC = () => {
             interval={interval}
             selectLineColor={selectedLineColor}
             setLastLineJSON={setLastLineJSON} // #
+            editType={editType}
           />
         </div>
 
