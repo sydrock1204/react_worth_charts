@@ -110,23 +110,21 @@ const Chart: FC = () => {
     percent: 0,
   })
 
-
   const indicators = ['RSI', 'SMA', 'EMA', 'WMA', 'ADX']
 
-  useEffect (() => { // #
-    if (lastLineJSON && lastLineJSON.lineTool) { // #
-      setSelectedLine(JSON.stringify([{ // #
-        id: lastLineJSON.lineTool.id(), // #
-        options: lastLineJSON.lineTool.options(), // #
-        points: lastLineJSON.lineTool.points(), // #
-        toolType: lastLineJSON.lineTool.toolType(), // #
-      }])) // #
-      setIsLineSelected(true) // #
-      setSelectedLineText('') // #
-    } // #
-  },  [lastLineJSON]); // #
+  useEffect (() => { 
+    if (lastLineJSON && lastLineJSON.lineTool) { 
+      setSelectedLine(JSON.stringify([{ 
+        id: lastLineJSON.lineTool.id(), 
+        options: lastLineJSON.lineTool.options(),
+        points: lastLineJSON.lineTool.points(),
+        toolType: lastLineJSON.lineTool.toolType(), 
+      }])) 
+      setIsLineSelected(true) 
+      setSelectedLineText('') 
+    } 
+  },  [lastLineJSON]); 
 
-  // 
 
   const handleEscKey = (event) => {
     if (event.key === 'Escape') {
@@ -150,6 +148,7 @@ const Chart: FC = () => {
   const handleTemplePoint = (point: Point) => {
     setTempPoint(point)
   }
+
 
   const handleSelectedLine = (line: any) => {
     let lineJSON = JSON.parse(line)
@@ -272,6 +271,9 @@ const Chart: FC = () => {
   const handleSelectedLineColor = (name: any, option: any) => {
     setSelectedLineColor(option)
   }
+  const modalcloseHandler = () => {
+    setIsLineSelected(false);
+  }
 
   useEffect(() => {
     const fetchWrapper = async () => {
@@ -314,6 +316,7 @@ const Chart: FC = () => {
           setTrendPoints({ point1: startPoint, point2: tempPoint })
           setEditType('arrow')
           setStartPoint(tempPoint)
+          setIsLineSelected(false)
         }
         break
       case 'rectangle':
@@ -375,6 +378,24 @@ const Chart: FC = () => {
     }
   }, [tempPoint])
 
+
+  const [isDoubleClick, setIsdoubleclick] = useState<boolean>(false)
+
+  // useEffect(() => {
+  //     const handleDoubleClick = (event) => {
+  //       setIsdoubleclick(true);
+  //     }
+  //     // Add event listener for double-click events
+      // console.log('--------selectedLine----',isLineSelected);
+  //     if(isLineSelected === true && isDoubleClick === true) {
+  //       console.log('-----------!!!----');
+  //       }
+  //     window.addEventListener('dblclick', handleDoubleClick);
+  //     // Clean up the event listener on component unmount
+  //     return () => {
+  //       window.removeEventListener('dblclick', handleDoubleClick);
+  //     };
+  // },[])
 
   return (
     <div className="flex flex-col gap-2">
@@ -736,9 +757,10 @@ const Chart: FC = () => {
           />
         </div>
 
-        {isLineSelected && (
+        { isLineSelected === true && (
           <Draggable defaultPosition={{ x: 550, y: 100 }}>
-            <div className="absolute p-2 z-30 bg-white w-[200px] h-[150px] border border-black rounded-md cursor-pointer">
+            <div className="absolute p-2 z-30 bg-white w-[200px] h-[180px] border border-black rounded-md cursor-pointer">
+            <button onClick={modalcloseHandler}>&times;</button>
               <BaseInput
                 name="text"
                 label="text"
