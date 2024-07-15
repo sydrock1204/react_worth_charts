@@ -28,6 +28,153 @@ import { getTimeStamp } from '../../utils/getTimeStamp'
 import useWindowWidth from '../../context/useScreenWidth'
 import useHeaderWidthStore from '../../context/useHeadherWidth'
 
+const trendLineOption = {
+  text: {
+    value: '',
+    alignment: TextAlignment.Left,
+    font: {
+      color: 'rgba(255,255,255,1)',
+      size: 14,
+      bold: true,
+      italic: true,
+      family: 'Arial',
+    },
+    box: {
+      alignment: {
+        vertical: BoxVerticalAlignment.Bottom,
+        horizontal: BoxHorizontalAlignment.Center,
+      },
+      angle: 0,
+      scale: 1,
+      offset: {
+        x: 0,
+        y: 20,
+      },
+      padding: {
+        x: 0,
+        y: 0,
+      },
+      maxHeight: 100,
+      shadow: {
+        blur: 0,
+        color: 'rgba(255,255,255,1)',
+        offset: {
+          x: 0,
+          y: 0,
+        },
+      },
+      border: {
+        color: 'rgba(126,211,33,1)',
+        width: 4,
+        radius: 20,
+        highlight: false,
+        style: 1,
+      },
+      background: {
+        color: 'rgba(199,56,56,0.25)',
+        inflation: {
+          x: 10,
+          y: 10,
+        },
+      },
+    },
+    padding: 0,
+    wordWrapWidth: 0,
+    forceTextAlign: false,
+    forceCalculateMaxLineWidth: false,
+  },
+  line: {
+    color: 'rgba(41,98,255,1)',
+    width: 4,
+    style: 0,
+    end: {
+      left: 0,
+      right: 0,
+    },
+    extend: {
+      right: false,
+      left: false,
+    },
+  },
+  visible: true,
+  editable: true,
+}
+
+const priceRangeOption = {
+  text: {
+    value: '',
+    alignment: TextAlignment.Left,
+    font: {
+      color: 'rgba(41,98,255,1)',
+      size: 23,
+      bold: false,
+      italic: false,
+      family: 'Arial',
+    },
+    box: {
+      alignment: {
+        vertical: BoxVerticalAlignment.Top,
+        horizontal: BoxHorizontalAlignment.Center,
+      },
+      angle: 0,
+      scale: 0.6,
+      offset: {
+        x: 0,
+        y: 0,
+      },
+      padding: {
+        x: 0,
+        y: 0,
+      },
+      maxHeight: 100,
+      shadow: {
+        blur: 0,
+        color: 'rgba(255,255,255,1)',
+        offset: {
+          x: 0,
+          y: 0,
+        },
+      },
+      border: {
+        color: 'rgba(126,211,33,0)',
+        width: 4,
+        radius: 0,
+        highlight: false,
+        style: 3,
+      },
+      background: {
+        color: 'rgba(199,56,56,0)',
+        inflation: {
+          x: 0,
+          y: 0,
+        },
+      },
+    },
+    padding: 0,
+    wordWrapWidth: 0,
+    forceTextAlign: true,
+    forceCalculateMaxLineWidth: true,
+  },
+  priceRange: {
+    background: {
+      color: 'rgba(156,39,176,0.2)',
+    },
+    border: {
+      color: 'rgba(39,176,80,1)',
+      width: 3,
+      style: 0,
+    },
+    extend: {
+      right: false,
+      left: false,
+    },
+  },
+  visible: true,
+  editable: true,
+}
+
+
+
 export const ChartComponent = (props: any) => {
   const {
     data,
@@ -56,6 +203,7 @@ export const ChartComponent = (props: any) => {
     interval,
     selectLineColor,
     setLastLineJSON, // #
+    editType,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -119,6 +267,15 @@ export const ChartComponent = (props: any) => {
       // width: chartContainerRef.current?.clientWidth,
     })
   }
+
+  useEffect(() => {
+    if (editType === 'trendline') {
+      chart.current?.addLineTool('TrendLine', [], trendLineOption)
+    }
+    if (editType === 'PriceRange') {
+      chart.current?.addLineTool('PriceRange', [], priceRangeOption)
+    }
+  }, [editType])
 
   useEffect(() => {
     let tempWidth = 0
@@ -374,78 +531,9 @@ export const ChartComponent = (props: any) => {
       chart.current?.addLineTool(
         'TrendLine',
         [trendPoints.point1, trendPoints.point2],
-        {
-          text: {
-            value: '',
-            alignment: TextAlignment.Left,
-            font: {
-              color: 'rgba(255,255,255,1)',
-              size: 14,
-              bold: true,
-              italic: true,
-              family: 'Arial',
-            },
-            box: {
-              alignment: {
-                vertical: BoxVerticalAlignment.Bottom,
-                horizontal: BoxHorizontalAlignment.Center,
-              },
-              angle: 0,
-              scale: 1,
-              offset: {
-                x: 0,
-                y: 20,
-              },
-              padding: {
-                x: 0,
-                y: 0,
-              },
-              maxHeight: 100,
-              shadow: {
-                blur: 0,
-                color: 'rgba(255,255,255,1)',
-                offset: {
-                  x: 0,
-                  y: 0,
-                },
-              },
-              border: {
-                color: 'rgba(126,211,33,1)',
-                width: 4,
-                radius: 20,
-                highlight: false,
-                style: 1,
-              },
-              background: {
-                color: 'rgba(199,56,56,0.25)',
-                inflation: {
-                  x: 10,
-                  y: 10,
-                },
-              },
-            },
-            padding: 0,
-            wordWrapWidth: 0,
-            forceTextAlign: false,
-            forceCalculateMaxLineWidth: false,
-          },
-          line: {
-            color: 'rgba(41,98,255,1)',
-            width: 4,
-            style: 0,
-            end: {
-              left: 0,
-              right: 0,
-            },
-            extend: {
-              right: false,
-              left: false,
-            },
-          },
-          visible: true,
-          editable: true,
-        }
-      )
+        trendLineOption,
+        )
+      chart.current?.removeSelectedLineTools()
     }
 
     chart.current?.applyOptions({})
@@ -512,12 +600,14 @@ export const ChartComponent = (props: any) => {
 
   useEffect(() => {
     if (priceRangePoint) {
-     chart.current?.addLineTool(
+      chart.current?.removeSelectedLineTools();
+      chart.current?.addLineTool(
         'PriceRange',
         [priceRangePoint.point1, priceRangePoint.point2],
-        pricerangeDefaultOption
+        priceRangeOption
       )
     }
+
     chart.current.applyOptions({})
   }, [priceRangePoint])
 

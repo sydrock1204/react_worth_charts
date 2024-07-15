@@ -349,7 +349,7 @@ const Chart: FC = () => {
           setStartPoint(tempPoint)
         }
         break
-      case 'pricerange':
+      case 'PriceRange':
         if (editClickCounts == 0) {
           setEditClickCounts(editClickCounts + 1)
           setStartPoint(tempPoint)
@@ -671,12 +671,12 @@ const Chart: FC = () => {
             />
             <img
               src={
-                editType == 'pricerange' ? PriceRangeSelectedSvg : PriceRangeSvg
+                editType == 'PriceRange' ? PriceRangeSelectedSvg : PriceRangeSvg
               }
               alt="priceRange"
               width={50}
               onClick={() => {
-                setEditType('pricerange')
+                setEditType('PriceRange')
               }}
               className="cursor-pointer p-2"
             />
@@ -732,6 +732,7 @@ const Chart: FC = () => {
             interval={interval}
             selectLineColor={selectedLineColor}
             setLastLineJSON={setLastLineJSON} // #
+            editType={editType}
           />
         </div>
 
