@@ -136,7 +136,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true) // State to track loading
 
   const signInHandler = async (email: string, password: string) => {
-    console.log('signInHandler')
+    // console.log('signInHandler')
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
@@ -172,7 +172,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     supabase.auth
       .getUser()
       .then(data => {
-        console.log('userData: ', data)
+        // console.log('userData: ', data)
         setUser(data.data.user)
         setIsLoading(false) // Set loading to false after fetching data
       })

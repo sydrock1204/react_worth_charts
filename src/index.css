@@ -19,11 +19,14 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: #ffffff;
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: #237d6b;
+}
+a:active {
+  color: #39c594;
 }
 
 body {
@@ -94,7 +97,13 @@ button:focus-visible {
     background-color: #ffffff;
   }
   a:hover {
-    color: #747bff;
+    color: #09eb51;
+  }
+  a:active {
+    color: #09eb51;
+  }
+  a:focus {
+    color: #09eb51;
   }
   button {
     background-color: #f9f9f9;

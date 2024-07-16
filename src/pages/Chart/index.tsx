@@ -55,7 +55,7 @@ import useWindowWidth from '../../context/useScreenWidth'
 
 import { ChartComponent } from '../../components/chartview'
 import { ChartView } from './chartView'
-import { FlatTree } from 'framer-motion'
+import { FlatTree, color } from 'framer-motion'
 
 const Chart: FC = () => {
   const navigate = useNavigate()
@@ -401,13 +401,13 @@ const Chart: FC = () => {
     <div className="flex flex-col gap-2">
       <div id="Chart" className="relative flex flex-row">
         <div className="absolute w-[800px] flex flex-col z-30 md:w-[660px]">
-          {/*Header bar-----*/}
-          <div className="flex flex-row h-[40px] bg-white border-color-[#E0E3EB] border-b-2 ">
+      {/*Header bar-----*/}
+          <div className="flex flex-row h-[42.34px] bg-white border-color-[#E0E3EB] border-b-2 ">
             <div className="flex flex-row">
               <div className="flex">
-                <img src={MagnifierSvg} alt="magnifier" className="flex p-2" />
+                <img src={MagnifierSvg} alt="magnifier" className="w-[20.06px] h-[20.06px] ml-[11.14px] mt-[11.14px]" />
                 <input
-                  className="my-[4px] mx-[2px] w-[100px] p-1 font-mono font-bold"
+                  className="my-[4px] mx-[2px] w-[70px] p-1 font-mono font-bold text-[15.6px] "
                   value={symbol}
                   onChange={handleChange}
                   onFocus={handleOpenModal}
@@ -417,17 +417,17 @@ const Chart: FC = () => {
                 <img
                   src={CompareSvg}
                   alt="compare"
-                  className="flex p-2 cursor-pointer hover:bg-gray5 border-r-2 border-b-gray-800"
+                  className="w-[31.2px] flex p-0.1 cursor-pointer hover:bg-gray5 border-r-2 border-b-gray-800"
                   // onClick={() => setSymbol(symbol)}
                 />
               </div>
             </div>
-            <div className="flex flex-row gap-2 my-1">
+            <div className="flex flex-row my-1">
               <button
                 className={
                   interval == '1min'
-                    ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
-                    : 'w-[40px] cursor-pointer hover:bg-gray5'
+                    ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700 text-16 text-black '
+                    : 'w-[40px] cursor-pointer hover:bg-gray5 text-16 '
                 }
                 onClick={() => {
                   setInterval('1min')
@@ -507,21 +507,23 @@ const Chart: FC = () => {
                 </div>
               )}
               <div className="w-2 border-r-2 border-b-gray-800" />
-              <img
-                src={lineSeries === 'candlestick' ? CandleSvg : StickSvg}
-                alt="stick"
-                className="cursor-pointer hover:bg-gray5 mr-4"
-                onClick={selectLineStyle}
-              />
-              <img
-                src={SettingsSvg}
-                alt="settings"
-                className="cursor-pointer hover:bg-gray5"
-              />
-              <img
-                src={IntervalSvg}
-                className="cursor-pointer hover:bg-gray5"
-              />
+              <div className='flex w-[110px]'>
+                <img
+                  src={lineSeries === 'candlestick' ? CandleSvg : StickSvg}
+                  alt="stick"
+                  className="cursor-pointer hover:bg-gray5 mr-[33.43px]"
+                  onClick={selectLineStyle}
+                />
+                <img
+                  src={SettingsSvg}
+                  alt="settings"
+                  className="cursor-pointer hover:bg-gray5"
+                />
+                <img
+                  src={IntervalSvg}
+                  className="cursor-pointer hover:bg-gray5"
+                />
+              </div>
               <div className="w-1 border-r-2 border-b-gray-800" />
               <img
                 src={IndicatorsSvg}
@@ -530,6 +532,7 @@ const Chart: FC = () => {
                   setIsVisibleIndicator(!isVisibleIndicator)
                 }}
               />
+              <p className='pt-1'>indicators</p>
               {isVisibleIndicator && (
                 <div className="flex flex-col absolute top-12 gap-1 left-[520px]">
                   {indicators.map((value, index) => {
@@ -557,7 +560,7 @@ const Chart: FC = () => {
                 </div>
               )}
 
-              <button
+              {/* <button
                 className="ml-8 w-16 bg-color-brand-green rounded-md text-white"
                 onClick={onSaveLines}
               >
@@ -568,63 +571,80 @@ const Chart: FC = () => {
                 onClick={onLoadLines}
               >
                 Load
-              </button>
+              </button> */}
             </div>
           </div>
       {/* ---header bar */}
-
+   
       {/*coordinate header display---*/}
           <div className="flex flex-col h-[40px] bg-transparent text-sm ml-2">
-            <div className="flex flex-row">
-              <span>{`${companyData} * ${interval} :`}</span>
-              <p>{`O `}</p>
-              <span
-                // className="text-green-700"
-                className={
-                  changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
-                }
-              >
-                &nbsp;{hoverData.open}&nbsp;
-              </span>
-              <p>{`C `}</p>
-              <span
-                // className="text-green-700"
-                className={
-                  changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
-                }
-              >
-                &nbsp;{hoverData.close}&nbsp;
-              </span>
-              <p>{`H `}</p>
-              <span
-                // className="text-green-700"
-                className={
-                  changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
-                }
-              >
-                &nbsp;{hoverData.high}&nbsp;
-              </span>
-              <p>{`L `}</p>
-              <span
-                // className="text-green-700"
-                className={
-                  changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
-                }
-              >
-                &nbsp;{hoverData.low}&nbsp;
-              </span>
-              <span
-                className={
-                  changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
-                }
-              >
-                &nbsp;{changeValue.value.toFixed(2)}(
-                {changeValue.percent.toFixed(2)}%)
-              </span>
+            <div className="flex flex-row w-[136%] mt-[7.11px]">
+              <div className=" bg-black  w-[20.06px] h-[20.06px] rounded-full"></div>
+              <span className='mr-4 ml-2  text-base'>{`${companyData} · ${interval} · Cboe One `}</span>
+              <div className="flex rounded-full overflow-hidden w-[44.57px] h-[20.06px] mr-5 mt-0.5">
+                <div className="flex-1 flex justify-center items-center relative bg-gradient-to-r from-lightgreen to-green-200 bg-[#089981] bg-opacity-20">
+                  <div className="rounded-full w-[8.91px] h-[8.91px] bg-[#089981]" ></div>
+                </div>
+                <div className="flex-1 flex justify-center bg-[#F57C00] bg-opacity-15 items-center relative bg-gradient-to-r from-lightyellow to-yellow-200">
+                  <span className="text-[#F57C00] font-bold pt-[2.5px]">D</span>
+                </div>
+              </div>
+              <div className='flex mt-[3px] text-sm'>
+                <p >{`O `}</p>
+                <span
+                  // className="text-green-700"
+                  className={
+                    changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+                  }
+                >
+                  &nbsp;{hoverData.open}&nbsp;
+                </span>
+                
+                <p>{`H `}</p>
+                <span
+                  // className="text-green-700"
+                  className={
+                    changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+                  }
+                >
+                  &nbsp;{hoverData.high}&nbsp;
+                </span>
+                <p>{`L `}</p>
+                <span
+                  // className="text-green-700"
+                  className={
+                    changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+                  }
+                >
+                  &nbsp;{hoverData.low}&nbsp;
+                </span>
+                <p>{`C `}</p>
+                <span
+                  // className="text-green-700"
+                  className={
+                    changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+                  }
+                >
+                  &nbsp;{hoverData.close}&nbsp;
+                </span>
+                <span
+                  className={
+                    changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+                  }
+                >
+                  &nbsp;{changeValue.value.toFixed(2)}(
+                  {changeValue.percent.toFixed(2)}%)
+                </span>
+              </div>
             </div>
-            <div className="flex flex-row gap-2">
-              <p>{`Vol`}</p>
-              <span className="text-red-700">
+            <div className='flex mt-[5px]'>
+                <div className='ml-[53px] mr-3 border rounded-md pl-2 pr-2 pt-2 pb-2 border-black'>169.58</div>
+                <p className='pr-3 pt-3'>0.00</p>
+                <div className='border rounded-md pl-2 pr-2 pt-2 pb-2 border-blue-500 text-blue-800'>169.58</div>
+            </div>
+            <div className="flex flex-row gap-2 mt-3">
+              <p className='ml-[53px] text-base'>{`Vol`}</p>
+              <span className="text-red-700 text-base">
                 &nbsp;{hoverData.volume}&nbsp;
               </span>
             </div>
@@ -633,8 +653,8 @@ const Chart: FC = () => {
       {/*----coordinate header display*/}
 
       {/* tool bar----*/}
-        <div className="absolute z-20 flex flex-col w-[60px] h-[580px] bg-white top-[40px] pt-10 pb-4 px-2">
-          <div className="absolute flex flex-col -ml-[10px] bg-transparent w-[60px] h-[696px] border-t border-t-gray3 border-r border-r-gray3 px-2 gap-4">
+        <div className="absolute z-20 flex flex-col w-[63px] h-[580px] bg-white top-[40px] pt-10 pb-4 px-2">
+          <div className="absolute flex flex-col -ml-[10px] bg-transparent w-[61px] h-[696px] border-t border-t-gray3 border-r border-r-gray3 px-2 gap-4">
             <img
               src={editType == 'arrow' ? ArrowSelectedSvg : ArrowSvg}
               alt="Text"
@@ -725,7 +745,7 @@ const Chart: FC = () => {
 
       {/* ------tool bar */}
 
-        <div className="flex items-center">
+        <div>
           <ChartComponent
             selectDelete={selectDelete}
             data={data}

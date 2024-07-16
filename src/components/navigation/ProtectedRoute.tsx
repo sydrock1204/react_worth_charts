@@ -16,21 +16,22 @@ const ProtectedRoute: FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       await loadUsers()
-      console.log('location: ', location, 'user: ', user)
+      // console.log('location: ', location, 'user: ', user)
     }
 
-    fetchData().then(e => console.log(e))
-    console.log('location: ', location, 'user: ', user)
+    fetchData().then(
+      // e => console.log(e)
+    )
+    // console.log('location: ', location, 'user: ', user)
   }, [])
 
   const handleResize = () => {
-    console.log('handleResize: ', ref.current.offsetWidth)
+    // console.log('handleResize: ', ref.current.offsetWidth)
     if (ref.current) {
-      console.log('handleResized: ', ref.current.offsetWidth)
+      // console.log('handleResized: ', ref.current.offsetWidth)
       setWidth(ref.current.offsetWidth + 1)
     }
   }
-
   useEffect(() => {
     window.addEventListener('resize', handleResize)
     setTimeout(handleResize, 1500)
@@ -40,7 +41,7 @@ const ProtectedRoute: FC = () => {
   }, [])
 
   if (isLoading) {
-    console.log('loading...')
+    // console.log('loading...')
     return <div>Loading...</div>
   }
 

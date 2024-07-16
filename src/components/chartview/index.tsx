@@ -207,7 +207,7 @@ export const ChartComponent = (props: any) => {
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
-      textColor = 'black',
+      textColor = '#000000',
       areaTopColor = '#2962FF',
       areaBottomColor = 'rgba(41, 98, 255, 0.28)',
     } = {},
@@ -377,19 +377,19 @@ export const ChartComponent = (props: any) => {
 
     if (lineSeries == 'candlestick') {
       candleStickSeries.current = chart.current.addCandlestickSeries({
-        upColor: 'green',
-        downColor: 'red',
+        upColor: '#000000',
+        downColor: '#000000',
       })
     } else if (lineSeries == 'bar') {
       candleStickSeries.current = chart.current.addBarSeries({
-        upColor: 'green',
-        downColor: 'red',
+        upColor: '#000000',
+        downColor: '#000000',
       })
     }
     candleStickSeries.current.setData(data)
 
     const volumeSeries = chart.current.addHistogramSeries({
-      color: '#26a69a',
+      color: '#00FF00',
       priceFormat: {
         type: 'volume',
       },
