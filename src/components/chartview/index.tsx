@@ -202,7 +202,7 @@ export const ChartComponent = (props: any) => {
     symbol,
     interval,
     selectLineColor,
-    setLastLineJSON, // #
+    setLastLineJSON,
     editType,
     colors: {
       backgroundColor = 'white',
@@ -228,15 +228,14 @@ export const ChartComponent = (props: any) => {
   const [priorSelectDelete, setPriorSelectDelete] =
     useState<boolean>(selectDelete)
   const width = useWindowWidth()
-  // const headerWidth = useHeaderWidthStore(state => state.width)
-  const { width: headerWidth } = useHeaderWidthStore()
+ const { width: headerWidth } = useHeaderWidthStore()
 
 
   const getPointInformation = (param: MouseEventParams) => {
     if (!param.point) {
       return
     }
-    // console.log('---------!!!!-----',chart.current?.getSelectedLineTools());
+ 
     handleSelectedLine(chart.current?.getSelectedLineTools())
 
     const pointPrice = candleStickSeries.current?.coordinateToPrice(
@@ -263,7 +262,7 @@ export const ChartComponent = (props: any) => {
 
   const handleResize = () => {
     chart.current?.applyOptions({
-      // width: chartContainerRef.current?.clientWidth,
+
     })
   }
 
@@ -304,7 +303,6 @@ export const ChartComponent = (props: any) => {
     if (magnet) {
       const newCrosshair = { ...crosshair, magnetThreshold: 40 }
       const newOptions = { ...options, crosshair: newCrosshair }
-      // console.log('-----------------newoptions----------',newOptions)
       chart.current?.applyOptions(newOptions)
     } else {
       const newCrosshair = { ...crosshair, magnetThreshold: 14 }
@@ -314,7 +312,6 @@ export const ChartComponent = (props: any) => {
   }, [magnet])
 
 
-  // delete the object when del key is pressed
    useEffect(() => {
     const handleDeleteKeyPressed = () => {
       if(selectedLine !== " ") {
@@ -409,7 +406,6 @@ export const ChartComponent = (props: any) => {
 
     volumeSeries.setData(volume)
 
-    // chart.current.timeScale().fitContent()
     chart.current.timeScale().setVisibleLogicalRange({
       from: data.length - 50,
       to: data.length,
@@ -451,8 +447,6 @@ export const ChartComponent = (props: any) => {
           color: '#2962FF',
         })
 
-        // console.log('indicatorArray', indicatorArray)
-
         const indifunction = indicatorArray[indicatorArray.length - 1]
         const indicatorSeries = await fetchStockIndicator(
           indifunction,
@@ -466,13 +460,11 @@ export const ChartComponent = (props: any) => {
           .map((data, index) => {
             const indiData = {
               time: getTimeStamp(data[0]),
-              // value: Number(data[1]['Real Upper Band']),
               value: Number(data[1][indifunction]),
             }
             return indiData
           })
           .reverse()
-        // console.log('indicatorData: ', indicatorData)
 
         indicatorLineSeries.setData(indicatorData)
       }
@@ -552,10 +544,9 @@ export const ChartComponent = (props: any) => {
   useEffect(() => {
     if (labelPoint) {
       const ret = chart.current?.addLineTool('Text', [labelPoint], labelDefaultOption)
-      setLastLineJSON (ret); // #
+      setLastLineJSON (ret); 
     }
 
-    // chart.current?.timeScale().fitContent()
     chart.current.applyOptions({})
   }, [labelPoint])
 

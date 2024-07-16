@@ -172,7 +172,6 @@ export const ChartOnlyView = (props: any) => {
 
     volumeSeries.setData(volume)
 
-    // chart.current.timeScale().fitContent()
     chart.current.timeScale().setVisibleLogicalRange({
       from: data.length - 100,
       to: data.length,
