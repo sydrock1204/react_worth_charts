@@ -5,15 +5,15 @@ import { stockWatchLists, stockWatchListState } from '../utils/typing'
 import { supabase } from './supabase'
 
 export const defaultStockWatchLists: stockWatchLists = {
-  Indices: {
+  INDICES: {
     visible: false,
     lists: [],
   },
-  Stocks: {
+  STOCKS: {
     visible: true,
     lists: ['AAPL', 'NVDA'],
   },
-  Futures: {
+  FUTURES: {
     visible: false,
     lists: [],
   },

@@ -164,21 +164,21 @@ export const WatchList: FC = () => {
         className={`flex flex-col ml-2 xl:w-watchList-xl xl:visible lg:w-watchList-lg lg:visible h-[800px] bg-white pt-2`}
       >
         <div className="flex flex-row mr-4 mb-4">
-          <div className="w-1/4 flex flex-row">
-            <img src={ThumbSvg} />
+          <div className="w-1/4 flex flex-row text-xl text-[#6A6D78]">
+            <img src={ThumbSvg} className='h-[20px] w-[17px] mt-[7px]' />
             Symbol
           </div>
-          <div className="w-1/4 text-right">Last</div>
-          <div className="w-1/4 text-right pr-2">Chg</div>
-          <div className="w-1/4 text-right pr-4 mr-2">Chg%</div>
+          <div className="w-1/4 text-right text-xl text-[#6A6D78]">Last</div>
+          <div className="w-1/4 text-right pr-2 text-xl text-[#6A6D78]">Chg</div>
+          <div className="w-1/4 text-right pr-4 mr-2 text-xl text-[#6A6D78]">Chg%</div>
         </div>
         {Object.keys(watchLists).map((header: string, index: number) => {
           return (
             <div
-              className="flex flex-col py-2 px-4 border-b-[#008C48] border-b-2 ml-2"
+              className="flex flex-col py-2 px-4 border-b-[#008C48] border-b-2 border-opacity-35 ml-2"
               key={index}
             >
-              <div className="flex flex-row">
+              <div className="flex flex-row text-base text-[#6A6D78]">
                 <img
                   src={CloseListSvg}
                   className="hover:bg-gray4 hover:cursor-pointer"
@@ -215,7 +215,7 @@ export const WatchList: FC = () => {
                   }
                   return (
                     <div
-                      className="flex flex-row ml-4 my-1"
+                      className="flex flex-row ml-4 my-1 text-[#6A6D78]"
                       key={`${header}-${index}`}
                     >
                       <div className="w-1/4 text-left">{stock}</div>

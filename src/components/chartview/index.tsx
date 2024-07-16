@@ -85,7 +85,7 @@ const trendLineOption = {
   },
   line: {
     color: 'rgba(41,98,255,1)',
-    width: 4,
+    width: 2,
     style: 0,
     end: {
       left: 0,
@@ -160,8 +160,8 @@ const priceRangeOption = {
       color: 'rgba(156,39,176,0.2)',
     },
     border: {
-      color: 'rgba(39,176,80,1)',
-      width: 3,
+      color: 'rgba(41,98,255,1)',
+      width: 2,
       style: 0,
     },
     extend: {
@@ -207,13 +207,11 @@ export const ChartComponent = (props: any) => {
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
-      textColor = 'black',
+      textColor = '#000000',
       areaTopColor = '#2962FF',
       areaBottomColor = 'rgba(41, 98, 255, 0.28)',
     } = {},
   } = props
-
-  // console.log('--------------trendpoints----',handleSelectedLine);
 
 
   const colorJSON = {
@@ -233,11 +231,12 @@ export const ChartComponent = (props: any) => {
   // const headerWidth = useHeaderWidthStore(state => state.width)
   const { width: headerWidth } = useHeaderWidthStore()
 
+
   const getPointInformation = (param: MouseEventParams) => {
     if (!param.point) {
       return
     }
-
+    // console.log('---------!!!!-----',chart.current?.getSelectedLineTools());
     handleSelectedLine(chart.current?.getSelectedLineTools())
 
     const pointPrice = candleStickSeries.current?.coordinateToPrice(
@@ -378,19 +377,19 @@ export const ChartComponent = (props: any) => {
 
     if (lineSeries == 'candlestick') {
       candleStickSeries.current = chart.current.addCandlestickSeries({
-        upColor: 'green',
-        downColor: 'red',
+        upColor: '#000000',
+        downColor: '#000000',
       })
     } else if (lineSeries == 'bar') {
       candleStickSeries.current = chart.current.addBarSeries({
-        upColor: 'green',
-        downColor: 'red',
+        upColor: '#000000',
+        downColor: '#000000',
       })
     }
     candleStickSeries.current.setData(data)
 
     const volumeSeries = chart.current.addHistogramSeries({
-      color: '#26a69a',
+      color: '#00FF00',
       priceFormat: {
         type: 'volume',
       },
@@ -528,12 +527,12 @@ export const ChartComponent = (props: any) => {
 
   useEffect(() => {
     if (trendPoints) {
-      chart.current?.addLineTool(
+      chart.current?.addLineTool( 
         'TrendLine',
         [trendPoints.point1, trendPoints.point2],
         trendLineOption,
         )
-      chart.current?.removeSelectedLineTools()
+        chart.current?.removeSelectedLineTools()
     }
 
     chart.current?.applyOptions({})
