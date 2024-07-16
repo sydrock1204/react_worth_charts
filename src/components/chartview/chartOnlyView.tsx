@@ -140,13 +140,13 @@ export const ChartOnlyView = (props: any) => {
 
     if (lineSeries == 'candlestick') {
       candleStickSeries.current = chart.current.addCandlestickSeries({
-        upColor: 'green',
-        downColor: 'red',
+        upColor: '#000000',
+        downColor: '#000000',
       })
     } else if (lineSeries == 'bar') {
       candleStickSeries.current = chart.current.addBarSeries({
-        upColor: 'green',
-        downColor: 'red',
+        upColor: '#000000',
+        downColor: '#000000',
       })
     }
     candleStickSeries.current.setData(data)
