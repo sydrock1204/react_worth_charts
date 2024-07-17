@@ -58,7 +58,7 @@ import { ChartView } from './chartView'
 import { fetchCompanyName } from '../../api/fetchCompanyName'
 import { error } from 'console'
 import axios from 'axios'
-
+import Spinner from './spinner';
 const Chart: FC = () => {
   const navigate = useNavigate()
 
@@ -111,9 +111,10 @@ const Chart: FC = () => {
     percent: 0,
   })
   const [suggestionList, setSuggestionList ] = useState<any>([]); 
-  const [keywords, setKeywords] = useState<string>();
+  const [keywords, setKeywords] = useState<string>('APPLE');
   const indicators = ['RSI', 'SMA', 'EMA', 'WMA', 'ADX']
   const [loading, setLoading] = useState(true);
+
 
   useEffect (() => { 
     if (lastLineJSON && lastLineJSON.lineTool) { 
@@ -142,7 +143,7 @@ const Chart: FC = () => {
       document.removeEventListener('keydown', handleEscKey);
     };
   }, []);
-  // 
+  
 
   const handleTemplePoint = (point: Point) => {
     setTempPoint(point)
@@ -261,10 +262,9 @@ const Chart: FC = () => {
   const searchHandleChange = event => {
     const value = event.target.value.toUpperCase();
     setKeywords(value);
-    // console.log('----dddd',value);
-    // setSymbol(event.target.value.toUpperCase())
+    setSymbol(value);
   }
-    
+
   useEffect(() =>{
     const fetchData = async () => {
       try {
@@ -300,9 +300,9 @@ const Chart: FC = () => {
       console.log(e)
     })
   }, [])
-
+ 
   useEffect(() => {
-    console.log('------symbol----',symbol);
+    // console.log('------symbol----',symbol);
     const fetchWrapper = async () => {
       try {
         const { stockDataSeries, tempDataArray, Volume, timeIndex } = await fetchStockData(symbol, interval)
@@ -313,7 +313,7 @@ const Chart: FC = () => {
         setTimeIndexArray(timeIndex)
         setVolume(Volume)
       } catch (err) {
-        console.log(err)
+        console.log('!!!!!! undefined')
       } finally {
         setLoading(false)
       }
@@ -400,38 +400,47 @@ const Chart: FC = () => {
     setSymbol(symbol);
   }
 
+  const dropDownChange = (e) => {
+    if (e.code==='Enter') {
+      setSuggestionList(undefined);
+    }
+  }
+ 
   return (
     <div className="flex flex-col gap-2">
       <div id="Chart" className="relative flex flex-row">
+        <Spinner isLoading={loading} />
         <div className="absolute w-[800px] flex flex-col z-30 md:w-[660px]">
           {/*Header bar-----*/}
           <div className="flex flex-row h-[42.34px] bg-white border-color-[#E0E3EB] border-b-2 ">
             <div className="flex flex-row">
               <div className="flex">
                 <img src={MagnifierSvg} alt="magnifier" className="w-[20.06px] h-[20.06px] ml-[11.14px] mt-[11.14px]" />
-                <input
-                  className="my-[4px] mx-[2px] w-[70px] p-1 font-mono font-bold text-[15.6px] "
-                  value={keywords}
-                  onChange={searchHandleChange}
-                />
-                <ul className="absolute mt-[50px] left-0 w-[150px] bg-white z-10">
+                  <input
+                    className="my-[4px] mx-[2px] w-[70px] p-1 font-mono font-bold text-[15.6px] "
+                    value={keywords}
+                    onInput={searchHandleChange}
+                    onKeyDown={dropDownChange}
+                    type="text" name="product" list="productName"
+                  />
+                <datalist id="productName" >
                 {
                   suggestionList !== undefined && suggestionList.length > 0 && (
                     suggestionList.map((item, index) => {
                       const firstKey = Object.keys(item)[0];
                       return (
-                        <li 
+                        <option 
                           key={index} 
-                          onClick={() => suggestItemselector(item[firstKey])} 
                           className="p-2 border-b border-r border-gray-500 hover:bg-gray-100 text-center"
+                          value={item[firstKey]}
                         >
                           {item[firstKey]}
-                        </li>
+                        </option>
                       );
                     })
                   )
                 }
-                </ul>
+                </datalist>
               </div>
               <div className="flex">
                 <img
