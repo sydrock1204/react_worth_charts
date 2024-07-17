@@ -172,27 +172,26 @@ export const ChartView: FC = () => {
   return (
     <div>
       <div className="absolute w-[700px] flex flex-col z-30 lg:max-w-[370px]">
+
         <div
-          className={`flex flex-row h-[40px] bg-white border-color-[#E0E3EB] border-b-2`}
+          className={`flex h-[30px] bg-white border-color-[#E0E3EB] border-b-2`}
         >
-          <div className="flex flex-row">
+          <div className="flex">
             <div className="flex">
-              <img src={MagnifierSvg} alt="magnifier" className="flex p-2" />
+              <img src={MagnifierSvg} alt="magnifier" className="flex p-[5.9px]" />
               <input
-                className="my-[4px] mx-[2px] w-[80px] p-1 font-mono font-bold"
+                className="my-[4px]  w-[80px]  text-xs pt-[3px] font-bold"
                 value={symbol}
                 onChange={handleChange}
               />
             </div>
-            <div className="flex">
-              <img
-                src={CompareSvg}
-                alt="compare"
-                className="flex p-2 cursor-pointer hover:bg-gray5 border-r-2 border-b-gray-800"
-              />
-            </div>
+            <img
+              src={CompareSvg}
+              alt="compare"
+              className="w-[30px] h-[30px] cursor-pointer hover:bg-gray5 border-r-2 border-b-gray-800"
+            />
           </div>
-          <div className="flex flex-row gap-2 my-1">
+          <div className="flex flex-row gap-2 ml-10 text-xs">
             <button
               className={
                 interval == '1min'
@@ -297,6 +296,7 @@ export const ChartView: FC = () => {
                 setIsVisibleIndicator(!isVisibleIndicator)
               }}
             />
+            <p className='flex items-center font-bold'>Indicators</p>
             {isVisibleIndicator && (
               <div className="flex flex-col absolute top-12 gap-1 left-[520px] lg:left-[320px] xl:left-[480px]">
                 {indicators.map((value, index) => {
@@ -325,61 +325,77 @@ export const ChartView: FC = () => {
             )}
           </div>
         </div>
-        <div className="flex flex-col h-[40px] bg-white text-sm ml-2 mr-14">
-          <div className="flex flex-row">
-            {controlPanelWidth > 640 && (
-              <span>{`${companyData} * ${interval} :`}</span>
-            )}
-            <p>{`O `}</p>
-            <span
-              // className="text-green-700"
-              className={
-                changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
-              }
-            >
-              &nbsp;{hoverData.open}&nbsp;
-            </span>
-            <p>{`C `}</p>
-            <span
-              // className="text-green-700"
-              className={
-                changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
-              }
-            >
-              &nbsp;{hoverData.close}&nbsp;
-            </span>
-            <p>{`H `}</p>
-            <span
-              // className="text-green-700"
-              className={
-                changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
-              }
-            >
-              &nbsp;{hoverData.high}&nbsp;
-            </span>
-            <p>{`L `}</p>
-            <span
-              // className="text-green-700"
-              className={
-                changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
-              }
-            >
-              &nbsp;{hoverData.low}&nbsp;
-            </span>
-            <span
-              className={
-                changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
-              }
-            >
-              &nbsp;{changeValue.value.toFixed(2)}(
-              {changeValue.percent.toFixed(2)}%)
-            </span>
-          </div>
-          <div className="flex flex-row gap-2">
-            <p>{`Vol`}</p>
-            <span className="text-red-700">&nbsp;{hoverData.volume}&nbsp;</span>
+
+        <div className="flex  h-[18.95px] bg-white text-sm mt-[3.5px] ml-2 mr-14 text-xs">
+          <div className="flex">
+            <div className='flex items-center'>
+              <div className=" bg-black  w-[12.21px] h-[12.21px] rounded-full"></div>
+            </div>
+            <div className=' whitespace-nowrap ml-[2px]'><p>{`${companyData}•${interval}•Cboe One`}</p></div>
+            <div className='flex items-center ml-[9px]'>
+              <div className="flex rounded-full overflow-hidden w-[44.57px] h-[20.06px] mr-5 mt-0.5">
+                <div className="flex-1 flex justify-center items-center relative bg-gradient-to-r from-lightgreen to-green-200 bg-[#089981] bg-opacity-20">
+                  <div className="rounded-full w-[8.91px] h-[8.91px] bg-[#089981]" ></div>
+                </div>
+                <div className="flex-1 flex justify-center bg-[#F57C00] bg-opacity-15 items-center relative bg-gradient-to-r from-lightyellow to-yellow-200 ">
+                  <span className="text-[#F57C00] font-bold pt-[2.5px]" >D</span>
+                </div>
+              </div>
+            </div>
+           <div className='flex pt-[3px]'>
+              <p>{`O `}</p>
+              <span
+                className={
+                  changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+                }
+              >
+                &nbsp;{hoverData.open}&nbsp;
+              </span>
+              <p>{`H `}</p>
+              <span
+                className={
+                  changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+                }
+              >
+                &nbsp;{hoverData.high}&nbsp;
+              </span>
+              <p>{`L `}</p>
+              <span
+                className={
+                  changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+                }
+              >
+                &nbsp;{hoverData.low}&nbsp;
+              </span>
+              <p>{`C `}</p>
+              <span
+                className={
+                  changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+                }
+              >
+                &nbsp;{hoverData.close}&nbsp;
+              </span>
+              <span
+                className={
+                  changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+                }
+              >
+                &nbsp;{changeValue.value.toFixed(2)}(
+                {changeValue.percent.toFixed(2)}%)
+              </span>
+
+            </div>
           </div>
         </div>
+        <div className='flex mt-[5px] text-xs'>
+          <div className='ml-[53px] mr-3 border rounded-md p-1 border-red-500 text-red-500'>169.58</div>
+          <p className='pr-1 pt-1'>0.00</p>
+          <div className='border rounded-md p-1 border-blue-500 text-blue-800'>169.58</div>
+        </div>
+        {/* <div className="flex flex-row gap-2 ml-[60px]">
+          <p>{`Vol`}</p>
+          <span className="text-red-700">&nbsp;{hoverData.volume}&nbsp;</span>
+        </div> */}
       </div>
       <ChartOnlyView
         data={data}

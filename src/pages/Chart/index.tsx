@@ -128,17 +128,13 @@ const Chart: FC = () => {
 
   const handleEscKey = (event) => {
     if (event.key === 'Escape') {
-      // The function you want to execute when ESC is pressed
       setIsLineSelected(false);
-      // Add your function here
     }
   };
 
   useEffect(() => {
-    // Add event listener for keydown
     document.addEventListener('keydown', handleEscKey);
 
-    // Cleanup event listener on component unmount
     return () => {
       document.removeEventListener('keydown', handleEscKey);
     };
@@ -194,8 +190,7 @@ const Chart: FC = () => {
           { user_id: user?.id, symbol, interval, linedata: exportLines },
         ])
     }
-
-    // setExportLines(exportLines)
+  
     setSave(false)
   }
 
@@ -379,29 +374,11 @@ const Chart: FC = () => {
   }, [tempPoint])
 
 
-  const [isDoubleClick, setIsdoubleclick] = useState<boolean>(false)
-
-  // useEffect(() => {
-  //     const handleDoubleClick = (event) => {
-  //       setIsdoubleclick(true);
-  //     }
-  //     // Add event listener for double-click events
-      // console.log('--------selectedLine----',isLineSelected);
-  //     if(isLineSelected === true && isDoubleClick === true) {
-  //       console.log('-----------!!!----');
-  //       }
-  //     window.addEventListener('dblclick', handleDoubleClick);
-  //     // Clean up the event listener on component unmount
-  //     return () => {
-  //       window.removeEventListener('dblclick', handleDoubleClick);
-  //     };
-  // },[])
-
   return (
     <div className="flex flex-col gap-2">
       <div id="Chart" className="relative flex flex-row">
         <div className="absolute w-[800px] flex flex-col z-30 md:w-[660px]">
-      {/*Header bar-----*/}
+          {/*Header bar-----*/}
           <div className="flex flex-row h-[42.34px] bg-white border-color-[#E0E3EB] border-b-2 ">
             <div className="flex flex-row">
               <div className="flex">
@@ -418,7 +395,6 @@ const Chart: FC = () => {
                   src={CompareSvg}
                   alt="compare"
                   className="w-[31.2px] flex p-0.1 cursor-pointer hover:bg-gray5 border-r-2 border-b-gray-800"
-                  // onClick={() => setSymbol(symbol)}
                 />
               </div>
             </div>
@@ -559,7 +535,6 @@ const Chart: FC = () => {
                   })}
                 </div>
               )}
-
               {/* <button
                 className="ml-8 w-16 bg-color-brand-green rounded-md text-white"
                 onClick={onSaveLines}
@@ -574,9 +549,9 @@ const Chart: FC = () => {
               </button> */}
             </div>
           </div>
-      {/* ---header bar */}
+          {/* ---header bar */}
    
-      {/*coordinate header display---*/}
+          {/*coordinate header display---*/}
           <div className="flex flex-col h-[40px] bg-transparent text-sm ml-2">
             <div className="flex flex-row w-[136%] mt-[7.11px]">
               <div className=" bg-black  w-[20.06px] h-[20.06px] rounded-full"></div>
@@ -585,14 +560,13 @@ const Chart: FC = () => {
                 <div className="flex-1 flex justify-center items-center relative bg-gradient-to-r from-lightgreen to-green-200 bg-[#089981] bg-opacity-20">
                   <div className="rounded-full w-[8.91px] h-[8.91px] bg-[#089981]" ></div>
                 </div>
-                <div className="flex-1 flex justify-center bg-[#F57C00] bg-opacity-15 items-center relative bg-gradient-to-r from-lightyellow to-yellow-200">
-                  <span className="text-[#F57C00] font-bold pt-[2.5px]">D</span>
+                <div className="flex-1 flex justify-center bg-[#F57C00] bg-opacity-15 items-center relative bg-gradient-to-r from-lightyellow to-yellow-200 ">
+                  <span className="text-[#F57C00] font-bold pt-[2.5px]" >D</span>
                 </div>
               </div>
               <div className='flex mt-[3px] text-sm'>
                 <p >{`O `}</p>
                 <span
-                  // className="text-green-700"
                   className={
                     changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
                   }
@@ -602,7 +576,6 @@ const Chart: FC = () => {
                 
                 <p>{`H `}</p>
                 <span
-                  // className="text-green-700"
                   className={
                     changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
                   }
@@ -611,7 +584,6 @@ const Chart: FC = () => {
                 </span>
                 <p>{`L `}</p>
                 <span
-                  // className="text-green-700"
                   className={
                     changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
                   }
@@ -620,7 +592,6 @@ const Chart: FC = () => {
                 </span>
                 <p>{`C `}</p>
                 <span
-                  // className="text-green-700"
                   className={
                     changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
                   }
@@ -650,9 +621,9 @@ const Chart: FC = () => {
             </div>
           </div>
         </div>
-      {/*----coordinate header display*/}
+        {/*----coordinate header display*/}
 
-      {/* tool bar----*/}
+        {/* tool bar------*/}
         <div className="absolute z-20 flex flex-col w-[63px] h-[580px] bg-white top-[40px] pt-10 pb-4 px-2">
           <div className="absolute flex flex-col -ml-[10px] bg-transparent w-[61px] h-[696px] border-t border-t-gray3 border-r border-r-gray3 px-2 gap-4">
             <img
@@ -742,8 +713,7 @@ const Chart: FC = () => {
             />
           </div>
         </div>
-
-      {/* ------tool bar */}
+        {/* ------tool bar */}
 
         <div>
           <ChartComponent
@@ -780,7 +750,7 @@ const Chart: FC = () => {
         { isLineSelected === true && (
           <Draggable defaultPosition={{ x: 550, y: 100 }}>
             <div className="absolute p-2 z-30 bg-white w-[200px] h-[180px] border border-black rounded-md cursor-pointer">
-            <button onClick={modalcloseHandler}>&times;</button>
+              <button onClick={modalcloseHandler} className='ml-[90%]'>&times;</button>
               <BaseInput
                 name="text"
                 label="text"
@@ -804,15 +774,6 @@ const Chart: FC = () => {
             </div>
           </Draggable>
         )}
-
-        {/* {
-          (editType == 'label' && tempPoint) && (
-            <input type="text" 
-            placeholder='labeltext'
-            />
-          )
-        } */}
-
         <WatchList />
       </div>
       {width < 1024 && (
