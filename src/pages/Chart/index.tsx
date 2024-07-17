@@ -55,7 +55,9 @@ import useWindowWidth from '../../context/useScreenWidth'
 
 import { ChartComponent } from '../../components/chartview'
 import { ChartView } from './chartView'
-import { FlatTree, color } from 'framer-motion'
+import { fetchCompanyName } from '../../api/fetchCompanyName'
+import { error } from 'console'
+import axios from 'axios'
 
 const Chart: FC = () => {
   const navigate = useNavigate()
@@ -80,7 +82,6 @@ const Chart: FC = () => {
   const [editClickCounts, setEditClickCounts] = useState<number>(0)
   const [tempPoint, setTempPoint] = useState<Point | null>(null)
   const [symbol, setSymbol] = useState('AAPL')
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [interval, setInterval] = useState('60min')
   const [importLines, setImportLines] = useState<string>('')
   const [save, setSave] = useState<boolean>(false)
@@ -104,13 +105,15 @@ const Chart: FC = () => {
   const [isVisibleIndicator, setIsVisibleIndicator] = useState<boolean>(false)
   const [indicatorArray, setIndicatorArray] = useState<string[]>([])
   const [timeIndexArray, setTimeIndexArray] = useState<any>([])
-  const [lastLineJSON, setLastLineJSON] = useState<any>() // #
+  const [lastLineJSON, setLastLineJSON] = useState<any>() 
   const [changeValue, setChangeValue] = useState({
     value: 0,
     percent: 0,
   })
-
+  const [suggestionList, setSuggestionList ] = useState<any>([]); 
+  const [keywords, setKeywords] = useState<string>();
   const indicators = ['RSI', 'SMA', 'EMA', 'WMA', 'ADX']
+  const [loading, setLoading] = useState(true);
 
   useEffect (() => { 
     if (lastLineJSON && lastLineJSON.lineTool) { 
@@ -247,10 +250,6 @@ const Chart: FC = () => {
     }
   }
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true)
-  }
-
   const selectLineStyle = () => {
     if (lineSeries == 'candlestick') {
       setLineSeries('bar')
@@ -259,13 +258,31 @@ const Chart: FC = () => {
     }
   }
 
-  const handleChange = event => {
-    setSymbol(event.target.value.toUpperCase())
+  const searchHandleChange = event => {
+    const value = event.target.value.toUpperCase();
+    setKeywords(value);
+    // console.log('----dddd',value);
+    // setSymbol(event.target.value.toUpperCase())
   }
+    
+  useEffect(() =>{
+    const fetchData = async () => {
+      try {
+        const suggestionData = await fetchCompanyName(keywords);
+        // console.log('======',suggestionData);
+        setSuggestionList(suggestionData);
+      } catch (error) {
+        console.log('Error fetching data',error);
+      }
+    }
+
+    fetchData();
+  },[keywords])
 
   const handleSelectedLineColor = (name: any, option: any) => {
     setSelectedLineColor(option)
   }
+  
   const modalcloseHandler = () => {
     setIsLineSelected(false);
   }
@@ -285,19 +302,23 @@ const Chart: FC = () => {
   }, [])
 
   useEffect(() => {
+    console.log('------symbol----',symbol);
     const fetchWrapper = async () => {
-      const { stockDataSeries, tempDataArray, Volume, timeIndex } =
-        await fetchStockData(symbol, interval)
-      const companyName = await fetchCompanyData(symbol)
-      setCompanyData(companyName)
-      setData(stockDataSeries)
-      setTempData(tempDataArray)
-      setTimeIndexArray(timeIndex)
-      setVolume(Volume)
+      try {
+        const { stockDataSeries, tempDataArray, Volume, timeIndex } = await fetchStockData(symbol, interval)
+        const companyName = await fetchCompanyData(symbol)
+        setCompanyData(companyName)
+        setData(stockDataSeries)
+        setTempData(tempDataArray)
+        setTimeIndexArray(timeIndex)
+        setVolume(Volume)
+      } catch (err) {
+        console.log(err)
+      } finally {
+        setLoading(false)
+      }
     }
-    fetchWrapper().catch(e => {
-      console.log(e)
-    })
+    fetchWrapper();
   }, [symbol, interval])
 
   useEffect(() => {
@@ -374,6 +395,11 @@ const Chart: FC = () => {
   }, [tempPoint])
 
 
+  const suggestItemselector = (symbol) => {
+    setSuggestionList([]);
+    setSymbol(symbol);
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <div id="Chart" className="relative flex flex-row">
@@ -385,10 +411,27 @@ const Chart: FC = () => {
                 <img src={MagnifierSvg} alt="magnifier" className="w-[20.06px] h-[20.06px] ml-[11.14px] mt-[11.14px]" />
                 <input
                   className="my-[4px] mx-[2px] w-[70px] p-1 font-mono font-bold text-[15.6px] "
-                  value={symbol}
-                  onChange={handleChange}
-                  onFocus={handleOpenModal}
+                  value={keywords}
+                  onChange={searchHandleChange}
                 />
+                <ul className="absolute mt-[50px] left-0 w-[150px] bg-white z-10">
+                {
+                  suggestionList !== undefined && suggestionList.length > 0 && (
+                    suggestionList.map((item, index) => {
+                      const firstKey = Object.keys(item)[0];
+                      return (
+                        <li 
+                          key={index} 
+                          onClick={() => suggestItemselector(item[firstKey])} 
+                          className="p-2 border-b border-r border-gray-500 hover:bg-gray-100 text-center"
+                        >
+                          {item[firstKey]}
+                        </li>
+                      );
+                    })
+                  )
+                }
+                </ul>
               </div>
               <div className="flex">
                 <img
