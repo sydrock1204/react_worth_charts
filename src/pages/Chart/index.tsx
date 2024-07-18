@@ -62,6 +62,7 @@ import axios from 'axios'
 import Spinner from './spinner';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
+import { Data } from '@react-google-maps/api'
 
 const Chart: FC = () => {
   const navigate = useNavigate()
@@ -324,7 +325,7 @@ const Chart: FC = () => {
     }
     fetchWrapper();
   }, [symbol, interval])
- 
+
   useEffect(() => {
     switch (editType) {
       case 'trendline':
@@ -423,7 +424,7 @@ const Chart: FC = () => {
                           color: 'rgba(0, 0, 0, 1)', // Change placeholder color here
                         },
                       }}
-                       placeholder='APPL'/>}
+                       placeholder='AAPL'/>}
                     onChange={HandleSelectChange}
                     sx={{
                       width: '120px',
