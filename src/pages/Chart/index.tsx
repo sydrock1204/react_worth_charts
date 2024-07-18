@@ -56,9 +56,13 @@ import useWindowWidth from '../../context/useScreenWidth'
 import { ChartComponent } from '../../components/chartview'
 import { ChartView } from './chartView'
 import { fetchCompanyName } from '../../api/fetchCompanyName'
+import { fetchAllSymbol } from '../../api/fetchAllSymbol'
 import { error } from 'console'
 import axios from 'axios'
 import Spinner from './spinner';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
+
 const Chart: FC = () => {
   const navigate = useNavigate()
 
@@ -111,10 +115,29 @@ const Chart: FC = () => {
     percent: 0,
   })
   const [suggestionList, setSuggestionList ] = useState<any>([]); 
-  const [keywords, setKeywords] = useState<string>('APPLE');
   const indicators = ['RSI', 'SMA', 'EMA', 'WMA', 'ADX']
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [companySymbols, setCompanySymbols] = useState<any>(null);
+  
 
+  useEffect(() => {
+    const fetchSymbol = async () => {
+      try {
+        const AllCompanySymbol = await fetchAllSymbol();
+        
+        const lines = AllCompanySymbol.split('\n');
+        const result = lines.slice(1).map(line => {
+          const [symbol] = line.split(',');
+          return { label: symbol };
+        });
+        setCompanySymbols(result);
+      } catch (error) {
+        console.log('Error fetching data',error);
+      }
+    }
+
+    fetchSymbol(); 
+   },[])
 
   useEffect (() => { 
     if (lastLineJSON && lastLineJSON.lineTool) { 
@@ -259,26 +282,6 @@ const Chart: FC = () => {
     }
   }
 
-  const searchHandleChange = event => {
-    const value = event.target.value.toUpperCase();
-    setKeywords(value);
-    setSymbol(value);
-  }
-
-  useEffect(() =>{
-    const fetchData = async () => {
-      try {
-        const suggestionData = await fetchCompanyName(keywords);
-        // console.log('======',suggestionData);
-        setSuggestionList(suggestionData);
-      } catch (error) {
-        console.log('Error fetching data',error);
-      }
-    }
-
-    fetchData();
-  },[keywords])
-
   const handleSelectedLineColor = (name: any, option: any) => {
     setSelectedLineColor(option)
   }
@@ -304,6 +307,7 @@ const Chart: FC = () => {
   useEffect(() => {
     // console.log('------symbol----',symbol);
     const fetchWrapper = async () => {
+      setLoading(true);
       try {
         const { stockDataSeries, tempDataArray, Volume, timeIndex } = await fetchStockData(symbol, interval)
         const companyName = await fetchCompanyData(symbol)
@@ -312,15 +316,16 @@ const Chart: FC = () => {
         setTempData(tempDataArray)
         setTimeIndexArray(timeIndex)
         setVolume(Volume)
+        setLoading(true)
       } catch (err) {
-        console.log('!!!!!! undefined')
+        console.log('---Not found data---')
       } finally {
         setLoading(false)
       }
     }
     fetchWrapper();
   }, [symbol, interval])
-
+  console.log('---loading--',loading);
   useEffect(() => {
     switch (editType) {
       case 'trendline':
@@ -394,16 +399,8 @@ const Chart: FC = () => {
     }
   }, [tempPoint])
 
-
-  const suggestItemselector = (symbol) => {
-    setSuggestionList([]);
-    setSymbol(symbol);
-  }
-
-  const dropDownChange = (e) => {
-    if (e.code==='Enter') {
-      setSuggestionList(undefined);
-    }
+  const HandleSelectChange = (event, value) => {
+    setSymbol(value['label']);    
   }
  
   return (
@@ -413,43 +410,35 @@ const Chart: FC = () => {
         <div className="absolute w-[800px] flex flex-col z-30 md:w-[660px]">
           {/*Header bar-----*/}
           <div className="flex flex-row h-[42.34px] bg-white border-color-[#E0E3EB] border-b-2 ">
-            <div className="flex flex-row">
-              <div className="flex">
-                <img src={MagnifierSvg} alt="magnifier" className="w-[20.06px] h-[20.06px] ml-[11.14px] mt-[11.14px]" />
-                  <input
-                    className="my-[4px] mx-[2px] w-[70px] p-1 font-mono font-bold text-[15.6px] "
-                    value={keywords}
-                    onInput={searchHandleChange}
-                    onKeyDown={dropDownChange}
-                    type="text" name="product" list="productName"
+              <div className="flex flex-row">
+                <div className="flex">    
+                  <img src={MagnifierSvg} alt="magnifier" className="w-[20.06px] h-[20.06px] ml-[11.14px] mt-[11.14px]" />
+                  <Autocomplete
+                    disablePortal
+                    id="combo-box-demo"
+                    options={companySymbols}
+                    sx={{
+                      width: '120px',
+                      height: 'auto',
+                      border:'none',
+                      '& .MuiAutocomplete-inputRoot': {
+                        height: '2.6rem',
+                      },
+                      '& input': 'p-0, w-[70px] h-[50px] text-[10px]',
+                      '& .MuiAutocomplete-clearIndicator': 'hidden',
+                    }}
+                    renderInput={(params) => <TextField {...params} />}
+                    onChange={HandleSelectChange}
                   />
-                <datalist id="productName" >
-                {
-                  suggestionList !== undefined && suggestionList.length > 0 && (
-                    suggestionList.map((item, index) => {
-                      const firstKey = Object.keys(item)[0];
-                      return (
-                        <option 
-                          key={index} 
-                          className="p-2 border-b border-r border-gray-500 hover:bg-gray-100 text-center"
-                          value={item[firstKey]}
-                        >
-                          {item[firstKey]}
-                        </option>
-                      );
-                    })
-                  )
-                }
-                </datalist>
+                  <div className="flex">
+                    <img
+                      src={CompareSvg}
+                      alt="compare"
+                      className="w-[31.2px] flex p-0.1 cursor-pointer hover:bg-gray5 border-r-2 border-b-gray-800"
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="flex">
-                <img
-                  src={CompareSvg}
-                  alt="compare"
-                  className="w-[31.2px] flex p-0.1 cursor-pointer hover:bg-gray5 border-r-2 border-b-gray-800"
-                />
-              </div>
-            </div>
             <div className="flex flex-row my-1">
               <button
                 className={
