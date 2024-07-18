@@ -8,7 +8,7 @@ export const fetchMarketPrices = async (symbol) => {
     const apiUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${import.meta.env.VITE_ALPHAVANTAGE_PREMIUM_KEY}`;
     const response = await axios.get(apiUrl);
     const data = response.data['Global Quote'];
-    console.log('----gloabal--',data);
+    // console.log('----gloabal--',data);
     if (data) {
       const bidPrice = parseFloat(data['05. price']);
       const askPrice = parseFloat(data['08. previous close']);
