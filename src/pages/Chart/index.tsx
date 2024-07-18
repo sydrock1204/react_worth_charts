@@ -2,7 +2,6 @@ import { FC, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import Draggable from 'react-draggable'
-
 import {
   StockPriceData,
   VolumeData,
@@ -12,11 +11,11 @@ import {
 } from '../../utils/typing'
 import { fetchStockData } from '../../api/fetchStockData'
 import { fetchCompanyData } from '../../api/fetchCompanyData'
+import { fetchMarketPrices } from '../../api/fetchMarketPrices'
 import { supabase } from '../../context/supabase'
 import { BaseInput } from '../../components/common/BaseInput'
 import { BaseSelect } from '../../components/common/BaseSelect'
 import { WatchList } from './watchList'
-
 import RemoveSvg from '../../assets/icons/Remove.png'
 import {
   RectangleSelectedSvg,
@@ -52,7 +51,6 @@ import {
 } from '../../assets/icons'
 import { useAuthContext } from '../../context/authContext'
 import useWindowWidth from '../../context/useScreenWidth'
-
 import { ChartComponent } from '../../components/chartview'
 import { ChartView } from './chartView'
 import { fetchCompanyName } from '../../api/fetchCompanyName'
@@ -66,7 +64,6 @@ import { Data } from '@react-google-maps/api'
 
 const Chart: FC = () => {
   const navigate = useNavigate()
-
   const [data, setData] = useState<StockPriceData[]>([])
   const [tempData, setTempData] = useState<any | null>(null)
   const [startPoint, setStartPoint] = useState<Point | null>(null)
@@ -80,7 +77,6 @@ const Chart: FC = () => {
   const [verticalPoint, setVerticalPoint] = useState<Point | null>(null)
   const [calloutPoint, setCalloutPoint] = useState<PointXY | null>(null)
   const [priceRangePoint, setPriceRangePoint] = useState<PointXY | null>(null)
-
   const width = useWindowWidth()
   const [magnet, setMagnet] = useState<boolean>(false)
   const [editType, setEditType] = useState<string>('arrow')
@@ -119,7 +115,8 @@ const Chart: FC = () => {
   const indicators = ['RSI', 'SMA', 'EMA', 'WMA', 'ADX']
   const [loading, setLoading] = useState(false);
   const [companySymbols, setCompanySymbols] = useState<any>([]);
-  
+  const [bidPrice, setBidPrice] = useState(null);
+  const [askPrice, setAskPrice] = useState(null);
 
   useEffect(() => {
     const fetchSymbol = async () => {
@@ -323,8 +320,23 @@ const Chart: FC = () => {
         setLoading(false)
       }
     }
+
+    const fetchPrices = async () => {
+      setLoading(true)
+      try {
+        const { bidPrice, askPrice } = await fetchMarketPrices(symbol);
+        // console.log('----bid---', bidPrice);
+        setBidPrice(bidPrice);
+        setAskPrice(askPrice);
+      } catch (error) {
+        console.error('Error fetching market prices:', error);
+      }
+    }
     fetchWrapper();
+    fetchPrices();
   }, [symbol, interval])
+
+
 
   useEffect(() => {
     switch (editType) {
@@ -402,7 +414,7 @@ const Chart: FC = () => {
   const HandleSelectChange = (event, value) => {
     setSymbol(value['label']);    
   }
-
+  // console.log('---',bidPrice,'---',askPrice);
   return (
     <div className="flex flex-col gap-2">
       <div id="Chart" className="relative flex flex-row">
@@ -657,9 +669,9 @@ const Chart: FC = () => {
               </div>
             </div>
             <div className='flex mt-[5px]'>
-                <div className='ml-[53px] mr-3 border rounded-md pl-2 pr-2 pt-2 pb-2 border-black'>169.58</div>
+                <div className='ml-[53px] mr-3 border rounded-md pl-2 pr-2 pt-2 pb-2 border-black'>{bidPrice}</div>
                 <p className='pr-3 pt-3'>0.00</p>
-                <div className='border rounded-md pl-2 pr-2 pt-2 pb-2 border-blue-500 text-blue-800'>169.58</div>
+                <div className='border rounded-md pl-2 pr-2 pt-2 pb-2 border-blue-500 text-blue-800'>{askPrice}</div>
             </div>
             <div className="flex flex-row gap-2 mt-3">
               <p className='ml-[53px] text-base'>{`Vol`}</p>
