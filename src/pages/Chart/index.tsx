@@ -117,7 +117,7 @@ const Chart: FC = () => {
   const [suggestionList, setSuggestionList ] = useState<any>([]); 
   const indicators = ['RSI', 'SMA', 'EMA', 'WMA', 'ADX']
   const [loading, setLoading] = useState(false);
-  const [companySymbols, setCompanySymbols] = useState<any>(null);
+  const [companySymbols, setCompanySymbols] = useState<any>([]);
   
 
   useEffect(() => {
@@ -305,7 +305,6 @@ const Chart: FC = () => {
   }, [])
  
   useEffect(() => {
-    // console.log('------symbol----',symbol);
     const fetchWrapper = async () => {
       setLoading(true);
       try {
@@ -325,7 +324,7 @@ const Chart: FC = () => {
     }
     fetchWrapper();
   }, [symbol, interval])
-  console.log('---loading--',loading);
+ 
   useEffect(() => {
     switch (editType) {
       case 'trendline':
@@ -402,7 +401,7 @@ const Chart: FC = () => {
   const HandleSelectChange = (event, value) => {
     setSymbol(value['label']);    
   }
- 
+
   return (
     <div className="flex flex-col gap-2">
       <div id="Chart" className="relative flex flex-row">
@@ -417,6 +416,15 @@ const Chart: FC = () => {
                     disablePortal
                     id="combo-box-demo"
                     options={companySymbols}
+                    renderInput={(params) => <TextField
+                       {...params}  
+                       sx={{
+                        '& input::placeholder': {
+                          color: 'rgba(0, 0, 0, 1)', // Change placeholder color here
+                        },
+                      }}
+                       placeholder='APPL'/>}
+                    onChange={HandleSelectChange}
                     sx={{
                       width: '120px',
                       height: 'auto',
@@ -427,8 +435,6 @@ const Chart: FC = () => {
                       '& input': 'p-0, w-[70px] h-[50px] text-[10px]',
                       '& .MuiAutocomplete-clearIndicator': 'hidden',
                     }}
-                    renderInput={(params) => <TextField {...params} />}
-                    onChange={HandleSelectChange}
                   />
                   <div className="flex">
                     <img
