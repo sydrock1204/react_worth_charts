@@ -9,6 +9,9 @@
     "start": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/material": "^5.16.4",
     "@react-google-maps/api": "^2.19.3",
     "@supabase/auth-helpers-react": "^0.5.0",
     "@supabase/auth-ui-react": "^0.4.7",
@@ -17,6 +20,7 @@
     "@types/react-date-range": "^1.4.9",
     "autoprefixer": "^10.4.19",
     "axios": "^1.7.2",
+    "csv-parser": "^3.0.0",
     "dotenv": "^16.4.5",
     "fancy-canvas": "^0.2.2",
     "framer-motion": "^11.2.10",

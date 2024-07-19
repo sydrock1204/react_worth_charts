@@ -2,7 +2,6 @@ import { FC, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import Draggable from 'react-draggable'
-
 import {
   StockPriceData,
   VolumeData,
@@ -12,11 +11,11 @@ import {
 } from '../../utils/typing'
 import { fetchStockData } from '../../api/fetchStockData'
 import { fetchCompanyData } from '../../api/fetchCompanyData'
+import { fetchMarketPrices } from '../../api/fetchMarketPrices'
 import { supabase } from '../../context/supabase'
 import { BaseInput } from '../../components/common/BaseInput'
 import { BaseSelect } from '../../components/common/BaseSelect'
 import { WatchList } from './watchList'
-
 import RemoveSvg from '../../assets/icons/Remove.png'
 import {
   RectangleSelectedSvg,
@@ -52,14 +51,19 @@ import {
 } from '../../assets/icons'
 import { useAuthContext } from '../../context/authContext'
 import useWindowWidth from '../../context/useScreenWidth'
-
 import { ChartComponent } from '../../components/chartview'
 import { ChartView } from './chartView'
-import { FlatTree, color } from 'framer-motion'
+import { fetchCompanyName } from '../../api/fetchCompanyName'
+import { fetchAllSymbol } from '../../api/fetchAllSymbol'
+import { error } from 'console'
+import axios from 'axios'
+import Spinner from './spinner';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
+import { Data } from '@react-google-maps/api'
 
 const Chart: FC = () => {
   const navigate = useNavigate()
-
   const [data, setData] = useState<StockPriceData[]>([])
   const [tempData, setTempData] = useState<any | null>(null)
   const [startPoint, setStartPoint] = useState<Point | null>(null)
@@ -73,14 +77,12 @@ const Chart: FC = () => {
   const [verticalPoint, setVerticalPoint] = useState<Point | null>(null)
   const [calloutPoint, setCalloutPoint] = useState<PointXY | null>(null)
   const [priceRangePoint, setPriceRangePoint] = useState<PointXY | null>(null)
-
   const width = useWindowWidth()
   const [magnet, setMagnet] = useState<boolean>(false)
   const [editType, setEditType] = useState<string>('arrow')
   const [editClickCounts, setEditClickCounts] = useState<number>(0)
   const [tempPoint, setTempPoint] = useState<Point | null>(null)
   const [symbol, setSymbol] = useState('AAPL')
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [interval, setInterval] = useState('60min')
   const [importLines, setImportLines] = useState<string>('')
   const [save, setSave] = useState<boolean>(false)
@@ -104,13 +106,36 @@ const Chart: FC = () => {
   const [isVisibleIndicator, setIsVisibleIndicator] = useState<boolean>(false)
   const [indicatorArray, setIndicatorArray] = useState<string[]>([])
   const [timeIndexArray, setTimeIndexArray] = useState<any>([])
-  const [lastLineJSON, setLastLineJSON] = useState<any>() // #
+  const [lastLineJSON, setLastLineJSON] = useState<any>() 
   const [changeValue, setChangeValue] = useState({
     value: 0,
     percent: 0,
   })
-
+  const [suggestionList, setSuggestionList ] = useState<any>([]); 
   const indicators = ['RSI', 'SMA', 'EMA', 'WMA', 'ADX']
+  const [loading, setLoading] = useState(false);
+  const [companySymbols, setCompanySymbols] = useState<any>([]);
+  const [bidPrice, setBidPrice] = useState(null);
+  const [askPrice, setAskPrice] = useState(null);
+
+  useEffect(() => {
+    const fetchSymbol = async () => {
+      try {
+        const AllCompanySymbol = await fetchAllSymbol();
+        
+        const lines = AllCompanySymbol.split('\n');
+        const result = lines.slice(1).map(line => {
+          const [symbol] = line.split(',');
+          return { label: symbol };
+        });
+        setCompanySymbols(result);
+      } catch (error) {
+        console.log('Error fetching data',error);
+      }
+    }
+
+    fetchSymbol(); 
+   },[])
 
   useEffect (() => { 
     if (lastLineJSON && lastLineJSON.lineTool) { 
@@ -139,7 +164,7 @@ const Chart: FC = () => {
       document.removeEventListener('keydown', handleEscKey);
     };
   }, []);
-  // 
+  
 
   const handleTemplePoint = (point: Point) => {
     setTempPoint(point)
@@ -247,10 +272,6 @@ const Chart: FC = () => {
     }
   }
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true)
-  }
-
   const selectLineStyle = () => {
     if (lineSeries == 'candlestick') {
       setLineSeries('bar')
@@ -259,13 +280,10 @@ const Chart: FC = () => {
     }
   }
 
-  const handleChange = event => {
-    setSymbol(event.target.value.toUpperCase())
-  }
-
   const handleSelectedLineColor = (name: any, option: any) => {
     setSelectedLineColor(option)
   }
+  
   const modalcloseHandler = () => {
     setIsLineSelected(false);
   }
@@ -283,22 +301,42 @@ const Chart: FC = () => {
       console.log(e)
     })
   }, [])
-
+ 
   useEffect(() => {
     const fetchWrapper = async () => {
-      const { stockDataSeries, tempDataArray, Volume, timeIndex } =
-        await fetchStockData(symbol, interval)
-      const companyName = await fetchCompanyData(symbol)
-      setCompanyData(companyName)
-      setData(stockDataSeries)
-      setTempData(tempDataArray)
-      setTimeIndexArray(timeIndex)
-      setVolume(Volume)
+      setLoading(true);
+      try {
+        const { stockDataSeries, tempDataArray, Volume, timeIndex } = await fetchStockData(symbol, interval)
+        const companyName = await fetchCompanyData(symbol)
+        setCompanyData(companyName)
+        setData(stockDataSeries)
+        setTempData(tempDataArray)
+        setTimeIndexArray(timeIndex)
+        setVolume(Volume)
+        setLoading(true)
+      } catch (err) {
+        console.log('---Not found data---')
+      } finally {
+        setLoading(false)
+      }
     }
-    fetchWrapper().catch(e => {
-      console.log(e)
-    })
+
+    const fetchPrices = async () => {
+      setLoading(true)
+      try {
+        const { bidPrice, askPrice } = await fetchMarketPrices(symbol);
+        // console.log('----bid---', bidPrice);
+        setBidPrice(bidPrice);
+        setAskPrice(askPrice);
+      } catch (error) {
+        console.error('Error fetching market prices:', error);
+      }
+    }
+    fetchWrapper();
+    fetchPrices();
   }, [symbol, interval])
+
+
 
   useEffect(() => {
     switch (editType) {
@@ -373,31 +411,53 @@ const Chart: FC = () => {
     }
   }, [tempPoint])
 
-
+  const HandleSelectChange = (event, value) => {
+    setSymbol(value['label']);    
+  }
+  // console.log('---',bidPrice,'---',askPrice);
   return (
     <div className="flex flex-col gap-2">
       <div id="Chart" className="relative flex flex-row">
+        <Spinner isLoading={loading} />
         <div className="absolute w-[800px] flex flex-col z-30 md:w-[660px]">
           {/*Header bar-----*/}
           <div className="flex flex-row h-[42.34px] bg-white border-color-[#E0E3EB] border-b-2 ">
-            <div className="flex flex-row">
-              <div className="flex">
-                <img src={MagnifierSvg} alt="magnifier" className="w-[20.06px] h-[20.06px] ml-[11.14px] mt-[11.14px]" />
-                <input
-                  className="my-[4px] mx-[2px] w-[70px] p-1 font-mono font-bold text-[15.6px] "
-                  value={symbol}
-                  onChange={handleChange}
-                  onFocus={handleOpenModal}
-                />
+              <div className="flex flex-row">
+                <div className="flex">    
+                  <img src={MagnifierSvg} alt="magnifier" className="w-[20.06px] h-[20.06px] ml-[11.14px] mt-[11.14px]" />
+                  <Autocomplete
+                    disablePortal
+                    id="combo-box-demo"
+                    options={companySymbols}
+                    renderInput={(params) => <TextField
+                       {...params}  
+                       sx={{
+                        '& input::placeholder': {
+                          color: 'rgba(0, 0, 0, 1)', // Change placeholder color here
+                        },
+                      }}
+                       placeholder='AAPL'/>}
+                    onChange={HandleSelectChange}
+                    sx={{
+                      width: '120px',
+                      height: 'auto',
+                      border:'none',
+                      '& .MuiAutocomplete-inputRoot': {
+                        height: '2.6rem',
+                      },
+                      '& input': 'p-0, w-[70px] h-[50px] text-[10px]',
+                      '& .MuiAutocomplete-clearIndicator': 'hidden',
+                    }}
+                  />
+                  <div className="flex">
+                    <img
+                      src={CompareSvg}
+                      alt="compare"
+                      className="w-[31.2px] flex p-0.1 cursor-pointer hover:bg-gray5 border-r-2 border-b-gray-800"
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="flex">
-                <img
-                  src={CompareSvg}
-                  alt="compare"
-                  className="w-[31.2px] flex p-0.1 cursor-pointer hover:bg-gray5 border-r-2 border-b-gray-800"
-                />
-              </div>
-            </div>
             <div className="flex flex-row my-1">
               <button
                 className={
@@ -609,9 +669,9 @@ const Chart: FC = () => {
               </div>
             </div>
             <div className='flex mt-[5px]'>
-                <div className='ml-[53px] mr-3 border rounded-md pl-2 pr-2 pt-2 pb-2 border-black'>169.58</div>
+                <div className='ml-[53px] mr-3 border rounded-md pl-2 pr-2 pt-2 pb-2 border-black'>{bidPrice}</div>
                 <p className='pr-3 pt-3'>0.00</p>
-                <div className='border rounded-md pl-2 pr-2 pt-2 pb-2 border-blue-500 text-blue-800'>169.58</div>
+                <div className='border rounded-md pl-2 pr-2 pt-2 pb-2 border-blue-500 text-blue-800'>{askPrice}</div>
             </div>
             <div className="flex flex-row gap-2 mt-3">
               <p className='ml-[53px] text-base'>{`Vol`}</p>
