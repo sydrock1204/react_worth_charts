@@ -21,7 +21,7 @@ const Header = () => {
   return (
     <div className="flex  h-[92px] justify-between border-b-[1px] border-b-white  ">
       {
-        (width <= 767) ? (
+        (width <= 1117) ? (
           <div>
             <button
               className=" fixed top-4 left-4 p-3 bg-black text-white rounded-lg z-50 flex flex-col justify-around h-12 w-12 mr-[20px]"
