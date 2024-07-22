@@ -22,8 +22,6 @@ const ProtectedRoute: FC = () => {
     setIsToggled(isToggled);
   },[isToggled])
 
-  console.log('--isToggled---',isToggled);
-
   const handleClickOutside = (event) => {
     if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
       setIsToggled(false);

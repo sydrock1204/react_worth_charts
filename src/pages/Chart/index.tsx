@@ -41,6 +41,8 @@ import {
   SettingsSvg,
   IndicatorsSvg,
   CandleSvg,
+  CircleSvg,
+  CircleSelectedSvg,
 } from '../../assets/icons'
 import { useAuthContext } from '../../context/authContext'
 import useWindowWidth from '../../context/useScreenWidth'
@@ -57,7 +59,7 @@ const Chart: FC = () => {
   const [tempData, setTempData] = useState<any | null>(null)
   const [startPoint, setStartPoint] = useState<Point | null>(null)
   const [volume, setVolume] = useState<VolumeData[]>([])
-  const [circlePoints, setCirclePoints] = useState<PointXY | null>(null)
+  const [, set] = useState<PointXY | null>(null)
   const [trendPoints, setTrendPoints] = useState<PointXY | null>(null)
   const [rectanglePoints, setRectanglePoints] = useState<PointXY | null>(null)
   const [selectDelete, setSelectDelete] = useState<boolean>(false)
@@ -107,6 +109,7 @@ const Chart: FC = () => {
   const [askPrice, setAskPrice] = useState(null);
   const templeWidthRef = useRef(null);
   const [templeWidth, setTempleWidth] = useState(0);
+  const [circlePoints, setCirclePoints] = useState<PointXY | null>(null)
 
   useEffect(() => {
     const updateWidth = () => {
@@ -129,16 +132,16 @@ const Chart: FC = () => {
       try {
         const AllCompanySymbol = await fetchAllSymbol();
         const lines = AllCompanySymbol.split('\n');
-        const result = lines.slice(1).map(line => {
-          const [symbol] = line.split(',');
-          return { label: symbol };
-        });
+        const result = lines.slice(1).map((line, index) => {
+          const [symbol,name] = line.split(',');
+              return { label: name, symbol: symbol, key: index };
+        })
+        .filter(item => item.label !== undefined && item.label.trim() !== "");
         setCompanySymbols(result);
       } catch (error) {
         console.log('Error fetching data',error);
       }
     }
-
     fetchSymbol(); 
    },[])
 
@@ -362,16 +365,16 @@ const Chart: FC = () => {
           setStartPoint(tempPoint)
         }
         break
-      case 'circle':
-        if (editClickCounts == 0) {
-          setEditClickCounts(editClickCounts + 1)
-          setStartPoint(tempPoint)
-        } else if (editClickCounts == 1) {
-          setEditClickCounts(0)
-          setCirclePoints({ point1: startPoint, point2: tempPoint })
-          setEditType('arrow')
-          setStartPoint(tempPoint)
-        }
+        case 'Circle':
+          if (editClickCounts == 0) {
+            setEditClickCounts(editClickCounts + 1)
+            setStartPoint(tempPoint)
+          } else if (editClickCounts == 1) {
+            setEditClickCounts(0)
+            setCirclePoints({ point1: startPoint, point2: tempPoint })
+            setEditType('arrow')
+            setStartPoint(tempPoint)
+          }
         break
       case 'callout':
         if (editClickCounts == 0) {
@@ -411,7 +414,7 @@ const Chart: FC = () => {
   }, [tempPoint])
 
   const HandleSelectChange = (event, value) => {
-    setSymbol(value['label']);    
+    setSymbol(value['symbol']);    
   }
  
   return (
@@ -430,6 +433,7 @@ const Chart: FC = () => {
                     disablePortal
                     id="combo-box-demo"
                     options={companySymbols}
+                    getOptionLabel={(option) => option.label}
                     renderInput={(params) => <TextField
                       {...params}  
                       sx={{
@@ -437,7 +441,7 @@ const Chart: FC = () => {
                           color: 'rgba(0, 0, 0, 1)',
                         },
                       }}
-                      placeholder='AAPL'/>}
+                      placeholder='apple Inc'/>}
                     onChange={HandleSelectChange}
                     sx={{
                       width: '120px',
@@ -686,7 +690,7 @@ const Chart: FC = () => {
           {/* main display ----- */}
           <div className='flex relative'>
             {/* tool bar ---- */}
-            <div className="w-[61px] bg-white pt-10 pb-4 absolute top-0 left-0  z-20 border-r-[2px] border-r-grey border-b-[2px] border-b-grey border-t-[2px] border-t-grey">
+            <div className="w-[61px] bg-white pt-[3px] pb-4 absolute top-0 left-0  z-20 border-r-[2px] border-r-grey border-b-[2px] border-b-grey border-t-[2px] border-t-grey">
               <div className="">
                 <img
                   src={editType == 'arrow' ? ArrowSelectedSvg : ArrowSvg}
@@ -704,6 +708,15 @@ const Chart: FC = () => {
                   className="ml-2 cursor-pointer p-1 mb-2"
                   onClick={() => {
                     setEditType('label')
+                  }}
+                />
+                <img
+                  src={editType == 'Circle' ? CircleSelectedSvg : CircleSvg}
+                  alt="Text"
+                  width={30}
+                  className="ml-2 cursor-pointer p-1 mb-2 w-[36px]"
+                  onClick={() => {
+                    setEditType('Circle')
                   }}
                 />
                 <img
@@ -806,13 +819,14 @@ const Chart: FC = () => {
                 setLastLineJSON={setLastLineJSON}
                 editType={editType}
                 templeWidth={templeWidth}
+                selectDelete={selectDelete}
               />
             </div>
             {/* !!!!! */}
             { isLineSelected === true && (
               <Draggable defaultPosition={{ x: 500, y: 100 }}>
-                <div className="absolute p-2 z-30 bg-white w-[200px] h-[180px] border border-black rounded-md cursor-pointer">
-                  <button onClick={modalcloseHandler} className='ml-[90%]'>&times;</button>
+                <div className="absolute p-2 z-30 bg-white w-[200px] h-[200px] border border-black rounded-md cursor-pointer">
+                  <button onClick={modalcloseHandler} className='ml-[90%] text-[25px]'>&times;</button>
                   <BaseInput
                     name="text"
                     label="text"

@@ -15,7 +15,6 @@ import {
 } from '../lightweights-line-tools/api/ichart-api'
 import { ISeriesApi } from '../lightweights-line-tools/api/iseries-api'
 import { ILineToolApi } from '../lightweights-line-tools/api/iline-tool-api'
-import { circleDefaultOption } from './circleDefaultOptions'
 import { rectangleDefaultOption } from './rectangleDefaultOption'
 import { labelDefaultOption } from './labelDefaultOption'
 import { horizontalLineDefaultOption } from './horizontalDefaultOption'
@@ -172,6 +171,71 @@ const priceRangeOption = {
   editable: true,
 }
 
+const circleOption = {
+  text: {
+    value: '',
+    alignment: TextAlignment.Center,
+    font: {
+      color: 'rgba(255,255,255,1)',
+      size: 18,
+      bold: false,
+      italic: false,
+      family: 'Roboto',
+    },
+    box: {
+      alignment: {
+        vertical: BoxVerticalAlignment.Middle,
+        horizontal: BoxHorizontalAlignment.Center,
+      },
+      angle: 0,
+      scale: 3,
+      offset: {
+        x: 0,
+        y: 30,
+      },
+      padding: {
+        x: 0,
+        y: 0,
+      },
+      maxHeight: 500,
+      border: {
+        color: 'rgba(126,211,33,1)',
+        width: 4,
+        radius: 20,
+        highlight: false,
+        style: 3,
+      },
+      background: {
+        color: 'rgba(208,2,27,1)',
+        inflation: {
+          x: 10,
+          y: 30,
+        },
+      },
+    },
+    padding: 30,
+    wordWrapWidth: 0,
+    forceTextAlign: false,
+    forceCalculateMaxLineWidth: false,
+  },
+  circle: {
+    background: {
+      color: 'rgba(39,176,119,0.2)',
+    },
+    border: {
+      color: 'rgba(41,98,255,1)',
+      width: 2,
+      style: 0,
+    },
+    extend: {
+      right: true, //does not do anything, left in for ease of use with rectangle settings
+      left: false, //does not do anything, left in for ease of use with rectangle settings
+    },
+  },
+  visible: true,
+  editable: true,
+}
+
 export const ChartComponent = (props: any) => {
   const {
     data,
@@ -267,6 +331,9 @@ export const ChartComponent = (props: any) => {
     }
     if (editType === 'PriceRange') {
       chart.current?.addLineTool('PriceRange', [], priceRangeOption)
+    }
+    if(editType === "Circle") {
+      chart.current?.addLineTool('Circle', [], circleOption)
     }
   }, [editType])
 
@@ -484,10 +551,11 @@ export const ChartComponent = (props: any) => {
       chart.current?.addLineTool(
         'Circle',
         [circlePoint.point1, circlePoint.point2],
-        circleDefaultOption
+        circleOption
       )
-      chart.current?.timeScale().fitContent()
-    }
+      chart.current?.removeSelectedLineTools()
+     }
+     chart.current?.applyOptions({})
   }, [circlePoint])
 
   useEffect(() => {
