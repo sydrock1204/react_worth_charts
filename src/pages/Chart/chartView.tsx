@@ -9,26 +9,6 @@ import {
 } from '../../utils/typing'
 
 import {
-  RectangleSelectedSvg,
-  RectangleSvg,
-  ArrowSvg,
-  ArrowSelectedSvg,
-  TextSvg,
-  TextSelectedSvg,
-  TrendSvg,
-  TrendSelectedSvg,
-  HorizontalSvg,
-  HorizontalSelectedSvg,
-  VerticalSvg,
-  VerticalSelectedSvg,
-  CircleSvg,
-  CircleSelectedSvg,
-  CalloutSvg,
-  CalloutSelectedSvg,
-  PriceRangeSvg,
-  PriceRangeSelectedSvg,
-  MagnetSvg,
-  MagnetSelectedSvg,
   MagnifierSvg,
   CompareSvg,
   IntervalSvg,
@@ -36,19 +16,18 @@ import {
   SettingsSvg,
   IndicatorsSvg,
   CandleSvg,
-  ThumbSvg,
-  OpenListSvg,
-  CloseListSvg,
 } from '../../assets/icons'
 
 import { fetchStockData } from '../../api/fetchStockData'
 import { fetchCompanyData } from '../../api/fetchCompanyData'
-import { useAuthContext } from '../../context/authContext'
 import { ChartOnlyView } from '../../components/chartview/chartOnlyView'
 import useHeaderWidthStore from '../../context/useHeadherWidth'
 import useWindowWidth from '../../context/useScreenWidth'
+interface chartViewProps {
+  tempWidth: number;
+}
 
-export const ChartView: FC = () => {
+export const ChartView = (props: any) => {
   const [data, setData] = useState<StockPriceData[]>([])
   const [volume, setVolume] = useState<VolumeData[]>([])
   const [symbol, setSymbol] = useState('TSLA')
@@ -65,7 +44,6 @@ export const ChartView: FC = () => {
     volume: 0,
   })
   const [hoverTime, setHoverTime] = useState<any>(null)
-
   const [isVisibleDaily, setIsVisibleDaily] = useState<boolean>(false)
   const [indicatorArray, setIndicatorArray] = useState<string[]>([])
   const [companyData, setCompanyData] = useState<string>('')
@@ -75,17 +53,15 @@ export const ChartView: FC = () => {
     percent: 0,
   })
   const [isVisibleIndicator, setIsVisibleIndicator] = useState<boolean>(false)
-  const [controlPanelWidth, setControlPanelWidth] = useState<number>(0)
-
   const width = useWindowWidth()
   const headerWidth = useHeaderWidthStore(state => state.width)
-
   const indicators = ['RSI', 'SMA', 'EMA', 'WMA', 'ADX']
+  const { tempWidth } = props;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSymbol(e.target.value.toUpperCase())
   }
-
+ 
   const selectLineStyle = () => {
     if (lineSeries == 'candlestick') {
       setLineSeries('bar')
@@ -112,15 +88,12 @@ export const ChartView: FC = () => {
       })
 
       const dateObject = new Date(time * 1000)
-
       const year = dateObject.getFullYear()
       const month = dateObject.getMonth() + 1 // Add 1 to get actual month
       const day = dateObject.getDate()
       const hours = dateObject.getHours()
       const minutes = dateObject.getMinutes().toString().padStart(2, '0') // Pad minutes with leading 0 if needed
-
       const amPm = hours >= 12 ? 'PM' : 'AM'
-
       const adjustedHours = hours % 12 || 12
 
       setHoverTime(
@@ -161,18 +134,9 @@ export const ChartView: FC = () => {
     })
   }, [symbol, interval])
 
-  useEffect(() => {
-    if (width > 1024) {
-      setControlPanelWidth((width - headerWidth - 12) / 2)
-    } else if (width <= 1024) {
-      setControlPanelWidth(width - headerWidth - 16)
-    }
-  }, [width])
-
   return (
     <div>
       <div className="absolute w-[700px] flex flex-col z-30 lg:max-w-[370px]">
-
         <div
           className={`flex h-[30px] bg-white border-color-[#E0E3EB] border-b-2`}
         >
@@ -325,7 +289,6 @@ export const ChartView: FC = () => {
             )}
           </div>
         </div>
-
         <div className="flex  h-[18.95px] bg-white text-sm mt-[3.5px] ml-2 mr-14 text-xs">
           <div className="flex">
             <div className='flex items-center'>
@@ -383,7 +346,6 @@ export const ChartView: FC = () => {
                 &nbsp;{changeValue.value.toFixed(2)}(
                 {changeValue.percent.toFixed(2)}%)
               </span>
-
             </div>
           </div>
         </div>
@@ -406,6 +368,7 @@ export const ChartView: FC = () => {
         handleCrosshairMove={handleCrosshairMove}
         indicatorArray={indicatorArray}
         handleTemplePoint={handleTemplePoint}
+        tempWidth={tempWidth}
       />
     </div>
   )

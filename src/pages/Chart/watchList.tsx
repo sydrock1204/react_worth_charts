@@ -1,17 +1,14 @@
 import { FC, useEffect, useState } from 'react'
 import Draggable from 'react-draggable'
-
 import { ThumbSvg, CloseListSvg, RecycleBinSvg } from '../../assets/icons'
 import { useWatchListsStore } from '../../context/watchListStore'
 import { useAuthContext } from '../../context/authContext'
 import { fetchCompanyName } from '../../api/fetchCompanyName'
 import { fetchEndQuote } from '../../api/fetchEndQuote'
 import useWindowWidth from '../../context/useScreenWidth'
-
 interface companyData {
   [key: string]: string
 }
-
 interface endQuote {
   '01. symbol': string
   '02. open': string
@@ -24,7 +21,6 @@ interface endQuote {
   '09. change': string
   '10. change percent': string
 }
-
 interface endQuoteMap {
   [stock: string]: endQuote
 }
@@ -39,7 +35,6 @@ export const WatchList: FC = () => {
   const [companyData, setCompanyData] = useState<companyData[]>([])
   const [endQuote, setEndQuote] = useState<endQuoteMap>({})
   const [watchListWidth, setWatchListWidth] = useState<string>('lg')
-
   const width = useWindowWidth()
 
   const onVisibleHeader = (header: string) => {
@@ -114,7 +109,7 @@ export const WatchList: FC = () => {
   }, [watchLists])
 
   useEffect(() => {
-    console.log('endQuote: ', endQuote)
+    // console.log('endQuote: ', endQuote)
   }, [endQuote])
 
   useEffect(() => {
@@ -139,7 +134,6 @@ export const WatchList: FC = () => {
     const fetchWrapper = async () => {
       if (addStock) {
         let name = await fetchCompanyName(addStock)
-        console.log('name: ', name)
         setCompanyData(name)
       }
     }
@@ -158,14 +152,12 @@ export const WatchList: FC = () => {
     }
   }, [width])
 
-  if (width > 1024) {
+  if (width > 1400) {
     return (
-      <div
-        className={`flex flex-col ml-2 xl:w-watchList-xl xl:visible lg:w-watchList-lg lg:visible h-[800px] bg-white pt-2`}
-      >
-        <div className="flex flex-row mr-4 mb-4">
+      <div className='w-[430px]'>
+        <div className="flex flex-row">
           <div className="w-1/4 flex flex-row text-xl text-[#6A6D78]">
-            <img src={ThumbSvg} className='h-[20px] w-[17px] mt-[7px]' />
+            <img src={ThumbSvg} className='h-[20px] w-[17px]' alt='image'/>
             Symbol
           </div>
           <div className="w-1/4 text-right text-xl text-[#6A6D78]">Last</div>
@@ -183,6 +175,7 @@ export const WatchList: FC = () => {
                   src={CloseListSvg}
                   className="hover:bg-gray4 hover:cursor-pointer"
                   onClick={() => onVisibleHeader(header)}
+                  alt='image'
                 />
                 {header}
                 <div className="flex-grow grid place-items-end">
@@ -242,7 +235,7 @@ export const WatchList: FC = () => {
                         className="ml-2 p-1 bg-gray4 rounded-sm"
                         onClick={() => deleteStock(header, stock)}
                       >
-                        <img src={RecycleBinSvg} width={15} />
+                        <img src={RecycleBinSvg} width={15} alt=''/>
                       </button>
                     </div>
                   )
@@ -252,7 +245,7 @@ export const WatchList: FC = () => {
         })}
         {isVisibleAddList && (
           <Draggable defaultPosition={{ x: 100, y: 350 }}>
-            <div className="absolute flex flex-col p-2 z-30 bg-white w-[500px] h-[550px] border border-black rounded-md cursor-pointer">
+            <div className="absolute flex flex-col p-2 z-30 bg-white  h-[550px] border border-black rounded-md cursor-pointer">
               <div className="flex flex-row">
                 {/* Add {addCategory} */}
                 <div className="grid w-1/2 place-items-start ml-2">
@@ -276,8 +269,8 @@ export const WatchList: FC = () => {
               </div>
               <div className="flex flex-column">
                 <div className="flex flex-row">
-                  <div className="flex w-[120px]">Symbol</div>
-                  <div className="flex w-">Name</div>
+                  <div className="flex ">Symbol</div>
+                  <div className="flex ">Name</div>
                 </div>
               </div>
               {companyData.map((data, index) => (
@@ -288,7 +281,7 @@ export const WatchList: FC = () => {
                     handleAddStock(data['1. symbol'])
                   }}
                 >
-                  <div className="flex w-[120px]">{data['1. symbol']}</div>
+                  <div className="flex">{data['1. symbol']}</div>
                   <div className="flex">{data['2. name']}</div>
                 </div>
               ))}
@@ -297,7 +290,7 @@ export const WatchList: FC = () => {
         )}
       </div>
     )
-  } else if (width <= 1024) {
+  } else if (width <= 1400) {
     return <></>
   }
 }
