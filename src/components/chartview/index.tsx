@@ -15,7 +15,6 @@ import {
 } from '../lightweights-line-tools/api/ichart-api'
 import { ISeriesApi } from '../lightweights-line-tools/api/iseries-api'
 import { ILineToolApi } from '../lightweights-line-tools/api/iline-tool-api'
-
 import { circleDefaultOption } from './circleDefaultOptions'
 import { rectangleDefaultOption } from './rectangleDefaultOption'
 import { labelDefaultOption } from './labelDefaultOption'
@@ -173,8 +172,6 @@ const priceRangeOption = {
   editable: true,
 }
 
-
-
 export const ChartComponent = (props: any) => {
   const {
     data,
@@ -204,6 +201,7 @@ export const ChartComponent = (props: any) => {
     selectLineColor,
     setLastLineJSON,
     editType,
+    templeWidth,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -212,7 +210,6 @@ export const ChartComponent = (props: any) => {
       areaBottomColor = 'rgba(41, 98, 255, 0.28)',
     } = {},
   } = props
-
 
   const colorJSON = {
     red: '#FF0000',
@@ -228,8 +225,6 @@ export const ChartComponent = (props: any) => {
   const [priorSelectDelete, setPriorSelectDelete] =
     useState<boolean>(selectDelete)
   const width = useWindowWidth()
- const { width: headerWidth } = useHeaderWidthStore()
-
 
   const getPointInformation = (param: MouseEventParams) => {
     if (!param.point) {
@@ -276,17 +271,8 @@ export const ChartComponent = (props: any) => {
   }, [editType])
 
   useEffect(() => {
-    let tempWidth = 0
-    if (width > 1440) {
-      tempWidth = width - 510 - headerWidth
-    } else if (width > 1024) {
-      tempWidth = width - 358 - headerWidth
-    } else if (width <= 1024) {
-      tempWidth = width - 18 - headerWidth
-    }
-
     chart.current?.applyOptions({
-      width: tempWidth,
+      width: templeWidth,
     })
   }, [width])
 
@@ -311,7 +297,6 @@ export const ChartComponent = (props: any) => {
     }
   }, [magnet])
 
-
    useEffect(() => {
     const handleDeleteKeyPressed = () => {
       if(selectedLine !== " ") {
@@ -333,18 +318,7 @@ export const ChartComponent = (props: any) => {
     
    },[selectedLine])
 
-  // 
-
   useEffect(() => {
-    let tempWidth = 0
-    if (width > 1440) {
-      tempWidth = width - 510 - headerWidth
-    } else if (width > 1024) {
-      tempWidth = width - 358 - headerWidth
-    } else if (width <= 1024) {
-      tempWidth = width - 18 - headerWidth
-    }
-
     chart.current = createChart(chartContainerRef.current, {
       crosshair: {
         horzLine: {
@@ -368,7 +342,7 @@ export const ChartComponent = (props: any) => {
           bottom: 0,
         },
       },
-      width: tempWidth,
+      width: templeWidth,
       height: 800,
     })
 
@@ -384,7 +358,6 @@ export const ChartComponent = (props: any) => {
       })
     }
     candleStickSeries.current.setData(data)
-
     const volumeSeries = chart.current.addHistogramSeries({
       color: '#00FF00',
       priceFormat: {
@@ -610,5 +583,8 @@ export const ChartComponent = (props: any) => {
     chart.current?.timeScale().fitContent()
   }, [importLines])
 
-  return <div ref={chartContainerRef} />
+  return (
+    <div ref={chartContainerRef} />
+  )
+ 
 }
