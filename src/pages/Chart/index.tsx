@@ -1,8 +1,7 @@
-import { FC, useState, useEffect } from 'react'
+import { FC, useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import Draggable from 'react-draggable'
-
 import {
   StockPriceData,
   VolumeData,
@@ -12,15 +11,13 @@ import {
 } from '../../utils/typing'
 import { fetchStockData } from '../../api/fetchStockData'
 import { fetchCompanyData } from '../../api/fetchCompanyData'
+import { fetchMarketPrices } from '../../api/fetchMarketPrices'
 import { supabase } from '../../context/supabase'
 import { BaseInput } from '../../components/common/BaseInput'
 import { BaseSelect } from '../../components/common/BaseSelect'
 import { WatchList } from './watchList'
-
 import RemoveSvg from '../../assets/icons/Remove.png'
 import {
-  RectangleSelectedSvg,
-  RectangleSvg,
   ArrowSvg,
   ArrowSelectedSvg,
   TextSvg,
@@ -31,8 +28,6 @@ import {
   HorizontalSelectedSvg,
   VerticalSvg,
   VerticalSelectedSvg,
-  CircleSvg,
-  CircleSelectedSvg,
   CalloutSvg,
   CalloutSelectedSvg,
   PriceRangeSvg,
@@ -46,19 +41,18 @@ import {
   SettingsSvg,
   IndicatorsSvg,
   CandleSvg,
-  ThumbSvg,
-  OpenListSvg,
-  CloseListSvg,
 } from '../../assets/icons'
 import { useAuthContext } from '../../context/authContext'
 import useWindowWidth from '../../context/useScreenWidth'
-
 import { ChartComponent } from '../../components/chartview'
 import { ChartView } from './chartView'
+import { fetchAllSymbol } from '../../api/fetchAllSymbol'
+import Spinner from './spinner';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 
 const Chart: FC = () => {
   const navigate = useNavigate()
-
   const [data, setData] = useState<StockPriceData[]>([])
   const [tempData, setTempData] = useState<any | null>(null)
   const [startPoint, setStartPoint] = useState<Point | null>(null)
@@ -72,14 +66,12 @@ const Chart: FC = () => {
   const [verticalPoint, setVerticalPoint] = useState<Point | null>(null)
   const [calloutPoint, setCalloutPoint] = useState<PointXY | null>(null)
   const [priceRangePoint, setPriceRangePoint] = useState<PointXY | null>(null)
-
   const width = useWindowWidth()
   const [magnet, setMagnet] = useState<boolean>(false)
   const [editType, setEditType] = useState<string>('arrow')
   const [editClickCounts, setEditClickCounts] = useState<number>(0)
   const [tempPoint, setTempPoint] = useState<Point | null>(null)
   const [symbol, setSymbol] = useState('AAPL')
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [interval, setInterval] = useState('60min')
   const [importLines, setImportLines] = useState<string>('')
   const [save, setSave] = useState<boolean>(false)
@@ -103,12 +95,79 @@ const Chart: FC = () => {
   const [isVisibleIndicator, setIsVisibleIndicator] = useState<boolean>(false)
   const [indicatorArray, setIndicatorArray] = useState<string[]>([])
   const [timeIndexArray, setTimeIndexArray] = useState<any>([])
+  const [lastLineJSON, setLastLineJSON] = useState<any>() 
   const [changeValue, setChangeValue] = useState({
     value: 0,
     percent: 0,
   })
-
   const indicators = ['RSI', 'SMA', 'EMA', 'WMA', 'ADX']
+  const [loading, setLoading] = useState(false);
+  const [companySymbols, setCompanySymbols] = useState<any>([]);
+  const [bidPrice, setBidPrice] = useState(null);
+  const [askPrice, setAskPrice] = useState(null);
+  const templeWidthRef = useRef(null);
+  const [templeWidth, setTempleWidth] = useState(0);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (templeWidthRef.current) {
+        setTempleWidth(templeWidthRef.current.offsetWidth);
+      }
+    };
+
+    updateWidth();
+
+    window.addEventListener('resize', updateWidth);
+
+    return () => {
+      window.removeEventListener('resize', updateWidth);
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchSymbol = async () => {
+      try {
+        const AllCompanySymbol = await fetchAllSymbol();
+        const lines = AllCompanySymbol.split('\n');
+        const result = lines.slice(1).map(line => {
+          const [symbol] = line.split(',');
+          return { label: symbol };
+        });
+        setCompanySymbols(result);
+      } catch (error) {
+        console.log('Error fetching data',error);
+      }
+    }
+
+    fetchSymbol(); 
+   },[])
+
+  useEffect (() => { 
+    if (lastLineJSON && lastLineJSON.lineTool) { 
+      setSelectedLine(JSON.stringify([{ 
+        id: lastLineJSON.lineTool.id(), 
+        options: lastLineJSON.lineTool.options(),
+        points: lastLineJSON.lineTool.points(),
+        toolType: lastLineJSON.lineTool.toolType(), 
+      }])) 
+      setIsLineSelected(true) 
+      setSelectedLineText('') 
+    } 
+  },  [lastLineJSON]); 
+
+  const handleEscKey = (event) => {
+    if (event.key === 'Escape') {
+      setIsLineSelected(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleEscKey);
+
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, []);
 
   const handleTemplePoint = (point: Point) => {
     setTempPoint(point)
@@ -158,8 +217,7 @@ const Chart: FC = () => {
           { user_id: user?.id, symbol, interval, linedata: exportLines },
         ])
     }
-
-    // setExportLines(exportLines)
+  
     setSave(false)
   }
 
@@ -216,10 +274,6 @@ const Chart: FC = () => {
     }
   }
 
-  const handleOpenModal = () => {
-    setIsModalOpen(true)
-  }
-
   const selectLineStyle = () => {
     if (lineSeries == 'candlestick') {
       setLineSeries('bar')
@@ -228,12 +282,12 @@ const Chart: FC = () => {
     }
   }
 
-  const handleChange = event => {
-    setSymbol(event.target.value.toUpperCase())
-  }
-
   const handleSelectedLineColor = (name: any, option: any) => {
     setSelectedLineColor(option)
+  }
+  
+  const modalcloseHandler = () => {
+    setIsLineSelected(false);
   }
 
   useEffect(() => {
@@ -245,26 +299,42 @@ const Chart: FC = () => {
       setVolume(Volume)
       setTimeIndexArray(timeIndex)
     }
-
     fetchWrapper().catch(e => {
       console.log(e)
     })
   }, [])
-
+ 
   useEffect(() => {
     const fetchWrapper = async () => {
-      const { stockDataSeries, tempDataArray, Volume, timeIndex } =
-        await fetchStockData(symbol, interval)
-      const companyName = await fetchCompanyData(symbol)
-      setCompanyData(companyName)
-      setData(stockDataSeries)
-      setTempData(tempDataArray)
-      setTimeIndexArray(timeIndex)
-      setVolume(Volume)
+      setLoading(true);
+      try {
+        const { stockDataSeries, tempDataArray, Volume, timeIndex } = await fetchStockData(symbol, interval)
+        const companyName = await fetchCompanyData(symbol)
+        setCompanyData(companyName)
+        setData(stockDataSeries)
+        setTempData(tempDataArray)
+        setTimeIndexArray(timeIndex)
+        setVolume(Volume)
+        setLoading(true)
+      } catch (err) {
+        console.log('---Not found data---')
+      } finally {
+        setLoading(false)
+      }
     }
-    fetchWrapper().catch(e => {
-      console.log(e)
-    })
+
+    const fetchPrices = async () => {
+      setLoading(true)
+      try {
+        const { bidPrice, askPrice } = await fetchMarketPrices(symbol);
+        setBidPrice(bidPrice);
+        setAskPrice(askPrice);
+      } catch (error) {
+        console.error('Error fetching market prices:', error);
+      }
+    }
+    fetchWrapper();
+    fetchPrices();
   }, [symbol, interval])
 
   useEffect(() => {
@@ -278,6 +348,7 @@ const Chart: FC = () => {
           setTrendPoints({ point1: startPoint, point2: tempPoint })
           setEditType('arrow')
           setStartPoint(tempPoint)
+          setIsLineSelected(false)
         }
         break
       case 'rectangle':
@@ -313,7 +384,7 @@ const Chart: FC = () => {
           setStartPoint(tempPoint)
         }
         break
-      case 'pricerange':
+      case 'PriceRange':
         if (editClickCounts == 0) {
           setEditClickCounts(editClickCounts + 1)
           setStartPoint(tempPoint)
@@ -339,36 +410,61 @@ const Chart: FC = () => {
     }
   }, [tempPoint])
 
+  const HandleSelectChange = (event, value) => {
+    setSymbol(value['label']);    
+  }
+ 
   return (
-    <div className="flex flex-col gap-2">
-      <div id="Chart" className="relative flex flex-row">
-        <div className="absolute w-[800px] flex flex-col z-30 md:w-[660px]">
-          <div className="flex flex-row h-[40px] bg-white border-color-[#E0E3EB] border-b-2 ">
-            <div className="flex flex-row">
-              <div className="flex">
-                <img src={MagnifierSvg} alt="magnifier" className="flex p-2" />
-                <input
-                  className="my-[4px] mx-[2px] w-[100px] p-1 font-mono font-bold"
-                  value={symbol}
-                  onChange={handleChange}
-                  onFocus={handleOpenModal}
-                />
+    <div id='Chart' className={`pt-[36px] pl-[13px] pr-[50px] ${width > 1400 ? "h-[2020px]" : "h-[3050px]"}`}>
+      <Spinner isLoading={loading} />
+      {/* main chart---- */}
+      <div className='flex flex-row justify-between w-full bg-white h-[895px] '>
+        {/* main chartView ---- */}
+        <div className='flex-1'>
+          {/* header bar ------- */}
+          <div ref={templeWidthRef} className="flex flex-row h-[49.34px] bg-white border-color-[#E0E3EB] border-b-2 min-w-[800px]">
+              <div className="flex flex-row">
+                <div className="flex pt-[3px] pl-[8px]">    
+                  <img src={MagnifierSvg} alt="magnifier" className="w-[20.06px]" />
+                  <Autocomplete
+                    disablePortal
+                    id="combo-box-demo"
+                    options={companySymbols}
+                    renderInput={(params) => <TextField
+                      {...params}  
+                      sx={{
+                        '& input::placeholder': {
+                          color: 'rgba(0, 0, 0, 1)',
+                        },
+                      }}
+                      placeholder='AAPL'/>}
+                    onChange={HandleSelectChange}
+                    sx={{
+                      width: '120px',
+                      height: 'auto',
+                      border:'none',
+                      '& .MuiAutocomplete-inputRoot': {
+                        height: '2.6rem',
+                      },
+                      '& input': 'p-0, w-[70px] h-[50px] text-[10px]',
+                      '& .MuiAutocomplete-clearIndicator': 'hidden',
+                    }}
+                  />
+                  <div className="flex">
+                    <img
+                      src={CompareSvg}
+                      alt="compare"
+                      className="w-[31.2px] flex p-0.1 cursor-pointer hover:bg-gray5 border-r-2 border-b-gray-800"
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="flex">
-                <img
-                  src={CompareSvg}
-                  alt="compare"
-                  className="flex p-2 cursor-pointer hover:bg-gray5 border-r-2 border-b-gray-800"
-                  // onClick={() => setSymbol(symbol)}
-                />
-              </div>
-            </div>
-            <div className="flex flex-row gap-2 my-1">
+            <div className="flex flex-row my-1">
               <button
                 className={
                   interval == '1min'
-                    ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
-                    : 'w-[40px] cursor-pointer hover:bg-gray5'
+                    ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700 text-16 text-black '
+                    : 'w-[40px] cursor-pointer hover:bg-gray5 text-16 '
                 }
                 onClick={() => {
                   setInterval('1min')
@@ -413,6 +509,7 @@ const Chart: FC = () => {
               </p>
               <img
                 src={IntervalSvg}
+                alt=''
                 className="cursor-pointer hover:bg-gray5"
                 onClick={() => setIsVisibleDaily(!isVisibleDaily)}
               />
@@ -448,36 +545,40 @@ const Chart: FC = () => {
                 </div>
               )}
               <div className="w-2 border-r-2 border-b-gray-800" />
-              <img
-                src={lineSeries === 'candlestick' ? CandleSvg : StickSvg}
-                alt="stick"
-                className="cursor-pointer hover:bg-gray5 mr-4"
-                onClick={selectLineStyle}
-              />
-              <img
-                src={SettingsSvg}
-                alt="settings"
-                className="cursor-pointer hover:bg-gray5"
-              />
-              <img
-                src={IntervalSvg}
-                className="cursor-pointer hover:bg-gray5"
-              />
+              <div className='flex w-[110px]'>
+                <img
+                  src={lineSeries === 'candlestick' ? CandleSvg : StickSvg}
+                  alt="stick"
+                  className="cursor-pointer hover:bg-gray5 mr-[33.43px]"
+                  onClick={selectLineStyle}
+                />
+                <img
+                  src={SettingsSvg}
+                  alt="settings"
+                  className="cursor-pointer hover:bg-gray5"
+                />
+                <img
+                  src={IntervalSvg}
+                  alt=''
+                  className="cursor-pointer hover:bg-gray5"
+                />
+              </div>
               <div className="w-1 border-r-2 border-b-gray-800" />
               <img
                 src={IndicatorsSvg}
                 className="cursor-pointer hover:bg-gray5"
+                alt=''
                 onClick={() => {
                   setIsVisibleIndicator(!isVisibleIndicator)
                 }}
               />
+              <p className='pt-1'>indicators</p>
               {isVisibleIndicator && (
                 <div className="flex flex-col absolute top-12 gap-1 left-[520px]">
                   {indicators.map((value, index) => {
                     const buttonColor = indicatorArray.includes(value)
                       ? 'bg-gray4'
                       : `bg-[#f9f9f9]`
-
                     const indicatorButtonSelect = () => {
                       let nextIndicatorArray = indicatorArray.includes(value)
                         ? indicatorArray.filter(e => e != value)
@@ -497,8 +598,7 @@ const Chart: FC = () => {
                   })}
                 </div>
               )}
-
-              <button
+              {/* <button
                 className="ml-8 w-16 bg-color-brand-green rounded-md text-white"
                 onClick={onSaveLines}
               >
@@ -509,231 +609,269 @@ const Chart: FC = () => {
                 onClick={onLoadLines}
               >
                 Load
-              </button>
+              </button> */}
             </div>
+            <div className='bg-gray-300 w-[50px] ml-auto'></div>
           </div>
-          <div className="flex flex-col h-[40px] bg-transparent text-sm ml-2">
-            <div className="flex flex-row">
-              <span>{`${companyData} * ${interval} :`}</span>
-              <p>{`O `}</p>
-              <span
-                // className="text-green-700"
-                className={
-                  changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
-                }
-              >
-                &nbsp;{hoverData.open}&nbsp;
-              </span>
-              <p>{`C `}</p>
-              <span
-                // className="text-green-700"
-                className={
-                  changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
-                }
-              >
-                &nbsp;{hoverData.close}&nbsp;
-              </span>
-              <p>{`H `}</p>
-              <span
-                // className="text-green-700"
-                className={
-                  changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
-                }
-              >
-                &nbsp;{hoverData.high}&nbsp;
-              </span>
-              <p>{`L `}</p>
-              <span
-                // className="text-green-700"
-                className={
-                  changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
-                }
-              >
-                &nbsp;{hoverData.low}&nbsp;
-              </span>
-              <span
-                className={
-                  changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
-                }
-              >
-                &nbsp;{changeValue.value.toFixed(2)}(
-                {changeValue.percent.toFixed(2)}%)
-              </span>
+          {/* ------ header bar */}
+          {/* coordinate bar --- */}
+          <div className="flex flex-col h-[40px]  text-sm ml-2 bg-white min-w-[800px]">
+            <div className="flex flex-row w-[136%] mt-[7.11px]">
+              <div className=" bg-black  w-[20.06px] h-[20.06px] rounded-full"></div>
+              <span className='mr-4 ml-2  text-base'>{`${companyData} · ${interval} · Cboe One `}</span>
+              <div className="flex rounded-full overflow-hidden w-[44.57px] h-[20.06px] mr-5 mt-0.5">
+                <div className="flex-1 flex justify-center items-center relative bg-gradient-to-r from-lightgreen to-green-200 bg-[#089981] bg-opacity-20">
+                  <div className="rounded-full w-[8.91px] h-[8.91px] bg-[#089981]" ></div>
+                </div>
+                <div className="flex-1 flex justify-center bg-[#F57C00] bg-opacity-15 items-center relative bg-gradient-to-r from-lightyellow to-yellow-200 ">
+                  <span className="text-[#F57C00] font-bold pt-[2.5px]" >D</span>
+                </div>
+              </div>
+              <div className='flex mt-[3px] text-sm'>
+                <p >{`O `}</p>
+                <span
+                  className={
+                    changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+                  }
+                >
+                  &nbsp;{hoverData.open}&nbsp;
+                </span>
+                <p>{`H `}</p>
+                <span
+                  className={
+                    changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+                  }
+                >
+                  &nbsp;{hoverData.high}&nbsp;
+                </span>
+                <p>{`L `}</p>
+                <span
+                  className={
+                    changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+                  }
+                >
+                  &nbsp;{hoverData.low}&nbsp;
+                </span>
+                <p>{`C `}</p>
+                <span
+                  className={
+                    changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+                  }
+                >
+                  &nbsp;{hoverData.close}&nbsp;
+                </span>
+                <span
+                  className={
+                    changeValue.value > 0 ? 'text-green-700' : 'text-red-700'
+                  }
+                >
+                  &nbsp;{changeValue.value.toFixed(2)}(
+                  {changeValue.percent.toFixed(2)}%)
+                </span>
+              </div>
             </div>
-            <div className="flex flex-row gap-2">
-              <p>{`Vol`}</p>
-              <span className="text-red-700">
+            <div className='flex mt-[5px] ml-[3px] z-30'>
+                <div className='w-[70px] h-[37px] ml-[53px] mr-3 border rounded-md text-center align-center border-black pt-[7px]'>{bidPrice}</div>
+                <p className='pr-3 pt-3'>0.00</p>
+                <div className='w-[70px] h-[37px] border rounded-md text-center pt-2 border-blue-500 text-blue-800'>{askPrice}</div>
+            </div>
+            <div className="flex flex-row gap-2 mt-3">
+              <p className='ml-[53px] text-base'>{`Vol`}</p>
+              <span className="text-red-700 text-base">
                 &nbsp;{hoverData.volume}&nbsp;
               </span>
             </div>
           </div>
-        </div>
-        <div className="absolute z-20 flex flex-col w-[60px] h-[580px] bg-white top-[40px] pt-10 pb-4 px-2">
-          <div className="absolute flex flex-col -ml-[10px] bg-transparent w-[60px] h-[696px] border-t border-t-gray3 border-r border-r-gray3 px-2 gap-4">
-            <img
-              src={editType == 'arrow' ? ArrowSelectedSvg : ArrowSvg}
-              alt="Text"
-              width={50}
-              className=" cursor-pointer p-[10px]"
-              onClick={() => {
-                setEditType('arrow')
-              }}
-            />
-            <img
-              src={editType == 'label' ? TextSelectedSvg : TextSvg}
-              alt="Text"
-              width={30}
-              className="ml-2 cursor-pointer p-1"
-              onClick={() => {
-                setEditType('label')
-              }}
-            />
-            <img
-              src={editType == 'trendline' ? TrendSelectedSvg : TrendSvg}
-              alt="Trend"
-              width={50}
-              onClick={() => {
-                setEditType('trendline')
-              }}
-              className="cursor-pointer p-1"
-            />
-            <img
-              src={editType == 'vertical' ? VerticalSelectedSvg : VerticalSvg}
-              alt="Vertical"
-              onClick={() => {
-                setEditType('vertical')
-              }}
-              className="cursor-pointer p-1"
-            />
-            <img
-              src={
-                editType == 'horizontal' ? HorizontalSelectedSvg : HorizontalSvg
-              }
-              alt="Horizontal"
-              width={50}
-              onClick={() => {
-                setEditType('horizontal')
-              }}
-              className="cursor-pointer p-1"
-            />
-            <img
-              src={editType == 'callout' ? CalloutSelectedSvg : CalloutSvg}
-              alt="Callout"
-              width={50}
-              onClick={() => {
-                setEditType('callout')
-              }}
-              className="cursor-pointer p-1"
-            />
-            <img
-              src={
-                editType == 'pricerange' ? PriceRangeSelectedSvg : PriceRangeSvg
-              }
-              alt="priceRange"
-              width={50}
-              onClick={() => {
-                setEditType('pricerange')
-              }}
-              className="cursor-pointer p-2"
-            />
-            <img
-              src={magnet ? MagnetSelectedSvg : MagnetSvg}
-              alt="magnet"
-              width={50}
-              className="cursor-pointer p-2"
-              onClick={() => {
-                setMagnet(!magnet)
-              }}
-            />
-            <img
-              src={RemoveSvg}
-              alt="Remove"
-              width={50}
-              onClick={() => {
-                setSelectDelete(!selectDelete)
-                setIsLineSelected(false)
-              }}
-              className="cursor-pointer p-2"
-            />
-          </div>
-        </div>
-        <div className="flex items-center">
-          <ChartComponent
-            selectDelete={selectDelete}
-            data={data}
-            volume={volume}
-            circlePoint={circlePoints}
-            trendPoints={trendPoints}
-            rectanglePoints={rectanglePoints}
-            labelPoint={labelPoint}
-            horizontalPoint={horizontalPoint}
-            verticalPoint={verticalPoint}
-            calloutPoint={calloutPoint}
-            priceRangePoint={priceRangePoint}
-            magnet={magnet}
-            handleTemplePoint={handleTemplePoint}
-            handleCrosshairMove={handleCrosshairMove}
-            save={save}
-            handleExportData={handleExportData}
-            lineSeries={lineSeries}
-            importLines={importLines}
-            handleSelectedLine={handleSelectedLine}
-            selectedLine={selectedLine}
-            selectedLineText={selectedLineText}
-            indicatorArray={indicatorArray}
-            symbol={symbol}
-            interval={interval}
-            selectLineColor={selectedLineColor}
-          />
-        </div>
-        {isLineSelected && (
-          <Draggable defaultPosition={{ x: 550, y: 100 }}>
-            <div className="absolute p-2 z-30 bg-white w-[200px] h-[150px] border border-black rounded-md cursor-pointer">
-              <BaseInput
-                name="text"
-                label="text"
-                placeholder=""
-                value={selectedLineText}
-                handleChange={e => {
-                  setSelectedLineText(e.target.value)
-                }}
-              />
-              <BaseSelect
-                name="color"
-                label="color"
-                options={[
-                  { value: 'red', label: 'Red' },
-                  { value: 'green', label: 'Green' },
-                  { value: 'blue', label: 'Blue' },
-                ]}
-                value={selectedLineColor}
-                setFieldValue={handleSelectedLineColor}
+          {/* ---- coordinate bar */}
+          {/* main display ----- */}
+          <div className='flex relative'>
+            {/* tool bar ---- */}
+            <div className="w-[61px] bg-white pt-10 pb-4 absolute top-0 left-0  z-20 border-r-[2px] border-r-grey border-b-[2px] border-b-grey border-t-[2px] border-t-grey">
+              <div className="">
+                <img
+                  src={editType == 'arrow' ? ArrowSelectedSvg : ArrowSvg}
+                  alt="Text"
+                  width={50}
+                  className=" cursor-pointer p-3 mb-2"
+                  onClick={() => {
+                    setEditType('arrow')
+                  }}
+                />
+                <img
+                  src={editType == 'label' ? TextSelectedSvg : TextSvg}
+                  alt="Text"
+                  width={30}
+                  className="ml-2 cursor-pointer p-1 mb-2"
+                  onClick={() => {
+                    setEditType('label')
+                  }}
+                />
+                <img
+                  src={editType == 'trendline' ? TrendSelectedSvg : TrendSvg}
+                  alt="Trend"
+                  width={50}
+                  onClick={() => {
+                    setEditType('trendline')
+                  }}
+                  className="cursor-pointer p-1 mb-2"
+                />
+                <img
+                  src={editType == 'vertical' ? VerticalSelectedSvg : VerticalSvg}
+                  alt="Vertical"
+                  onClick={() => {
+                    setEditType('vertical')
+                  }}
+                  className="cursor-pointer p-1 mb-2"
+                />
+                <img
+                  src={
+                    editType == 'horizontal' ? HorizontalSelectedSvg : HorizontalSvg
+                  }
+                  alt="Horizontal"
+                  width={50}
+                  onClick={() => {
+                    setEditType('horizontal')
+                  }}
+                  className="cursor-pointer p-1 mb-2"
+                />
+                <img
+                  src={editType == 'callout' ? CalloutSelectedSvg : CalloutSvg}
+                  alt="Callout"
+                  width={50}
+                  onClick={() => {
+                    setEditType('callout')
+                  }}
+                  className="cursor-pointer p-1 mb-2"
+                />
+                <img
+                  src={
+                    editType == 'PriceRange' ? PriceRangeSelectedSvg : PriceRangeSvg
+                  }
+                  alt="priceRange"
+                  width={50}
+                  onClick={() => {
+                    setEditType('PriceRange')
+                  }}
+                  className="cursor-pointer p-2 mb-2"
+                />
+                <img
+                  src={magnet ? MagnetSelectedSvg : MagnetSvg}
+                  alt="magnet"
+                  width={50}
+                  className="cursor-pointer p-2 mb-2"
+                  onClick={() => {
+                    setMagnet(!magnet)
+                  }}
+                />
+                <img
+                  src={RemoveSvg}
+                  alt="Remove"
+                  width={50}
+                  onClick={() => {
+                    setSelectDelete(!selectDelete)
+                    setIsLineSelected(false)
+                  }}
+                  className="cursor-pointer p-2"
+                />
+              </div>
+            </div>
+            {/* -----tool bar */}
+            {/* !!! */}
+            <div className='absolute inset-0  z-10'>
+              <ChartComponent
+                data={data}
+                volume={volume}
+                circlePoint={circlePoints}
+                trendPoints={trendPoints}
+                rectanglePoints={rectanglePoints}
+                labelPoint={labelPoint}
+                horizontalPoint={horizontalPoint}
+                verticalPoint={verticalPoint}
+                calloutPoint={calloutPoint}
+                priceRangePoint={priceRangePoint}
+                magnet={magnet}
+                handleTemplePoint={handleTemplePoint}
+                handleCrosshairMove={handleCrosshairMove}
+                save={save}
+                handleExportData={handleExportData}
+                lineSeries={lineSeries}
+                importLines={importLines}
+                handleSelectedLine={handleSelectedLine}
+                selectedLine={selectedLine}
+                selectedLineText={selectedLineText}
+                indicatorArray={indicatorArray}
+                symbol={symbol}
+                interval={interval}
+                selectLineColor={selectedLineColor}
+                setLastLineJSON={setLastLineJSON}
+                editType={editType}
+                templeWidth={templeWidth}
               />
             </div>
-          </Draggable>
-        )}
-        <WatchList />
-      </div>
-      {width < 1024 && (
-        <div className="flex flex-col gap-2">
-          <ChartView />
-          <ChartView />
-          <ChartView />
-          <ChartView />
+            {/* !!!!! */}
+            { isLineSelected === true && (
+              <Draggable defaultPosition={{ x: 500, y: 100 }}>
+                <div className="absolute p-2 z-30 bg-white w-[200px] h-[180px] border border-black rounded-md cursor-pointer">
+                  <button onClick={modalcloseHandler} className='ml-[90%]'>&times;</button>
+                  <BaseInput
+                    name="text"
+                    label="text"
+                    placeholder=""
+                    value={selectedLineText}
+                    handleChange={e => {
+                      setSelectedLineText(e.target.value)
+                    }}
+                  />
+                  <BaseSelect
+                    name="color"
+                    label="color"
+                    options={[
+                      { value: 'red', label: 'Red' },
+                      { value: 'green', label: 'Green' },
+                      { value: 'blue', label: 'Blue' },
+                    ]}
+                    value={selectedLineColor}
+                    setFieldValue={handleSelectedLineColor}
+                  />
+                </div>
+              </Draggable>
+            )}
+          </div>
+          {/* -----main display */}
         </div>
-      )}
-      {width > 1024 && (
-        <>
-          <div className="flex flex-row gap-2">
-            <ChartView />
-            <ChartView />
+        {/* ---main chartView */}
+        {/* Watchlist------ */}
+        <div className='bg-white border-l-[2px] border-l-grey'>
+          <WatchList/>
+        </div>
+        {/* -----Watchlist */}
+      </div>
+      {/* ----main chart*/}
+      {/* chart view------ */}
+      <div>
+        {width < 1400 && (
+          <div className="flex flex-col gap-[22px] pt-[20px]">
+            <ChartView tempWidth={templeWidth}/>
+            <ChartView tempWidth={templeWidth}/>
+            <ChartView tempWidth={templeWidth}/>
+            <ChartView tempWidth={templeWidth}/>
           </div>
-          <div className="flex flex-row gap-2">
-            <ChartView />
-            <ChartView />
+        )}
+        {width >= 1400 && (
+          <div className='pt-[40px]'>
+            <div className="flex flex-row gap-[22px]">
+              <ChartView tempWidth={ (templeWidth + 432) * 0.5 - 11 }/>
+              <ChartView tempWidth={ (templeWidth + 432) * 0.5 - 11 }/>
+            </div>
+            <div className="flex flex-row gap-[22px] pt-[40px]">
+              <ChartView tempWidth={ (templeWidth + 432) * 0.5 - 11 }/>
+              <ChartView tempWidth={ (templeWidth + 432) * 0.5 - 11 }/>
+            </div>
           </div>
-        </>
-      )}
+        )}
+ 
+      </div>
+      {/* ---- chart view */}
     </div>
   )
 }

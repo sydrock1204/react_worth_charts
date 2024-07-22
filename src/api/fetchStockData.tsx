@@ -42,7 +42,7 @@ export const fetchStockData = async (symbol: string, interval: string) => {
       const volumeData = {
         time: getTimeStamp(data[0]),
         value: Number(data[1]['5. volume']),
-        color: index % 2 === 0 ? '#26a69a' : '#ef5350',
+        color: index % 2 === 0 ? '#7685AA' : '#7685AA',
         index: index,
       }
       return volumeData

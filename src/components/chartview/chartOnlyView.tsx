@@ -1,7 +1,6 @@
 // @ts-nocheck
 
 import { useEffect, useRef, useState } from 'react'
-
 import {
   createChart,
   ColorType,
@@ -31,6 +30,7 @@ export const ChartOnlyView = (props: any) => {
     indicatorArray,
     symbol,
     interval,
+    tempWidth,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -41,7 +41,6 @@ export const ChartOnlyView = (props: any) => {
   } = props
 
   const width = useWindowWidth()
-  const headerWidth = useHeaderWidthStore(state => state.width)
   const chartContainerRef = useRef<IChartApi | null>(null)
   const chart = useRef<IChartApi | null>(null)
   const candleStickSeries = useRef<ISeriesApi<'Candlestick'> | null>(null)
@@ -89,20 +88,12 @@ export const ChartOnlyView = (props: any) => {
   }
 
   useEffect(() => {
-    if (width > 1024) {
-      chart.current?.applyOptions({
-        width: (width - headerWidth - 38) / 2,
-      })
-    } else if (width <= 1024) {
-      chart.current?.applyOptions({
-        width: width - headerWidth - 18,
-      })
-    }
+        chart.current?.applyOptions({
+          width: tempWidth,
+        })
   }, [width])
 
   useEffect(() => {
-    let tempWidth =
-      width > 1024 ? (width - headerWidth - 38) / 2 : width - headerWidth - 18
     chart.current = createChart(chartContainerRef.current, {
       crosshair: {
         horzLine: {
@@ -140,13 +131,13 @@ export const ChartOnlyView = (props: any) => {
 
     if (lineSeries == 'candlestick') {
       candleStickSeries.current = chart.current.addCandlestickSeries({
-        upColor: 'green',
-        downColor: 'red',
+        upColor: '#000000',
+        downColor: '#000000',
       })
     } else if (lineSeries == 'bar') {
       candleStickSeries.current = chart.current.addBarSeries({
-        upColor: 'green',
-        downColor: 'red',
+        upColor: '#000000',
+        downColor: '#000000',
       })
     }
     candleStickSeries.current.setData(data)
@@ -172,7 +163,6 @@ export const ChartOnlyView = (props: any) => {
 
     volumeSeries.setData(volume)
 
-    // chart.current.timeScale().fitContent()
     chart.current.timeScale().setVisibleLogicalRange({
       from: data.length - 100,
       to: data.length,
@@ -210,8 +200,6 @@ export const ChartOnlyView = (props: any) => {
   useEffect(() => {
     const fetchWrapper = async () => {
       if (indicatorArray.length > 0) {
-        console.log('indicatorArray', indicatorArray)
-
         const indifunction = indicatorArray[indicatorArray.length - 1]
         const indicatorSeries = await fetchStockIndicator(
           indifunction,
@@ -234,9 +222,8 @@ export const ChartOnlyView = (props: any) => {
             return indiData
           })
           .reverse()
-        console.log('indicatorData: ', indicatorData)
 
-        indicatorLineSeries.setData(indicatorData)
+          indicatorLineSeries.setData(indicatorData)
       }
     }
 

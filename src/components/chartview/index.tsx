@@ -15,7 +15,6 @@ import {
 } from '../lightweights-line-tools/api/ichart-api'
 import { ISeriesApi } from '../lightweights-line-tools/api/iseries-api'
 import { ILineToolApi } from '../lightweights-line-tools/api/iline-tool-api'
-
 import { circleDefaultOption } from './circleDefaultOptions'
 import { rectangleDefaultOption } from './rectangleDefaultOption'
 import { labelDefaultOption } from './labelDefaultOption'
@@ -27,6 +26,151 @@ import { fetchStockIndicator } from '../../api/fetchStockIndicator'
 import { getTimeStamp } from '../../utils/getTimeStamp'
 import useWindowWidth from '../../context/useScreenWidth'
 import useHeaderWidthStore from '../../context/useHeadherWidth'
+
+const trendLineOption = {
+  text: {
+    value: '',
+    alignment: TextAlignment.Left,
+    font: {
+      color: 'rgba(255,255,255,1)',
+      size: 14,
+      bold: true,
+      italic: true,
+      family: 'Arial',
+    },
+    box: {
+      alignment: {
+        vertical: BoxVerticalAlignment.Bottom,
+        horizontal: BoxHorizontalAlignment.Center,
+      },
+      angle: 0,
+      scale: 1,
+      offset: {
+        x: 0,
+        y: 20,
+      },
+      padding: {
+        x: 0,
+        y: 0,
+      },
+      maxHeight: 100,
+      shadow: {
+        blur: 0,
+        color: 'rgba(255,255,255,1)',
+        offset: {
+          x: 0,
+          y: 0,
+        },
+      },
+      border: {
+        color: 'rgba(126,211,33,1)',
+        width: 4,
+        radius: 20,
+        highlight: false,
+        style: 1,
+      },
+      background: {
+        color: 'rgba(199,56,56,0.25)',
+        inflation: {
+          x: 10,
+          y: 10,
+        },
+      },
+    },
+    padding: 0,
+    wordWrapWidth: 0,
+    forceTextAlign: false,
+    forceCalculateMaxLineWidth: false,
+  },
+  line: {
+    color: 'rgba(41,98,255,1)',
+    width: 2,
+    style: 0,
+    end: {
+      left: 0,
+      right: 0,
+    },
+    extend: {
+      right: false,
+      left: false,
+    },
+  },
+  visible: true,
+  editable: true,
+}
+
+const priceRangeOption = {
+  text: {
+    value: '',
+    alignment: TextAlignment.Left,
+    font: {
+      color: 'rgba(41,98,255,1)',
+      size: 23,
+      bold: false,
+      italic: false,
+      family: 'Arial',
+    },
+    box: {
+      alignment: {
+        vertical: BoxVerticalAlignment.Top,
+        horizontal: BoxHorizontalAlignment.Center,
+      },
+      angle: 0,
+      scale: 0.6,
+      offset: {
+        x: 0,
+        y: 0,
+      },
+      padding: {
+        x: 0,
+        y: 0,
+      },
+      maxHeight: 100,
+      shadow: {
+        blur: 0,
+        color: 'rgba(255,255,255,1)',
+        offset: {
+          x: 0,
+          y: 0,
+        },
+      },
+      border: {
+        color: 'rgba(126,211,33,0)',
+        width: 4,
+        radius: 0,
+        highlight: false,
+        style: 3,
+      },
+      background: {
+        color: 'rgba(199,56,56,0)',
+        inflation: {
+          x: 0,
+          y: 0,
+        },
+      },
+    },
+    padding: 0,
+    wordWrapWidth: 0,
+    forceTextAlign: true,
+    forceCalculateMaxLineWidth: true,
+  },
+  priceRange: {
+    background: {
+      color: 'rgba(156,39,176,0.2)',
+    },
+    border: {
+      color: 'rgba(41,98,255,1)',
+      width: 2,
+      style: 0,
+    },
+    extend: {
+      right: false,
+      left: false,
+    },
+  },
+  visible: true,
+  editable: true,
+}
 
 export const ChartComponent = (props: any) => {
   const {
@@ -55,10 +199,13 @@ export const ChartComponent = (props: any) => {
     symbol,
     interval,
     selectLineColor,
+    setLastLineJSON,
+    editType,
+    templeWidth,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
-      textColor = 'black',
+      textColor = '#000000',
       areaTopColor = '#2962FF',
       areaBottomColor = 'rgba(41, 98, 255, 0.28)',
     } = {},
@@ -78,14 +225,12 @@ export const ChartComponent = (props: any) => {
   const [priorSelectDelete, setPriorSelectDelete] =
     useState<boolean>(selectDelete)
   const width = useWindowWidth()
-  // const headerWidth = useHeaderWidthStore(state => state.width)
-  const { width: headerWidth } = useHeaderWidthStore()
 
   const getPointInformation = (param: MouseEventParams) => {
     if (!param.point) {
       return
     }
-
+ 
     handleSelectedLine(chart.current?.getSelectedLineTools())
 
     const pointPrice = candleStickSeries.current?.coordinateToPrice(
@@ -112,22 +257,22 @@ export const ChartComponent = (props: any) => {
 
   const handleResize = () => {
     chart.current?.applyOptions({
-      // width: chartContainerRef.current?.clientWidth,
+
     })
   }
 
   useEffect(() => {
-    let tempWidth = 0
-    if (width > 1440) {
-      tempWidth = width - 510 - headerWidth
-    } else if (width > 1024) {
-      tempWidth = width - 358 - headerWidth
-    } else if (width <= 1024) {
-      tempWidth = width - 18 - headerWidth
+    if (editType === 'trendline') {
+      chart.current?.addLineTool('TrendLine', [], trendLineOption)
     }
+    if (editType === 'PriceRange') {
+      chart.current?.addLineTool('PriceRange', [], priceRangeOption)
+    }
+  }, [editType])
 
+  useEffect(() => {
     chart.current?.applyOptions({
-      width: tempWidth,
+      width: templeWidth,
     })
   }, [width])
 
@@ -144,7 +289,6 @@ export const ChartComponent = (props: any) => {
     if (magnet) {
       const newCrosshair = { ...crosshair, magnetThreshold: 40 }
       const newOptions = { ...options, crosshair: newCrosshair }
-      console.log(newOptions)
       chart.current?.applyOptions(newOptions)
     } else {
       const newCrosshair = { ...crosshair, magnetThreshold: 14 }
@@ -153,16 +297,28 @@ export const ChartComponent = (props: any) => {
     }
   }, [magnet])
 
-  useEffect(() => {
-    let tempWidth = 0
-    if (width > 1440) {
-      tempWidth = width - 510 - headerWidth
-    } else if (width > 1024) {
-      tempWidth = width - 358 - headerWidth
-    } else if (width <= 1024) {
-      tempWidth = width - 18 - headerWidth
+   useEffect(() => {
+    const handleDeleteKeyPressed = () => {
+      if(selectedLine !== " ") {
+        chart.current?.removeSelectedLineTools()
+      }
     }
 
+    const handleKeyDown = (event) => {
+      if(event.key === 'Delete') {
+        handleDeleteKeyPressed();
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown',handleKeyDown);
+    }
+    
+   },[selectedLine])
+
+  useEffect(() => {
     chart.current = createChart(chartContainerRef.current, {
       crosshair: {
         horzLine: {
@@ -186,25 +342,24 @@ export const ChartComponent = (props: any) => {
           bottom: 0,
         },
       },
-      width: tempWidth,
+      width: templeWidth,
       height: 800,
     })
 
     if (lineSeries == 'candlestick') {
       candleStickSeries.current = chart.current.addCandlestickSeries({
-        upColor: 'green',
-        downColor: 'red',
+        upColor: '#000000',
+        downColor: '#000000',
       })
     } else if (lineSeries == 'bar') {
       candleStickSeries.current = chart.current.addBarSeries({
-        upColor: 'green',
-        downColor: 'red',
+        upColor: '#000000',
+        downColor: '#000000',
       })
     }
     candleStickSeries.current.setData(data)
-
     const volumeSeries = chart.current.addHistogramSeries({
-      color: '#26a69a',
+      color: '#00FF00',
       priceFormat: {
         type: 'volume',
       },
@@ -224,7 +379,6 @@ export const ChartComponent = (props: any) => {
 
     volumeSeries.setData(volume)
 
-    // chart.current.timeScale().fitContent()
     chart.current.timeScale().setVisibleLogicalRange({
       from: data.length - 50,
       to: data.length,
@@ -266,8 +420,6 @@ export const ChartComponent = (props: any) => {
           color: '#2962FF',
         })
 
-        console.log('indicatorArray', indicatorArray)
-
         const indifunction = indicatorArray[indicatorArray.length - 1]
         const indicatorSeries = await fetchStockIndicator(
           indifunction,
@@ -281,13 +433,11 @@ export const ChartComponent = (props: any) => {
           .map((data, index) => {
             const indiData = {
               time: getTimeStamp(data[0]),
-              // value: Number(data[1]['Real Upper Band']),
               value: Number(data[1][indifunction]),
             }
             return indiData
           })
           .reverse()
-        console.log('indicatorData: ', indicatorData)
 
         indicatorLineSeries.setData(indicatorData)
       }
@@ -342,81 +492,12 @@ export const ChartComponent = (props: any) => {
 
   useEffect(() => {
     if (trendPoints) {
-      chart.current?.addLineTool(
+      chart.current?.addLineTool( 
         'TrendLine',
         [trendPoints.point1, trendPoints.point2],
-        {
-          text: {
-            value: '',
-            alignment: TextAlignment.Left,
-            font: {
-              color: 'rgba(255,255,255,1)',
-              size: 14,
-              bold: true,
-              italic: true,
-              family: 'Arial',
-            },
-            box: {
-              alignment: {
-                vertical: BoxVerticalAlignment.Bottom,
-                horizontal: BoxHorizontalAlignment.Center,
-              },
-              angle: 0,
-              scale: 1,
-              offset: {
-                x: 0,
-                y: 20,
-              },
-              padding: {
-                x: 0,
-                y: 0,
-              },
-              maxHeight: 100,
-              shadow: {
-                blur: 0,
-                color: 'rgba(255,255,255,1)',
-                offset: {
-                  x: 0,
-                  y: 0,
-                },
-              },
-              border: {
-                color: 'rgba(126,211,33,1)',
-                width: 4,
-                radius: 20,
-                highlight: false,
-                style: 1,
-              },
-              background: {
-                color: 'rgba(199,56,56,0.25)',
-                inflation: {
-                  x: 10,
-                  y: 10,
-                },
-              },
-            },
-            padding: 0,
-            wordWrapWidth: 0,
-            forceTextAlign: false,
-            forceCalculateMaxLineWidth: false,
-          },
-          line: {
-            color: 'rgba(41,98,255,1)',
-            width: 4,
-            style: 0,
-            end: {
-              left: 0,
-              right: 0,
-            },
-            extend: {
-              right: false,
-              left: false,
-            },
-          },
-          visible: true,
-          editable: true,
-        }
-      )
+        trendLineOption,
+        )
+        chart.current?.removeSelectedLineTools()
     }
 
     chart.current?.applyOptions({})
@@ -435,10 +516,10 @@ export const ChartComponent = (props: any) => {
 
   useEffect(() => {
     if (labelPoint) {
-      chart.current?.addLineTool('Text', [labelPoint], labelDefaultOption)
+      const ret = chart.current?.addLineTool('Text', [labelPoint], labelDefaultOption)
+      setLastLineJSON (ret); 
     }
 
-    // chart.current?.timeScale().fitContent()
     chart.current.applyOptions({})
   }, [labelPoint])
 
@@ -462,6 +543,7 @@ export const ChartComponent = (props: any) => {
         verticalDefaultOption
       )
     }
+    
     chart.current.applyOptions({})
   }, [verticalPoint])
 
@@ -481,10 +563,11 @@ export const ChartComponent = (props: any) => {
 
   useEffect(() => {
     if (priceRangePoint) {
+      chart.current?.removeSelectedLineTools();
       chart.current?.addLineTool(
         'PriceRange',
         [priceRangePoint.point1, priceRangePoint.point2],
-        pricerangeDefaultOption
+        priceRangeOption
       )
     }
 
@@ -492,8 +575,6 @@ export const ChartComponent = (props: any) => {
   }, [priceRangePoint])
 
   useEffect(() => {
-    console.log(chart.current.options())
-    console.log(chart.current?.getSelectedLineTools())
     chart.current?.removeSelectedLineTools()
   }, [selectDelete])
 
@@ -502,5 +583,8 @@ export const ChartComponent = (props: any) => {
     chart.current?.timeScale().fitContent()
   }, [importLines])
 
-  return <div ref={chartContainerRef} />
+  return (
+    <div ref={chartContainerRef} />
+  )
+ 
 }
