@@ -3,7 +3,6 @@ import { getTimeStamp } from '../utils/getTimeStamp'
 
 export const fetchStockData = async (symbol: string, interval: string) => {
   const rawData = await fetchData(symbol, interval)
-
   const stockDataSeries = Object.entries(rawData)
     .map(data => {
       const stockData = {

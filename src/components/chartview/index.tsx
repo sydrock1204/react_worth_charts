@@ -479,7 +479,7 @@ export const ChartComponent = (props: any) => {
     areaTopColor,
     areaBottomColor,
   ])
-
+  
   useEffect(() => {
     const fetchWrapper = async () => {
       if (indicatorArray.length > 0) {
@@ -515,7 +515,7 @@ export const ChartComponent = (props: any) => {
     })
   }, [indicatorArray])
 
-  useEffect(() => {
+   useEffect(() => {
     if (selectedLine !== '[]' && selectedLine) {
       let selectedLineTextJSON = JSON.parse(selectedLine)
       chart.current.applyLineToolOptions({

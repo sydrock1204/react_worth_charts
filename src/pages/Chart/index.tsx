@@ -111,7 +111,8 @@ const Chart: FC = () => {
   const [circlePoints, setCirclePoints] = useState<PointXY | null>(null)
   const [selectedLineColor, setSelectedLineColor] = useColor("#561ecb");
   const [selectedToolType, setSelectedToolType] = useState<String>(null);
- 
+  const [addStock, setAddStock] = useState<any>(null);
+
   useEffect(() => {
     const updateWidth = () => {
       if (templeWidthRef.current) {
@@ -188,9 +189,9 @@ const Chart: FC = () => {
     }
   }
 
-  const onSaveLines = () => {
-    if (!save) setSave(true)
-  }
+  // const onSaveLines = () => {
+  //   if (!save) setSave(true)
+  // }
 
   const handleExportData = async exportLines => {
     if (!session && signOutHandler) {
@@ -225,9 +226,9 @@ const Chart: FC = () => {
     setSave(false)
   }
 
-  const onLoadLines = async () => {
-    await loadLineData(symbol, interval)
-  }
+  // const onLoadLines = async () => {
+  //   await loadLineData(symbol, interval)
+  // }
 
   const handleCrosshairMove = (time: number) => {
     if (tempData && tempData.get(time)) {
@@ -244,10 +245,10 @@ const Chart: FC = () => {
       const dateObject = new Date(time * 1000)
 
       const year = dateObject.getFullYear()
-      const month = dateObject.getMonth() + 1 // Add 1 to get actual month
+      const month = dateObject.getMonth() + 1 
       const day = dateObject.getDate()
       const hours = dateObject.getHours()
-      const minutes = dateObject.getMinutes().toString().padStart(2, '0') // Pad minutes with leading 0 if needed
+      const minutes = dateObject.getMinutes().toString().padStart(2, '0') 
 
       const amPm = hours >= 12 ? 'PM' : 'AM'
 
@@ -434,6 +435,10 @@ const Chart: FC = () => {
     }
   }, [selectedLine])
   
+  const addStockHandler = () => {
+    setAddStock(symbol);
+  }
+
   return (
     <div id='Chart' className={`pt-[36px] pl-[13px] pr-[50px]`}>
       <Spinner isLoading={loading} />
@@ -481,6 +486,7 @@ const Chart: FC = () => {
                       src={CompareSvg}
                       alt="compare"
                       className="w-[31.2px] flex p-0.1 cursor-pointer hover:bg-gray5 border-r-2 border-b-gray-800"
+                      onClick={addStockHandler}
                     />
                   </div>
                 </div>
@@ -488,15 +494,15 @@ const Chart: FC = () => {
             <div className="flex flex-row my-1">
               <button
                 className={
-                  interval == '1min'
+                  interval == '15min'
                     ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700 text-16 text-black '
                     : 'w-[40px] cursor-pointer hover:bg-gray5 text-16 '
                 }
                 onClick={() => {
-                  setInterval('1min')
+                  setInterval('15min')
                 }}
               >
-                1m
+                15m
               </button>
               <button
                 className={
@@ -571,13 +577,13 @@ const Chart: FC = () => {
                 </div>
               )}
               <div className="w-2 border-r-2 border-b-gray-800" />
-              <div className='flex w-[110px]'>
-                <img
+              <div className='flex'>
+                {/* <img
                   src={lineSeries === 'candlestick' ? CandleSvg : StickSvg}
                   alt="stick"
                   className="cursor-pointer hover:bg-gray5 mr-[33.43px]"
                   onClick={selectLineStyle}
-                />
+                /> */}
                 <img
                   src={SettingsSvg}
                   alt="settings"
@@ -873,7 +879,7 @@ const Chart: FC = () => {
         {/* ---main chartView */}
         {/* Watchlist------ */}
         <div className='bg-white border-l-[2px] border-l-grey'>
-          <WatchList/>
+          <WatchList addStockfromheader={addStock}/>
         </div>
         {/* -----Watchlist */}
       </div>

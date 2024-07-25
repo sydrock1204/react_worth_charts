@@ -25,7 +25,8 @@ interface endQuoteMap {
   [stock: string]: endQuote
 }
 
-export const WatchList: FC = () => {
+export const WatchList = (props : any) => {
+  const { addStockfromheader } = props;
   const { watchLists, setWatchLists, loadWatchLists, saveWatchLists } =
     useWatchListsStore()
   const { user } = useAuthContext()
@@ -36,7 +37,7 @@ export const WatchList: FC = () => {
   const [endQuote, setEndQuote] = useState<endQuoteMap>({})
   const [watchListWidth, setWatchListWidth] = useState<string>('lg')
   const width = useWindowWidth()
-
+ 
   const onVisibleHeader = (header: string) => {
     setWatchLists({
       ...watchLists,
@@ -68,9 +69,18 @@ export const WatchList: FC = () => {
         },
       })
     }
-
+    console.log('--temAddStock--',tempAddStock,'--category--',addCategory);
+    console.log('--WatchList--',watchLists)
     setIsVisibleAddList(false)
   }
+
+  // useEffect(() => {
+  //   if ( addStockfromheader != null ) {
+  //     console.log('-----!!----',addStockfromheader);
+  //     handleAddStock(addStockfromheader);
+  //     setAddCategory("STOCKS")
+  //   }
+  // },[addStockfromheader])
 
   useEffect(() => {
     const updateData = () => {
@@ -244,8 +254,8 @@ export const WatchList: FC = () => {
           )
         })}
         {isVisibleAddList && (
-          <Draggable defaultPosition={{ x: 100, y: 350 }}>
-            <div className="absolute flex flex-col p-2 z-30 bg-white  h-[550px] border border-black rounded-md cursor-pointer">
+          <Draggable defaultPosition={{ x: 70, y: 100 }}>
+            <div className="absolute flex flex-col p-2 z-30 bg-white  h-auto border border-black rounded-md cursor-pointer">
               <div className="flex flex-row">
                 {/* Add {addCategory} */}
                 <div className="grid w-1/2 place-items-start ml-2">
