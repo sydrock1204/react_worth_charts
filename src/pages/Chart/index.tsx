@@ -47,7 +47,6 @@ import {
 import { useAuthContext } from '../../context/authContext'
 import useWindowWidth from '../../context/useScreenWidth'
 import { ChartComponent } from '../../components/chartview'
-import { ChartView } from './chartView'
 import { fetchAllSymbol } from '../../api/fetchAllSymbol'
 import Spinner from './spinner';
 import TextField from '@mui/material/TextField';
@@ -59,7 +58,6 @@ const Chart: FC = () => {
   const [tempData, setTempData] = useState<any | null>(null)
   const [startPoint, setStartPoint] = useState<Point | null>(null)
   const [volume, setVolume] = useState<VolumeData[]>([])
-  const [, set] = useState<PointXY | null>(null)
   const [trendPoints, setTrendPoints] = useState<PointXY | null>(null)
   const [rectanglePoints, setRectanglePoints] = useState<PointXY | null>(null)
   const [selectDelete, setSelectDelete] = useState<boolean>(false)
@@ -134,7 +132,7 @@ const Chart: FC = () => {
         const lines = AllCompanySymbol.split('\n');
         const result = lines.slice(1).map((line, index) => {
           const [symbol,name] = line.split(',');
-              return { label: name, symbol: symbol, key: index };
+              return { key: `${name}-${index}`, label: name, symbol: symbol };
         })
         .filter(item => item.label !== undefined && item.label.trim() !== "");
         setCompanySymbols(result);
@@ -418,7 +416,7 @@ const Chart: FC = () => {
   }
  
   return (
-    <div id='Chart' className={`pt-[36px] pl-[13px] pr-[50px] ${width > 1400 ? "h-[2020px]" : "h-[3050px]"}`}>
+    <div id='Chart' className={`pt-[36px] pl-[13px] pr-[50px]`}>
       <Spinner isLoading={loading} />
       {/* main chart---- */}
       <div className='flex flex-row justify-between w-full bg-white h-[895px] '>
@@ -434,6 +432,11 @@ const Chart: FC = () => {
                     id="combo-box-demo"
                     options={companySymbols}
                     getOptionLabel={(option) => option.label}
+                    renderOption={(props, option) => (
+                      <li {...props} key={option.key}>
+                        {option.label}
+                      </li>
+                    )}
                     renderInput={(params) => <TextField
                       {...params}  
                       sx={{
@@ -734,7 +737,7 @@ const Chart: FC = () => {
                   onClick={() => {
                     setEditType('vertical')
                   }}
-                  className="cursor-pointer p-1 mb-2"
+                  className="cursor-pointer p-1 mb-2 w-[52px]"
                 />
                 <img
                   src={
@@ -827,15 +830,15 @@ const Chart: FC = () => {
               <Draggable defaultPosition={{ x: 500, y: 100 }}>
                 <div className="absolute p-2 z-30 bg-white w-[200px] h-[200px] border border-black rounded-md cursor-pointer">
                   <button onClick={modalcloseHandler} className='ml-[90%] text-[25px]'>&times;</button>
-                  <BaseInput
-                    name="text"
-                    label="text"
-                    placeholder=""
-                    value={selectedLineText}
-                    handleChange={e => {
-                      setSelectedLineText(e.target.value)
-                    }}
-                  />
+                    <BaseInput
+                      name="text"
+                      label="text"
+                      placeholder=""
+                      value={selectedLineText}
+                      handleChange={e => {
+                        setSelectedLineText(e.target.value)
+                      }}
+                    />
                   <BaseSelect
                     name="color"
                     label="color"
@@ -848,7 +851,7 @@ const Chart: FC = () => {
                     setFieldValue={handleSelectedLineColor}
                   />
                 </div>
-              </Draggable>
+             </Draggable>
             )}
           </div>
           {/* -----main display */}
@@ -861,31 +864,6 @@ const Chart: FC = () => {
         {/* -----Watchlist */}
       </div>
       {/* ----main chart*/}
-      {/* chart view------ */}
-      <div>
-        {width < 1400 && (
-          <div className="flex flex-col gap-[22px] pt-[20px]">
-            <ChartView tempWidth={templeWidth}/>
-            <ChartView tempWidth={templeWidth}/>
-            <ChartView tempWidth={templeWidth}/>
-            <ChartView tempWidth={templeWidth}/>
-          </div>
-        )}
-        {width >= 1400 && (
-          <div className='pt-[40px]'>
-            <div className="flex flex-row gap-[22px]">
-              <ChartView tempWidth={ (templeWidth + 432) * 0.5 - 11 }/>
-              <ChartView tempWidth={ (templeWidth + 432) * 0.5 - 11 }/>
-            </div>
-            <div className="flex flex-row gap-[22px] pt-[40px]">
-              <ChartView tempWidth={ (templeWidth + 432) * 0.5 - 11 }/>
-              <ChartView tempWidth={ (templeWidth + 432) * 0.5 - 11 }/>
-            </div>
-          </div>
-        )}
- 
-      </div>
-      {/* ---- chart view */}
     </div>
   )
 }
