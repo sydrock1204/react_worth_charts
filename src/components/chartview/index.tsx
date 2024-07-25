@@ -82,7 +82,7 @@ const trendLineOption = {
     forceCalculateMaxLineWidth: false,
   },
   line: {
-    color: 'rgba(41,98,255,1)',
+    color: '#27c36c',
     width: 2,
     style: 0,
     end: {
@@ -528,15 +528,15 @@ export const ChartComponent = (props: any) => {
       })
     }
   }, [selectedLineText])
-
+  
   useEffect(() => {
     if (selectedLine !== '[]' && selectedLine) {
-      let selectedLineTextJSON = JSON.parse(selectedLine)
+     let selectedLineTextJSON = JSON.parse(selectedLine)
       chart.current.applyLineToolOptions({
         ...selectedLineTextJSON[0],
         options: {
           line: {
-            color: colorJSON[selectLineColor],
+            color: selectLineColor.hex,
           },
           text: {
             value: selectedLineText,

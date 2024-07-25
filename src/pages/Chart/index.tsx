@@ -51,6 +51,8 @@ import { fetchAllSymbol } from '../../api/fetchAllSymbol'
 import Spinner from './spinner';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
+import { ColorPicker, useColor } from "react-color-palette";
+import "react-color-palette/css";
 
 const Chart: FC = () => {
   const navigate = useNavigate()
@@ -91,7 +93,6 @@ const Chart: FC = () => {
   const [selectedLine, setSelectedLine] = useState<any>(null)
   const [isLineSelected, setIsLineSelected] = useState<boolean>(false)
   const [selectedLineText, setSelectedLineText] = useState<string>('')
-  const [selectedLineColor, setSelectedLineColor] = useState<string>('green')
   const [isVisibleIndicator, setIsVisibleIndicator] = useState<boolean>(false)
   const [indicatorArray, setIndicatorArray] = useState<string[]>([])
   const [timeIndexArray, setTimeIndexArray] = useState<any>([])
@@ -108,7 +109,9 @@ const Chart: FC = () => {
   const templeWidthRef = useRef(null);
   const [templeWidth, setTempleWidth] = useState(0);
   const [circlePoints, setCirclePoints] = useState<PointXY | null>(null)
-
+  const [selectedLineColor, setSelectedLineColor] = useColor("#561ecb");
+  const [selectedToolType, setSelectedToolType] = useState<String>(null);
+ 
   useEffect(() => {
     const updateWidth = () => {
       if (templeWidthRef.current) {
@@ -282,11 +285,7 @@ const Chart: FC = () => {
       setLineSeries('candlestick')
     }
   }
-
-  const handleSelectedLineColor = (name: any, option: any) => {
-    setSelectedLineColor(option)
-  }
-  
+ 
   const modalcloseHandler = () => {
     setIsLineSelected(false);
   }
@@ -414,7 +413,27 @@ const Chart: FC = () => {
   const HandleSelectChange = (event, value) => {
     setSymbol(value['symbol']);    
   }
- 
+  
+  const preventDrag = (e) => {
+    e.stopPropagation();
+  };
+
+  useEffect(() => {
+    if(selectedLine !== null ) {
+      try{
+        const data = JSON.parse(selectedLine);
+        if (Array.isArray(data) && data.length > 0) {
+          const toolType = data[0].toolType;
+          setSelectedToolType(toolType);
+      } else {
+          console.log("Invalid data1 structure or empty array");
+      }
+      } catch (error) {
+        console.error("Error parsing JSON:", error);
+    }
+    }
+  }, [selectedLine])
+  
   return (
     <div id='Chart' className={`pt-[36px] pl-[13px] pr-[50px]`}>
       <Spinner isLoading={loading} />
@@ -521,7 +540,7 @@ const Chart: FC = () => {
                 onClick={() => setIsVisibleDaily(!isVisibleDaily)}
               />
               {isVisibleDaily && (
-                <div className="flex flex-col absolute top-12 gap-1 left-[340px]">
+                <div className="flex flex-col top-12 gap-1 left-[340px] z-[11]">
                   <button
                     className="w-24 bg-[#f9f9f9] text-red-600 rounded-md"
                     onClick={() => {
@@ -581,7 +600,7 @@ const Chart: FC = () => {
               />
               <p className='pt-1'>indicators</p>
               {isVisibleIndicator && (
-                <div className="flex flex-col absolute top-12 gap-1 left-[520px]">
+                <div className="flex flex-col top-12 gap-1 left-[520px] z-[11]">
                   {indicators.map((value, index) => {
                     const buttonColor = indicatorArray.includes(value)
                       ? 'bg-gray4'
@@ -827,29 +846,24 @@ const Chart: FC = () => {
             </div>
             {/* !!!!! */}
             { isLineSelected === true && (
-              <Draggable defaultPosition={{ x: 500, y: 100 }}>
-                <div className="absolute p-2 z-30 bg-white w-[200px] h-[200px] border border-black rounded-md cursor-pointer">
+              <Draggable defaultPosition={{ x: 300, y: 100 }}>
+                <div className="absolute p-2 z-30 bg-white w-[340px] h-auto border border-black rounded-md cursor-pointer">
                   <button onClick={modalcloseHandler} className='ml-[90%] text-[25px]'>&times;</button>
-                    <BaseInput
-                      name="text"
-                      label="text"
-                      placeholder=""
-                      value={selectedLineText}
-                      handleChange={e => {
-                        setSelectedLineText(e.target.value)
-                      }}
-                    />
-                  <BaseSelect
-                    name="color"
-                    label="color"
-                    options={[
-                      { value: 'red', label: 'Red' },
-                      { value: 'green', label: 'Green' },
-                      { value: 'blue', label: 'Blue' },
-                    ]}
-                    value={selectedLineColor}
-                    setFieldValue={handleSelectedLineColor}
-                  />
+                  {(selectedToolType !== "TrendLine") && (
+                      <BaseInput
+                        name="text"
+                        label="text"
+                        placeholder=""
+                        value={selectedLineText}
+                        handleChange={e => {
+                          setSelectedLineText(e.target.value)
+                        }}
+                      />
+                  )}
+                    <br />
+                    <div onMouseDown={preventDrag}> 
+                      <ColorPicker color={selectedLineColor} onChange={setSelectedLineColor} />;
+                    </div>
                 </div>
              </Draggable>
             )}
