@@ -25,6 +25,7 @@ import { fetchStockIndicator } from '../../api/fetchStockIndicator'
 import { getTimeStamp } from '../../utils/getTimeStamp'
 import useWindowWidth from '../../context/useScreenWidth'
 import useHeaderWidthStore from '../../context/useHeadherWidth'
+import { color } from 'framer-motion'
 
 const trendLineOption = {
   text: {
@@ -176,8 +177,8 @@ const circleOption = {
     value: '',
     alignment: TextAlignment.Center,
     font: {
-      color: 'rgba(255,255,255,1)',
-      size: 18,
+      color: '#000000',
+      size: 15,
       bold: false,
       italic: false,
       family: 'Roboto',
@@ -191,7 +192,7 @@ const circleOption = {
       scale: 3,
       offset: {
         x: 0,
-        y: 30,
+        y: 10,
       },
       padding: {
         x: 0,
@@ -199,14 +200,14 @@ const circleOption = {
       },
       maxHeight: 500,
       border: {
-        color: 'rgba(126,211,33,1)',
+        color: '#ffffff00',
         width: 4,
         radius: 20,
         highlight: false,
         style: 3,
       },
       background: {
-        color: 'rgba(208,2,27,1)',
+        color: '#ffffff00',
         inflation: {
           x: 10,
           y: 30,
@@ -263,9 +264,12 @@ export const ChartComponent = (props: any) => {
     symbol,
     interval,
     selectLineColor,
+    selectTextColor,
+    selectBackgroundColor,
     setLastLineJSON,
     editType,
     templeWidth,
+    selectedToolType,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -335,6 +339,10 @@ export const ChartComponent = (props: any) => {
     if(editType === "Circle") {
       chart.current?.addLineTool('Circle', [], circleOption)
     }
+    // if(editType === "callout") {
+    //   chart.current?.addLineTool('', [], circleOption)
+    // }
+
   }, [editType])
 
   useEffect(() => {
@@ -528,23 +536,122 @@ export const ChartComponent = (props: any) => {
       })
     }
   }, [selectedLineText])
-  
+  // console.log('------!@@@--',selectedToolType, '---chat---',chart);
+  useEffect(() => {
+    if (selectedLine !== '[]' && selectedLine && selectedToolType !== null) {
+        let selectedLineTextJSON = JSON.parse(selectedLine)
+        if (selectedToolType === "TrendLine" || selectedToolType === "HorizontalLine" || selectedToolType === "VerticalLine" || selectedToolType === "Callout") {
+           chart.current.applyLineToolOptions({
+             ...selectedLineTextJSON[0],
+             options: {
+               line: {
+                 color: selectLineColor.hex,
+               },
+               text: {
+                 value: selectedLineText,
+               },
+             },
+           })
+         } else if (selectedToolType === "PriceRange" ) {
+          chart.current.applyLineToolOptions({
+              ...selectedLineTextJSON[0],
+              options : {
+                priceRange: {
+                  border: {
+                    color: selectLineColor.hex
+                  },
+                  text: {
+                    value: selectedLineText,
+                  },
+                }
+              }
+          })
+         } else if (selectedToolType === "Circle") {
+            chart.current.applyLineToolOptions({
+              ...selectedLineTextJSON[0],
+              options : {
+                circle: {
+                  border: {
+                    color: selectLineColor.hex
+                  },
+                  text: {
+                    value: selectedLineText,
+                  },
+                }
+              }
+          })
+         }
+    }
+  }, [selectLineColor])
+
   useEffect(() => {
     if (selectedLine !== '[]' && selectedLine) {
      let selectedLineTextJSON = JSON.parse(selectedLine)
       chart.current.applyLineToolOptions({
         ...selectedLineTextJSON[0],
         options: {
-          line: {
-            color: selectLineColor.hex,
-          },
-          text: {
-            value: selectedLineText,
-          },
-        },
+          text:{
+            font: {
+              color: selectTextColor.hex,
+              value: selectedLineText
+            }
+          }
+        }
       })
     }
-  }, [selectLineColor])
+  }, [selectTextColor])
+
+  useEffect(() => {
+    if (selectedLine !== '[]' && selectedLine) {
+      let selectedLineTextJSON = JSON.parse(selectedLine)
+      if(selectedToolType === "PriceRange") {
+        chart.current.applyLineToolOptions({
+          ...selectedLineTextJSON[0],
+          options: {
+            priceRange: {
+              background: {
+                color: selectBackgroundColor.hex
+              }
+            },
+            text: {
+              font: {
+                value: selectedLineText
+              }
+            }
+          },
+        })
+      } else if (selectedToolType === "Callout") {
+        chart.current.applyLineToolOptions({
+          ...selectedLineTextJSON[0],
+          options: {
+            text: {
+              box: {
+                background: {
+                  color: selectBackgroundColor.hex
+                }
+              }
+            }
+          }
+        })
+      } else if (selectedToolType === "Circle") {
+        chart.current.applyLineToolOptions({
+          ...selectedLineTextJSON[0],
+          options: {
+            circle: {
+              background: {
+                color: selectBackgroundColor.hex
+              }
+            },
+            text: {
+              font: {
+                value: selectedLineText
+              }
+            }
+          },
+        })
+      }
+      }
+  }, [selectBackgroundColor])
 
   useEffect(() => {
     if (circlePoint) {

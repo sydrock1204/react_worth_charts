@@ -109,9 +109,12 @@ const Chart: FC = () => {
   const templeWidthRef = useRef(null);
   const [templeWidth, setTempleWidth] = useState(0);
   const [circlePoints, setCirclePoints] = useState<PointXY | null>(null)
-  const [selectedLineColor, setSelectedLineColor] = useColor("#561ecb");
   const [selectedToolType, setSelectedToolType] = useState<String>(null);
   const [addStock, setAddStock] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState('home');
+  const [selectedLineColor, setSelectedLineColor] = useColor("#561ecb");
+  const [selectTextColor, setSelectTextColor] = useColor("#000000")
+  const [selectBackgroundColor, setselectBackgroundColor] = useColor("#000000");
 
   useEffect(() => {
     const updateWidth = () => {
@@ -372,6 +375,7 @@ const Chart: FC = () => {
             setCirclePoints({ point1: startPoint, point2: tempPoint })
             setEditType('arrow')
             setStartPoint(tempPoint)
+      
           }
         break
       case 'callout':
@@ -383,6 +387,7 @@ const Chart: FC = () => {
           setCalloutPoint({ point1: startPoint, point2: tempPoint })
           setEditType('arrow')
           setStartPoint(tempPoint)
+         
         }
         break
       case 'PriceRange':
@@ -394,6 +399,7 @@ const Chart: FC = () => {
           setPriceRangePoint({ point1: startPoint, point2: tempPoint })
           setEditType('arrow')
           setStartPoint(tempPoint)
+      
         }
         break
       case 'label':
@@ -844,10 +850,13 @@ const Chart: FC = () => {
                 symbol={symbol}
                 interval={interval}
                 selectLineColor={selectedLineColor}
+                selectTextColor={selectTextColor}
+                selectBackgroundColor={selectBackgroundColor}
                 setLastLineJSON={setLastLineJSON}
                 editType={editType}
                 templeWidth={templeWidth}
                 selectDelete={selectDelete}
+                selectedToolType={selectedToolType}
               />
             </div>
             {/* !!!!! */}
@@ -867,9 +876,108 @@ const Chart: FC = () => {
                       />
                   )}
                     <br />
+                  {(selectedToolType === "Text") && (
                     <div onMouseDown={preventDrag}> 
-                      <ColorPicker color={selectedLineColor} onChange={setSelectedLineColor} />;
+                      <ColorPicker color={selectTextColor} onChange={setSelectTextColor} />
                     </div>
+                  )}
+                  {(selectedToolType === "TrendLine") && (
+                    <div onMouseDown={preventDrag}> 
+                      <ColorPicker color={selectedLineColor} onChange={setSelectedLineColor} />
+                    </div>
+                  )}
+                  {(selectedToolType == "HorizontalLine" || selectedToolType == "VerticalLine") && (
+                    <nav className="bg-gray-800 p-4">
+                      <ul className="flex justify-center space-x-4">
+                        <li>
+                          <button
+                            className={`text-white px-3 py-2 rounded-md ${activeTab === 'home' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
+                            onClick={() => setActiveTab('home')}
+                          >
+                            text
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className={`text-white px-3 py-2 rounded-md ${activeTab === 'about' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
+                            onClick={() => setActiveTab('about')}
+                          >
+                            line
+                          </button>
+                        </li>
+                      </ul>
+                      <div className="p-4">
+                        {activeTab === 'home' && (
+                          <section id="home">
+                            <div onMouseDown={preventDrag}> 
+                              <ColorPicker color={selectTextColor} onChange={setSelectTextColor} />
+                            </div>
+                          </section>
+                        )}
+                        {activeTab === 'about' && (
+                          <section id="about">
+                            <div onMouseDown={preventDrag}> 
+                              <ColorPicker color={selectedLineColor} onChange={setSelectedLineColor} />
+                            </div>
+                          </section>
+                        )}
+                      </div>
+                    </nav>
+                  )}
+                  {(selectedToolType == "PriceRange" || selectedToolType == "Circle" || selectedToolType == "Callout") && (
+                    <nav className="bg-gray-800 p-4">
+                      <ul className="flex justify-center space-x-4">
+                        <li>
+                          <button
+                            className={`text-white px-3 py-2 rounded-md ${activeTab === 'home' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
+                            onClick={() => setActiveTab('home')}
+                          >
+                            text
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className={`text-white px-3 py-2 rounded-md ${activeTab === 'about' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
+                            onClick={() => setActiveTab('about')}
+                          >
+                            line
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            className={`text-white px-3 py-2 rounded-md ${activeTab === 'contact' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
+                            onClick={() => setActiveTab('contact')}
+                          >
+                            background
+                          </button>
+                        </li>
+                      </ul>
+                      <div className="p-4">
+                        {activeTab === 'home' && (
+                          <section id="home">
+                            <div onMouseDown={preventDrag}> 
+                              <ColorPicker color={selectTextColor} onChange={setSelectTextColor} />
+                            </div>
+                          </section>
+                        )}
+                        {activeTab === 'about' && (
+                          <section id="about">
+                            <div onMouseDown={preventDrag}> 
+                              <ColorPicker color={selectedLineColor} onChange={setSelectedLineColor} />
+                            </div>
+                          </section>
+                        )}
+                        {activeTab === 'contact' && (
+                          <section id="contact">
+                            <div onMouseDown={preventDrag}> 
+                              <ColorPicker color={selectBackgroundColor} onChange={setselectBackgroundColor} />
+                            </div>
+                          </section>
+                        )}
+                      </div>
+                    </nav>
+                  )}
+
                 </div>
              </Draggable>
             )}
@@ -878,6 +986,7 @@ const Chart: FC = () => {
         </div>
         {/* ---main chartView */}
         {/* Watchlist------ */}
+
         <div className='bg-white border-l-[2px] border-l-grey'>
           <WatchList addStockfromheader={addStock}/>
         </div>
