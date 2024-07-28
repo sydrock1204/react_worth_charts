@@ -589,7 +589,7 @@ const Chart: FC = () => {
                   className="cursor-pointer hover:bg-gray5 mr-[33.43px]"
                   onClick={selectLineStyle}
                 /> */}
-                <img
+                {/* <img
                   src={SettingsSvg}
                   alt="settings"
                   className="cursor-pointer hover:bg-gray5"
@@ -598,9 +598,8 @@ const Chart: FC = () => {
                   src={IntervalSvg}
                   alt=''
                   className="cursor-pointer hover:bg-gray5"
-                />
-              </div>
-              <div className="w-1 border-r-2 border-b-gray-800" />
+                /> */}
+              {/* <div className="w-1 border-r-2 border-b-gray-800" /> */}
               <img
                 src={IndicatorsSvg}
                 className="cursor-pointer hover:bg-gray5"
@@ -635,6 +634,7 @@ const Chart: FC = () => {
                   })}
                 </div>
               )}
+              </div>
               {/* <button
                 className="ml-8 w-16 bg-color-brand-green rounded-md text-white"
                 onClick={onSaveLines}
