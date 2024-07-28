@@ -328,7 +328,7 @@ export const ChartComponent = (props: any) => {
 
     })
   }
-
+ 
   useEffect(() => {
     if (editType === 'trendline') {
       chart.current?.addLineTool('TrendLine', [], trendLineOption)
@@ -339,9 +339,9 @@ export const ChartComponent = (props: any) => {
     if(editType === "Circle") {
       chart.current?.addLineTool('Circle', [], circleOption)
     }
-    // if(editType === "callout") {
-    //   chart.current?.addLineTool('', [], circleOption)
-    // }
+    if(editType === "callout") {
+      chart.current?.addLineTool('Callout', [], calloutDefaultOption)
+    }
 
   }, [editType])
 

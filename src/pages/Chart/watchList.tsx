@@ -69,18 +69,24 @@ export const WatchList = (props : any) => {
         },
       })
     }
-    console.log('--temAddStock--',tempAddStock,'--category--',addCategory);
-    console.log('--WatchList--',watchLists)
     setIsVisibleAddList(false)
   }
 
-  // useEffect(() => {
-  //   if ( addStockfromheader != null ) {
-  //     console.log('-----!!----',addStockfromheader);
-  //     handleAddStock(addStockfromheader);
-  //     setAddCategory("STOCKS")
-  //   }
-  // },[addStockfromheader])
+  useEffect(() => {
+    if ( addStockfromheader != null ) {
+      if (!watchLists["STOCKS"].lists.includes(addStockfromheader)) {
+        setWatchLists({
+          ...watchLists,
+          ["STOCKS"]: {
+            ...watchLists["STOCKS"],
+            lists: [...watchLists["STOCKS"].lists, addStockfromheader],
+            visible: true,
+          },
+        })
+      }
+      setIsVisibleAddList(false)
+    }
+  },[addStockfromheader])
 
   useEffect(() => {
     const updateData = () => {

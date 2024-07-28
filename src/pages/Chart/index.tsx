@@ -375,7 +375,7 @@ const Chart: FC = () => {
             setCirclePoints({ point1: startPoint, point2: tempPoint })
             setEditType('arrow')
             setStartPoint(tempPoint)
-      
+            setIsLineSelected(false)
           }
         break
       case 'callout':
@@ -387,7 +387,6 @@ const Chart: FC = () => {
           setCalloutPoint({ point1: startPoint, point2: tempPoint })
           setEditType('arrow')
           setStartPoint(tempPoint)
-         
         }
         break
       case 'PriceRange':
@@ -399,7 +398,7 @@ const Chart: FC = () => {
           setPriceRangePoint({ point1: startPoint, point2: tempPoint })
           setEditType('arrow')
           setStartPoint(tempPoint)
-      
+          setIsLineSelected(false)
         }
         break
       case 'label':
@@ -444,7 +443,7 @@ const Chart: FC = () => {
   const addStockHandler = () => {
     setAddStock(symbol);
   }
-
+ 
   return (
     <div id='Chart' className={`pt-[36px] pl-[13px] pr-[50px]`}>
       <Spinner isLoading={loading} />
