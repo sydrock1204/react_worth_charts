@@ -12,9 +12,7 @@ import {
 import { fetchStockData } from '../../api/fetchStockData'
 import { fetchCompanyData } from '../../api/fetchCompanyData'
 import { fetchMarketPrices } from '../../api/fetchMarketPrices'
-import { supabase } from '../../context/supabase'
 import { BaseInput } from '../../components/common/BaseInput'
-import { BaseSelect } from '../../components/common/BaseSelect'
 import { WatchList } from './watchList'
 import RemoveSvg from '../../assets/icons/Remove.png'
 import {
@@ -37,25 +35,17 @@ import {
   MagnifierSvg,
   CompareSvg,
   IntervalSvg,
-  StickSvg,
-  SettingsSvg,
   IndicatorsSvg,
-  CandleSvg,
   CircleSvg,
   CircleSelectedSvg,
 } from '../../assets/icons'
-import { useAuthContext } from '../../context/authContext'
-import useWindowWidth from '../../context/useScreenWidth'
 import { ChartComponent } from '../../components/chartview'
-import { fetchAllSymbol } from '../../api/fetchAllSymbol'
 import Spinner from './spinner';
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
 import { ColorPicker, useColor } from "react-color-palette";
 import "react-color-palette/css";
+import { fetchCompanyName } from '../../api/fetchCompanyName'
 
 const Chart: FC = () => {
-  const navigate = useNavigate()
   const [data, setData] = useState<StockPriceData[]>([])
   const [tempData, setTempData] = useState<any | null>(null)
   const [startPoint, setStartPoint] = useState<Point | null>(null)
@@ -68,7 +58,6 @@ const Chart: FC = () => {
   const [verticalPoint, setVerticalPoint] = useState<Point | null>(null)
   const [calloutPoint, setCalloutPoint] = useState<PointXY | null>(null)
   const [priceRangePoint, setPriceRangePoint] = useState<PointXY | null>(null)
-  const width = useWindowWidth()
   const [magnet, setMagnet] = useState<boolean>(false)
   const [editType, setEditType] = useState<string>('arrow')
   const [editClickCounts, setEditClickCounts] = useState<number>(0)
@@ -76,8 +65,6 @@ const Chart: FC = () => {
   const [symbol, setSymbol] = useState('AAPL')
   const [interval, setInterval] = useState('60min')
   const [importLines, setImportLines] = useState<string>('')
-  const [save, setSave] = useState<boolean>(false)
-  const { session, user, signOutHandler, userInfo } = useAuthContext()
   const [isVisibleDaily, setIsVisibleDaily] = useState<boolean>(false)
   const [hoverData, setHoverData] = useState<HoverInfo>({
     index: 0,
@@ -103,7 +90,6 @@ const Chart: FC = () => {
   })
   const indicators = ['RSI', 'SMA', 'EMA', 'WMA', 'ADX']
   const [loading, setLoading] = useState(false);
-  const [companySymbols, setCompanySymbols] = useState<any>([]);
   const [bidPrice, setBidPrice] = useState(null);
   const [askPrice, setAskPrice] = useState(null);
   const templeWidthRef = useRef(null);
@@ -115,6 +101,31 @@ const Chart: FC = () => {
   const [selectedLineColor, setSelectedLineColor] = useColor("#561ecb");
   const [selectTextColor, setSelectTextColor] = useColor("#000000")
   const [selectBackgroundColor, setselectBackgroundColor] = useColor("#000000");
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [keywords, setKeywords] = useState<string>('APPLE');
+  const [suggestionList, setSuggestionList ] = useState<any>([]); 
+  const [selectedIndex, setSelectedIndex] = useState(null);
+
+  const handleFocus = () => setIsSearchModalOpen(true);
+  const handleClose = () => setIsSearchModalOpen(false);
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'ArrowDown') {
+      setSelectedIndex((prevIndex) => 
+        prevIndex === null ? 0 : (prevIndex + 1) % suggestionList.length
+      );
+    } else if (event.key === 'ArrowUp') {
+      setSelectedIndex((prevIndex) => 
+        prevIndex === null ? suggestionList.length - 1 : (prevIndex - 1 + suggestionList.length) % suggestionList.length
+      );
+    } else if (event.key === 'Enter') {
+      if (selectedIndex !== null) {
+        const firstKey = Object.keys(suggestionList[selectedIndex])[0];
+        suggestItemselector(suggestionList[selectedIndex][firstKey]);
+      }
+    }
+  };
+
 
   useEffect(() => {
     const updateWidth = () => {
@@ -131,24 +142,6 @@ const Chart: FC = () => {
       window.removeEventListener('resize', updateWidth);
     };
   }, []);
-
-  useEffect(() => {
-    const fetchSymbol = async () => {
-      try {
-        const AllCompanySymbol = await fetchAllSymbol();
-        const lines = AllCompanySymbol.split('\n');
-        const result = lines.slice(1).map((line, index) => {
-          const [symbol,name] = line.split(',');
-              return { key: `${name}-${index}`, label: name, symbol: symbol };
-        })
-        .filter(item => item.label !== undefined && item.label.trim() !== "");
-        setCompanySymbols(result);
-      } catch (error) {
-        console.log('Error fetching data',error);
-      }
-    }
-    fetchSymbol(); 
-   },[])
 
   useEffect (() => { 
     if (lastLineJSON && lastLineJSON.lineTool) { 
@@ -192,47 +185,6 @@ const Chart: FC = () => {
     }
   }
 
-  // const onSaveLines = () => {
-  //   if (!save) setSave(true)
-  // }
-
-  const handleExportData = async exportLines => {
-    if (!session && signOutHandler) {
-      toast('session is expired!')
-      signOutHandler()
-      return
-    }
-
-    const { data: savedData, error: savedDataError } = await supabase
-      .from('linedata')
-      .select('id')
-      .eq('user_id', user?.id)
-      .eq('interval', interval)
-      .eq('symbol', symbol)
-      .limit(1)
-      .select()
-
-    if (savedData && savedData.length > 0) {
-      const { data, error } = await supabase
-        .from('linedata')
-        .update({ linedata: exportLines })
-        .eq('id', savedData[0].id)
-        .select()
-    } else if (savedData && savedData.length == 0) {
-      await supabase
-        .from('linedata')
-        .insert([
-          { user_id: user?.id, symbol, interval, linedata: exportLines },
-        ])
-    }
-  
-    setSave(false)
-  }
-
-  // const onLoadLines = async () => {
-  //   await loadLineData(symbol, interval)
-  // }
-
   const handleCrosshairMove = (time: number) => {
     if (tempData && tempData.get(time)) {
       setHoverData(tempData.get(time))
@@ -246,47 +198,17 @@ const Chart: FC = () => {
       })
 
       const dateObject = new Date(time * 1000)
-
       const year = dateObject.getFullYear()
       const month = dateObject.getMonth() + 1 
       const day = dateObject.getDate()
       const hours = dateObject.getHours()
       const minutes = dateObject.getMinutes().toString().padStart(2, '0') 
-
       const amPm = hours >= 12 ? 'PM' : 'AM'
-
       const adjustedHours = hours % 12 || 12
 
       setHoverTime(
         `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${amPm} ${adjustedHours}:${minutes}`
       )
-    }
-  }
-
-  const loadLineData = async (symbol: string, interval: string) => {
-    if (!user) {
-      navigate('/auth/login')
-      return
-    }
-    const { data, error } = await supabase
-      .from('linedata')
-      .select('linedata')
-      .eq('user_id', user.id)
-      .eq('interval', interval)
-      .eq('symbol', symbol)
-      .limit(1)
-      .select()
-
-    if (data && data.length > 0) {
-      setImportLines(data[0].linedata)
-    }
-  }
-
-  const selectLineStyle = () => {
-    if (lineSeries == 'candlestick') {
-      setLineSeries('bar')
-    } else if (lineSeries == 'bar') {
-      setLineSeries('candlestick')
     }
   }
  
@@ -355,17 +277,6 @@ const Chart: FC = () => {
           setIsLineSelected(false)
         }
         break
-      case 'rectangle':
-        if (editClickCounts == 0) {
-          setEditClickCounts(editClickCounts + 1)
-          setStartPoint(tempPoint)
-        } else if (editClickCounts == 1) {
-          setEditClickCounts(0)
-          setRectanglePoints({ point1: startPoint, point2: tempPoint })
-          setEditType('arrow')
-          setStartPoint(tempPoint)
-        }
-        break
         case 'Circle':
           if (editClickCounts == 0) {
             setEditClickCounts(editClickCounts + 1)
@@ -416,10 +327,6 @@ const Chart: FC = () => {
     }
   }, [tempPoint])
 
-  const HandleSelectChange = (event, value) => {
-    setSymbol(value['symbol']);    
-  }
-  
   const preventDrag = (e) => {
     e.stopPropagation();
   };
@@ -443,7 +350,31 @@ const Chart: FC = () => {
   const addStockHandler = () => {
     setAddStock(symbol);
   }
- 
+
+  useEffect(() =>{
+    const fetchData = async () => {
+      try {
+        const suggestionData = await fetchCompanyName(keywords);
+        setSuggestionList(suggestionData);
+      } catch (error) {
+        console.log('Error fetching data',error);
+      }
+    }
+
+    fetchData();
+  },[keywords])
+
+  const searchHandleChange = event => {
+    const value = event.target.value.toUpperCase();
+    setKeywords(value);
+  }
+
+  const suggestItemselector = (symbol) => {
+    setSuggestionList([]);
+    setSymbol(symbol);
+    handleClose(true);
+  }
+
   return (
     <div id='Chart' className={`pt-[36px] pl-[13px] pr-[50px]`}>
       <Spinner isLoading={loading} />
@@ -456,36 +387,67 @@ const Chart: FC = () => {
               <div className="flex flex-row">
                 <div className="flex pt-[3px] pl-[8px]">    
                   <img src={MagnifierSvg} alt="magnifier" className="w-[20.06px]" />
-                  <Autocomplete
-                    disablePortal
-                    id="combo-box-demo"
-                    options={companySymbols}
-                    getOptionLabel={(option) => option.label}
-                    renderOption={(props, option) => (
-                      <li {...props} key={option.key}>
-                        {option.label}
-                      </li>
-                    )}
-                    renderInput={(params) => <TextField
-                      {...params}  
-                      sx={{
-                        '& input::placeholder': {
-                          color: 'rgba(0, 0, 0, 1)',
-                        },
-                      }}
-                      placeholder='apple Inc'/>}
-                    onChange={HandleSelectChange}
-                    sx={{
-                      width: '120px',
-                      height: 'auto',
-                      border:'none',
-                      '& .MuiAutocomplete-inputRoot': {
-                        height: '2.6rem',
-                      },
-                      '& input': 'p-0, w-[70px] h-[50px] text-[10px]',
-                      '& .MuiAutocomplete-clearIndicator': 'hidden',
-                    }}
+                  <input 
+                    type="text" 
+                    className='border-2 border-gray-500 rounded-lg h-[40px] w-[94px] p-[2px] text-center'
+                    onFocus={handleFocus}
+                    value={symbol}
+                    readOnly
                   />
+                  {isSearchModalOpen && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50">
+                      <div className="relative bg-white p-8 rounded-lg shadow-lg max-w-3xl w-full h-3/4">
+                        <button
+                          className="absolute top-4 right-4 text-red-500 text-2xl hover:text-red-700"
+                          onClick={handleClose}
+                        >
+                          &times;
+                        </button>
+                        <h2 className="text-xl font-bold mb-4">Symbol search</h2>
+                        <div className='w-full'>
+                          <input
+                            className="text-center w-full p-1 font-mono font-bold text-[15.6px] border-b-[2px] border-b-grey-500 border-t-[2px] border-t-grey-500"
+                            value={keywords}
+                            onInput={searchHandleChange}
+                            type="text" 
+                            onKeyDown={handleKeyDown}
+                          />
+                              <li 
+                                className=" hover:bg-gray-100 flex w-[100%] pt-[8px] pb-[8px] mt-[20px]"
+                              >
+                                <p className='text-center w-1/2'>SYMBOL</p>  
+                                <p className='text-center w-1/2'>COMPANY NAME</p>
+                              </li>
+                            <ul className="w-full  h-[470px] overflow-y-auto">
+                            {
+                              suggestionList !== undefined && suggestionList.length > 0 && (
+                                suggestionList.map((item, index) => {
+                                  const firstKey = Object.keys(item)[0];
+                                  const secondeKey = Object.keys(item)[1];
+                                  return (
+                                    <li 
+                                      key={index} 
+                                      onClick={() => suggestItemselector(item[firstKey])} 
+                                      className={` hover:bg-gray-100 flex w-[100%] pt-[8px] pb-[8px] ${index === selectedIndex ? 'bg-gray-100' : ''}`}
+                                    >
+                                      <p className='text-center w-1/2'>{item[firstKey]}</p>  
+                                      <p className='text-center w-1/2'>{item[secondeKey]}</p>
+                                    </li>
+                                  );
+                                })
+                              )
+                            }
+                            {
+                              
+                              suggestionList == undefined && (
+                                <div className='h-[470px] flex justify-center items-center text-center text-[24px] '>no data</div>
+                              )
+                            }
+                            </ul>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div className="flex">
                     <img
                       src={CompareSvg}
@@ -583,23 +545,6 @@ const Chart: FC = () => {
               )}
               <div className="w-2 border-r-2 border-b-gray-800" />
               <div className='flex'>
-                {/* <img
-                  src={lineSeries === 'candlestick' ? CandleSvg : StickSvg}
-                  alt="stick"
-                  className="cursor-pointer hover:bg-gray5 mr-[33.43px]"
-                  onClick={selectLineStyle}
-                /> */}
-                {/* <img
-                  src={SettingsSvg}
-                  alt="settings"
-                  className="cursor-pointer hover:bg-gray5"
-                />
-                <img
-                  src={IntervalSvg}
-                  alt=''
-                  className="cursor-pointer hover:bg-gray5"
-                /> */}
-              {/* <div className="w-1 border-r-2 border-b-gray-800" /> */}
               <img
                 src={IndicatorsSvg}
                 className="cursor-pointer hover:bg-gray5"
@@ -635,18 +580,6 @@ const Chart: FC = () => {
                 </div>
               )}
               </div>
-              {/* <button
-                className="ml-8 w-16 bg-color-brand-green rounded-md text-white"
-                onClick={onSaveLines}
-              >
-                Save
-              </button>
-              <button
-                className="ml-8 w-16 bg-gray3 rounded-md text-white"
-                onClick={onLoadLines}
-              >
-                Load
-              </button> */}
             </div>
             <div className='bg-gray-300 w-[50px] ml-auto'></div>
           </div>
@@ -838,8 +771,6 @@ const Chart: FC = () => {
                 magnet={magnet}
                 handleTemplePoint={handleTemplePoint}
                 handleCrosshairMove={handleCrosshairMove}
-                save={save}
-                handleExportData={handleExportData}
                 lineSeries={lineSeries}
                 importLines={importLines}
                 handleSelectedLine={handleSelectedLine}
