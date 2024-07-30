@@ -342,7 +342,6 @@ export const ChartComponent = (props: any) => {
     if(editType === "callout") {
       chart.current?.addLineTool('Callout', [], calloutDefaultOption)
     }
-
   }, [editType])
 
   useEffect(() => {
@@ -494,7 +493,6 @@ export const ChartComponent = (props: any) => {
         const indicatorLineSeries = chart.current.addLineSeries({
           color: '#2962FF',
         })
-
         const indifunction = indicatorArray[indicatorArray.length - 1]
         const indicatorSeries = await fetchStockIndicator(
           indifunction,

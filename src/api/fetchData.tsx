@@ -23,7 +23,6 @@ export const fetchData = async (
       case 'daily':
         url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=${import.meta.env.VITE_ALPHAVANTAGE_PREMIUM_KEY}`
         response = await axios.get(url)
-        console.log('response: ', response)
         return response.data['Time Series (Daily)']
         break
       case 'weekly':

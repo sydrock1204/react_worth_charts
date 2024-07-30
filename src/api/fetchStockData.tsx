@@ -1,9 +1,33 @@
 import { fetchData } from './fetchData'
 import { getTimeStamp } from '../utils/getTimeStamp'
 
-export const fetchStockData = async (symbol: string, interval: string) => {
+export const fetchStockData = async (symbol: string, interval: string, start: Date, end:Date) => {
+  if(end === null) {
+    end = new Date()
+  }
+
+  if(start === null) {
+    start = new Date('1999-01-02');
+  }
+
+  function formatDate(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); 
+    const day = String(date.getDate()).padStart(2, '0'); 
+    return `${year}-${month}-${day}`;
+  }
+  const startDate = formatDate(new Date(start))
+  const endDate = formatDate(new Date(end))
+
   const rawData = await fetchData(symbol, interval)
-  const stockDataSeries = Object.entries(rawData)
+  const result = {};
+  for (const date in rawData ) {
+    if (date >= startDate && date <=endDate) {
+      result[date] = rawData[date];
+    }
+  }
+
+  const stockDataSeries = Object.entries(result)
     .map(data => {
       const stockData = {
         time: getTimeStamp(data[0]),
@@ -16,7 +40,7 @@ export const fetchStockData = async (symbol: string, interval: string) => {
     })
     .reverse()
 
-  const timeData = Object.entries(rawData)
+  const timeData = Object.entries(result)
     .map((data, index) => {
       const stockData = [
         getTimeStamp(data[0]),
@@ -36,7 +60,7 @@ export const fetchStockData = async (symbol: string, interval: string) => {
   // @ts-ignore
   const tempDataArray = new Map(timeData)
 
-  const Volume = Object.entries(rawData)
+  const Volume = Object.entries(result)
     .map((data, index) => {
       const volumeData = {
         time: getTimeStamp(data[0]),
@@ -48,7 +72,7 @@ export const fetchStockData = async (symbol: string, interval: string) => {
     })
     .reverse()
 
-  const timeIndex = Object.entries(rawData).map((data, index) => {
+  const timeIndex = Object.entries(result).map((data, index) => {
     return getTimeStamp(data[0])
   })
 

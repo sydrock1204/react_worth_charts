@@ -38,12 +38,16 @@ import {
   IndicatorsSvg,
   CircleSvg,
   CircleSelectedSvg,
+  SettingsSvg,
 } from '../../assets/icons'
 import { ChartComponent } from '../../components/chartview'
 import Spinner from './spinner';
 import { ColorPicker, useColor } from "react-color-palette";
 import "react-color-palette/css";
 import { fetchCompanyName } from '../../api/fetchCompanyName'
+import Modal from 'react-modal';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const Chart: FC = () => {
   const [data, setData] = useState<StockPriceData[]>([])
@@ -63,9 +67,10 @@ const Chart: FC = () => {
   const [editClickCounts, setEditClickCounts] = useState<number>(0)
   const [tempPoint, setTempPoint] = useState<Point | null>(null)
   const [symbol, setSymbol] = useState('AAPL')
-  const [interval, setInterval] = useState('60min')
+  const [interval, setInterval] = useState('daily')
   const [importLines, setImportLines] = useState<string>('')
   const [isVisibleDaily, setIsVisibleDaily] = useState<boolean>(false)
+  const [isVisibleSelectDate, setIsVisibleSelectDate] = useState<boolean>(false)
   const [hoverData, setHoverData] = useState<HoverInfo>({
     index: 0,
     open: 0,
@@ -105,7 +110,13 @@ const Chart: FC = () => {
   const [keywords, setKeywords] = useState<string>('APPLE');
   const [suggestionList, setSuggestionList ] = useState<any>([]); 
   const [selectedIndex, setSelectedIndex] = useState(null);
-
+  const [dateModalIsOpen, setDateModalIsOpen] = useState(false);
+  const [startDate1, setStartDate1] = useState(null);
+  const [startDate2, setStartDate2] = useState(null);
+  const [showCalendar1, setShowCalendar1] = useState(false);
+  const [showCalendar2, setShowCalendar2] = useState(false);
+  const [start, setStart] = useState(null);
+  const [end, setEnd] = useState(null);
   const handleFocus = () => setIsSearchModalOpen(true);
   const handleClose = () => setIsSearchModalOpen(false);
 
@@ -219,7 +230,7 @@ const Chart: FC = () => {
   useEffect(() => {
     const fetchWrapper = async () => {
       const { stockDataSeries, tempDataArray, Volume, timeIndex } =
-        await fetchStockData(symbol, interval)
+        await fetchStockData(symbol, interval, start, end)
       setData(stockDataSeries)
       setTempData(tempDataArray)
       setVolume(Volume)
@@ -234,7 +245,7 @@ const Chart: FC = () => {
     const fetchWrapper = async () => {
       setLoading(true);
       try {
-        const { stockDataSeries, tempDataArray, Volume, timeIndex } = await fetchStockData(symbol, interval)
+        const { stockDataSeries, tempDataArray, Volume, timeIndex } = await fetchStockData(symbol, interval, start, end)
         const companyName = await fetchCompanyData(symbol)
         setCompanyData(companyName)
         setData(stockDataSeries)
@@ -248,7 +259,7 @@ const Chart: FC = () => {
         setLoading(false)
       }
     }
-
+   
     const fetchPrices = async () => {
       setLoading(true)
       try {
@@ -261,7 +272,7 @@ const Chart: FC = () => {
     }
     fetchWrapper();
     fetchPrices();
-  }, [symbol, interval])
+  }, [symbol, interval, start, end])
 
   useEffect(() => {
     switch (editType) {
@@ -375,7 +386,7 @@ const Chart: FC = () => {
     handleClose(true);
   }
 
-  return (
+ return (
     <div id='Chart' className={`pt-[36px] pl-[13px] pr-[50px]`}>
       <Spinner isLoading={loading} />
       {/* main chart---- */}
@@ -495,6 +506,104 @@ const Chart: FC = () => {
               >
                 1h
               </button>
+              <div>
+                
+              </div>
+              <div style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  justifyContent: 'center'}}>
+                <button
+                  onClick={() => {
+                    setIsVisibleSelectDate(!isVisibleSelectDate)
+                  }}
+                >
+                  select Date
+                </button>
+                {isVisibleSelectDate && (
+                  <div className="flex flex-col gap-1 absolute mt-12 bg-white border border-gray-300 shadow-lg z-[11]" style={{zIndex: '34'}}>
+                    <div className="relative">
+                      <div className='flex'>
+                        <div className='flex items-center'>
+                          <label>start</label>  
+                        </div>
+                        <input
+                            type="text"
+                            value={startDate1 ? startDate1.toLocaleDateString() : ''}
+                            onClick={() => setShowCalendar1(!showCalendar1)}
+                            // readOnly
+                            placeholder="Select a date"
+                            className='w-[200px] border p-2 rounded'
+                        />
+                        <button
+                          className="absolute top-1 right-5 text-red-500 text-2xl hover:text-red-700"
+                          onClick={() => {
+                            setStartDate1(null)
+                          }}
+                        >
+                          &times;
+                        </button>
+                      </div>
+                      {showCalendar1 && (
+                          <DatePicker
+                              selected={startDate1}
+                              onChange={date => {
+                                  setStartDate1(date);
+                                  setShowCalendar1(false);
+                              }}
+                              inline
+                              className="absolute left-0 mt-2 z-[12]"
+                          />
+                      )}
+                    </div>
+                    <div className="relative">
+                      <div className='flex'>
+                        <div className='flex items-center'>
+                          <label>End</label>
+                        </div>
+                        <input
+                            type="text"
+                            value={startDate2 ? startDate2.toLocaleDateString() : ''}
+                            onClick={() => setShowCalendar2(!showCalendar2)}
+                            // readOnly
+                            placeholder="Select a date"
+                            className='w-[200px] border p-2 rounded'
+                        />
+                        <button
+                          className="absolute top-1 right-5 text-red-500 text-2xl hover:text-red-700"
+                          onClick={() => {
+                            setStartDate2(null)
+                          }}
+                        >
+                          &times;
+                        </button>
+                      </div>
+                      {showCalendar2 && (
+                        <DatePicker
+                            selected={startDate2}
+                            onChange={date => {
+                                setStartDate2(date);
+                                setShowCalendar2(false);
+                            }}
+                            inline
+                            className="absolute left-0 mt-2 z-[12]"
+                        />
+                      )}
+                    </div>
+                      <button onClick={() => {
+                        if(startDate1 >= startDate2) {
+                          alert('error! start should be before that end date');
+                          return;
+                        }
+                          setStart(startDate1);
+                          setEnd(startDate2);
+                          setIsVisibleSelectDate(false)
+                      }}>submit</button>
+                  </div>
+                )}
+              </div>
+              <div className="relative">
+              </div>
               <p
                 className={
                   ['daily', 'weekly', 'monthly'].includes(interval)
@@ -541,44 +650,57 @@ const Chart: FC = () => {
                   >
                     Monthly
                   </button>
+
                 </div>
               )}
+
               <div className="w-2 border-r-2 border-b-gray-800" />
               <div className='flex'>
+                <img
+                  src={SettingsSvg}
+                  alt="settings"
+                  className="cursor-pointer hover:bg-gray5"
+                />
+                <img
+                  src={IntervalSvg}
+                  alt=''
+                  className="cursor-pointer hover:bg-gray5"
+                  onClick={() => {
+                    setIsVisibleIndicator(!isVisibleIndicator)
+                  }}
+                />
+                {isVisibleIndicator && (
+                  <div className="flex flex-col top-12 gap-1 left-[520px] z-[11]">
+                    {indicators.map((value, index) => {
+                      const buttonColor = indicatorArray.includes(value)
+                        ? 'bg-gray4'
+                        : `bg-[#f9f9f9]`
+                      const indicatorButtonSelect = () => {
+                        let nextIndicatorArray = indicatorArray.includes(value)
+                          ? indicatorArray.filter(e => e != value)
+                          : [...indicatorArray, value]
+                        setIndicatorArray(nextIndicatorArray)
+                        setIsVisibleIndicator(!isVisibleIndicator)
+                      }
+                      return (
+                        <button
+                          className={`w-24 ${buttonColor} text-red-600 rounded-md`}
+                          onClick={indicatorButtonSelect}
+                          key={index}
+                        >
+                          {value}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+              <div className="w-1 border-r-2 border-b-gray-800" />
               <img
                 src={IndicatorsSvg}
                 className="cursor-pointer hover:bg-gray5"
                 alt=''
-                onClick={() => {
-                  setIsVisibleIndicator(!isVisibleIndicator)
-                }}
               />
               <p className='pt-1'>indicators</p>
-              {isVisibleIndicator && (
-                <div className="flex flex-col top-12 gap-1 left-[520px] z-[11]">
-                  {indicators.map((value, index) => {
-                    const buttonColor = indicatorArray.includes(value)
-                      ? 'bg-gray4'
-                      : `bg-[#f9f9f9]`
-                    const indicatorButtonSelect = () => {
-                      let nextIndicatorArray = indicatorArray.includes(value)
-                        ? indicatorArray.filter(e => e != value)
-                        : [...indicatorArray, value]
-                      setIndicatorArray(nextIndicatorArray)
-                      setIsVisibleIndicator(!isVisibleIndicator)
-                    }
-                    return (
-                      <button
-                        className={`w-24 ${buttonColor} text-red-600 rounded-md`}
-                        onClick={indicatorButtonSelect}
-                        key={index}
-                      >
-                        {value}
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
               </div>
             </div>
             <div className='bg-gray-300 w-[50px] ml-auto'></div>
@@ -919,6 +1041,7 @@ const Chart: FC = () => {
 
         <div className='bg-white border-l-[2px] border-l-grey'>
           <WatchList addStockfromheader={addStock}/>
+           
         </div>
         {/* -----Watchlist */}
       </div>
