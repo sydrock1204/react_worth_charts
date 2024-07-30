@@ -93,7 +93,7 @@ const Chart: FC = () => {
     value: 0,
     percent: 0,
   })
-  const indicators = ['RSI', 'SMA', 'EMA', 'WMA', 'ADX']
+  const indicators = ['RSI', 'EMA', 'WMA', 'ADX']
   const [loading, setLoading] = useState(false);
   const [bidPrice, setBidPrice] = useState(null);
   const [askPrice, setAskPrice] = useState(null);
@@ -386,6 +386,14 @@ const Chart: FC = () => {
     handleClose(true);
   }
 
+  const indicatorButtonSelect = (value) => {
+    let nextIndicatorArray = indicatorArray.includes(value)
+      ? indicatorArray.filter(e => e != value)
+      : [...indicatorArray, value]
+    setIndicatorArray(nextIndicatorArray)
+    
+  }
+
  return (
     <div id='Chart' className={`pt-[36px] pl-[13px] pr-[50px]`}>
       <Spinner isLoading={loading} />
@@ -591,10 +599,16 @@ const Chart: FC = () => {
                       )}
                     </div>
                       <button onClick={() => {
-                        if(startDate1 >= startDate2) {
-                          alert('error! start should be before that end date');
-                          return;
-                        }
+                        if(startDate1 !== null || startDate2 !== null) {
+                            if(interval === '15min' || interval === '30min' || interval === '60min') {
+                              alert('Not support function!')
+                              return;
+                            }
+                            if(startDate1 >= startDate2) {
+                              alert('error! start should be before that end date');
+                              return;
+                            }
+                          }
                           setStart(startDate1);
                           setEnd(startDate2);
                           setIsVisibleSelectDate(false)
@@ -675,17 +689,11 @@ const Chart: FC = () => {
                       const buttonColor = indicatorArray.includes(value)
                         ? 'bg-gray4'
                         : `bg-[#f9f9f9]`
-                      const indicatorButtonSelect = () => {
-                        let nextIndicatorArray = indicatorArray.includes(value)
-                          ? indicatorArray.filter(e => e != value)
-                          : [...indicatorArray, value]
-                        setIndicatorArray(nextIndicatorArray)
-                        setIsVisibleIndicator(!isVisibleIndicator)
-                      }
+
                       return (
                         <button
                           className={`w-24 ${buttonColor} text-red-600 rounded-md`}
-                          onClick={indicatorButtonSelect}
+                          onClick={() => {indicatorButtonSelect(value); setIsVisibleIndicator(!isVisibleIndicator)}}
                           key={index}
                         >
                           {value}
@@ -699,6 +707,9 @@ const Chart: FC = () => {
                 src={IndicatorsSvg}
                 className="cursor-pointer hover:bg-gray5"
                 alt=''
+                onClick={() => {
+                  indicatorButtonSelect('SMA')
+                }}
               />
               <p className='pt-1'>indicators</p>
               </div>

@@ -486,7 +486,7 @@ export const ChartComponent = (props: any) => {
     areaTopColor,
     areaBottomColor,
   ])
-  
+
   useEffect(() => {
     const fetchWrapper = async () => {
       if (indicatorArray.length > 0) {
