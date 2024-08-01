@@ -32,7 +32,7 @@ const trendLineOption = {
     value: '',
     alignment: TextAlignment.Left,
     font: {
-      color: 'rgba(255,255,255,1)',
+      color: '#000000',
       size: 14,
       bold: true,
       italic: true,
@@ -63,14 +63,14 @@ const trendLineOption = {
         },
       },
       border: {
-        color: 'rgba(126,211,33,1)',
+        color: '#ffffff00',
         width: 4,
         radius: 20,
         highlight: false,
         style: 1,
       },
       background: {
-        color: 'rgba(199,56,56,0.25)',
+        color: '#ffffff00',
         inflation: {
           x: 10,
           y: 10,
@@ -270,6 +270,7 @@ export const ChartComponent = (props: any) => {
     editType,
     templeWidth,
     selectedToolType,
+    thickness,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -534,7 +535,46 @@ export const ChartComponent = (props: any) => {
       })
     }
   }, [selectedLineText])
-  // console.log('------!@@@--',selectedToolType, '---chat---',chart);
+ 
+  useEffect(() => {
+    if(selectedLine !== '[]' && selectedLine && selectedToolType !== null) {
+      let selectedLineTextJSON = JSON.parse(selectedLine)
+      console.log(selectedLineTextJSON);
+      if(selectedToolType !== "label" && selectedToolType !== "Circle" && selectedToolType !== "PriceRange") {
+        chart.current.applyLineToolOptions({
+          ...selectedLineTextJSON[0],
+          options: {
+            line: {
+              width: thickness
+            }
+          }
+        })
+      } else if (selectedToolType == "Circle") {
+        chart.current.applyLineToolOptions({
+          ...selectedLineTextJSON[0],
+          options: {
+            circle: {
+              border: {
+                width: thickness
+              }
+            }
+          }
+        })
+      } else if (selectedToolType == "PriceRange") {
+        chart.current.applyLineToolOptions({
+          ...selectedLineTextJSON[0],
+          options: {
+            priceRange: {
+              border: {
+                width: thickness
+              }
+            }
+          }
+        })
+      }
+    }
+  },[thickness])
+
   useEffect(() => {
     if (selectedLine !== '[]' && selectedLine && selectedToolType !== null) {
         let selectedLineTextJSON = JSON.parse(selectedLine)
@@ -698,6 +738,7 @@ export const ChartComponent = (props: any) => {
 
   useEffect(() => {
     if (horizontalPoint) {
+      chart.current?.removeSelectedLineTools();
       chart.current?.addLineTool(
         'HorizontalLine',
         [horizontalPoint],
@@ -710,14 +751,18 @@ export const ChartComponent = (props: any) => {
 
   useEffect(() => {
     if (verticalPoint) {
+      chart.current?.removeSelectedLineTools();
+      if(verticalPoint.timestamp == 0) {
+        return;
+      }
       chart.current?.addLineTool(
         'VerticalLine',
         [verticalPoint],
         verticalDefaultOption
       )
     }
-    
     chart.current.applyOptions({})
+    
   }, [verticalPoint])
 
   useEffect(() => {

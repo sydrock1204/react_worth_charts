@@ -13,6 +13,7 @@ import { fetchStockData } from '../../api/fetchStockData'
 import { fetchCompanyData } from '../../api/fetchCompanyData'
 import { fetchMarketPrices } from '../../api/fetchMarketPrices'
 import { BaseInput } from '../../components/common/BaseInput'
+import { BaseSelect } from '../../components/common/BaseSelect'
 import { WatchList } from './watchList'
 import RemoveSvg from '../../assets/icons/Remove.png'
 import {
@@ -48,6 +49,8 @@ import { fetchCompanyName } from '../../api/fetchCompanyName'
 import Modal from 'react-modal';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import CloseIcon from '@mui/icons-material/Close';
+
 
 const Chart: FC = () => {
   const [data, setData] = useState<StockPriceData[]>([])
@@ -117,9 +120,25 @@ const Chart: FC = () => {
   const [showCalendar2, setShowCalendar2] = useState(false);
   const [start, setStart] = useState(null);
   const [end, setEnd] = useState(null);
+  const [isVerticalCalendar,setIsVerticalCalendar] = useState(false);
+  const [verticalDate, setVerticalDate] = useState(null)
+  const [horizontalValue, setHorizontalValue] = useState(null); 
+  const [utcTimestamp, setUtcTimestamp] = useState("1718928000");
+  const [isOpenthicknesslist, setIsOpenthicknesslist] = useState(false);
+  const [thickness, setThickness] = useState(1);
+  const [isTextcolor, setIsTextcolor] = useState(false);
+  const [isLinecolor, setIsLinecolor] = useState(false);
+  const [isBackgroundcolor, setIsBackgroundcolor] = useState(false);
+
+  const thicknessOptions = [
+    { value: '1', label: '1 pixel' },
+    { value: '2', label: '2 pixels' },
+    { value: '3', label: '3 pixels' },
+    { value: '4', label: '4 pixels' },
+  ];
+
   const handleFocus = () => setIsSearchModalOpen(true);
   const handleClose = () => setIsSearchModalOpen(false);
-
   const handleKeyDown = (event) => {
     if (event.key === 'ArrowDown') {
       setSelectedIndex((prevIndex) => 
@@ -393,6 +412,29 @@ const Chart: FC = () => {
     setIndicatorArray(nextIndicatorArray)
     
   }
+  
+  const horizontalKeyDown = (e) => {
+    if(e.key === 'Enter') {
+      setHorizontalPoint({price: horizontalValue, timestamp: "1718928000"});
+      e.preventDefault();
+    }
+  }
+
+  const verticalValueHandler = (date) => {
+    setVerticalDate(date);
+    setIsVerticalCalendar(false);
+    const vdate = new Date(verticalDate);
+    const utcDateString = vdate.toISOString();
+    const utcdate = new Date(utcDateString);
+    const value = utcdate.getTime()/1000;
+    setUtcTimestamp(value);
+    setVerticalPoint({price: 200, timestamp: utcTimestamp})
+  }
+
+  const thicknessListhandler = (value) => {
+    setThickness(value);
+    // setIsOpenthicknesslist(false);
+  };
 
  return (
     <div id='Chart' className={`pt-[36px] pl-[13px] pr-[50px]`}>
@@ -521,13 +563,15 @@ const Chart: FC = () => {
                   display: 'flex',
                   flexDirection: 'row',
                   justifyContent: 'center'}}>
-                <button
-                  onClick={() => {
-                    setIsVisibleSelectDate(!isVisibleSelectDate)
-                  }}
-                >
-                  select Date
-                </button>
+                <button>select Date</button>
+                <img
+                src={IntervalSvg}
+                alt=''
+                className="cursor-pointer hover:bg-gray5"
+                onClick={() => {
+                  setIsVisibleSelectDate(!isVisibleSelectDate)
+                }}
+              />
                 {isVisibleSelectDate && (
                   <div className="flex flex-col gap-1 absolute mt-12 bg-white border border-gray-300 shadow-lg z-[11]" style={{zIndex: '34'}}>
                     <div className="relative">
@@ -920,127 +964,126 @@ const Chart: FC = () => {
                 templeWidth={templeWidth}
                 selectDelete={selectDelete}
                 selectedToolType={selectedToolType}
+                thickness={thickness}
               />
             </div>
             {/* !!!!! */}
             { isLineSelected === true && (
               <Draggable defaultPosition={{ x: 300, y: 100 }}>
-                <div className="absolute p-2 z-30 bg-white w-[340px] h-auto border border-black rounded-md cursor-pointer">
-                  <button onClick={modalcloseHandler} className='ml-[90%] text-[25px]'>&times;</button>
-                  {(selectedToolType !== "TrendLine") && (
+                <div className="p-3 z-30 bg-white w-[340px] h-auto cursor-pointer border-[1px] border-black">
+                  <div>
+                    <CloseIcon onClick={modalcloseHandler} className='float-right text-xl' />
+                  </div>
+                  <br /><hr />
+                  <div>
+                    <div className='p-2'>
                       <BaseInput
                         name="text"
-                        label="text"
+                        label="text:"
                         placeholder=""
                         value={selectedLineText}
                         handleChange={e => {
                           setSelectedLineText(e.target.value)
                         }}
                       />
-                  )}
-                    <br />
-                  {(selectedToolType === "Text") && (
-                    <div onMouseDown={preventDrag}> 
-                      <ColorPicker color={selectTextColor} onChange={setSelectTextColor} />
                     </div>
-                  )}
-                  {(selectedToolType === "TrendLine") && (
-                    <div onMouseDown={preventDrag}> 
-                      <ColorPicker color={selectedLineColor} onChange={setSelectedLineColor} />
+                  </div>
+                  <hr />
+                  <div>
+                    <div className='p-2'>
+                      <BaseSelect 
+                        name='thickness'
+                        label='thickness:'
+                        options={thicknessOptions}
+                        value={thickness}
+                        isClearable={false}
+                        setFieldValue={(field, value) => thicknessListhandler(value)}
+                      />
                     </div>
-                  )}
+                  </div>
                   {(selectedToolType == "HorizontalLine" || selectedToolType == "VerticalLine") && (
-                    <nav className="bg-gray-800 p-4">
-                      <ul className="flex justify-center space-x-4">
-                        <li>
-                          <button
-                            className={`text-white px-3 py-2 rounded-md ${activeTab === 'home' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
-                            onClick={() => setActiveTab('home')}
-                          >
-                            text
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            className={`text-white px-3 py-2 rounded-md ${activeTab === 'about' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
-                            onClick={() => setActiveTab('about')}
-                          >
-                            line
-                          </button>
-                        </li>
-                      </ul>
-                      <div className="p-4">
-                        {activeTab === 'home' && (
-                          <section id="home">
-                            <div onMouseDown={preventDrag}> 
-                              <ColorPicker color={selectTextColor} onChange={setSelectTextColor} />
+                  <div>
+                    <hr />
+                    <div className='p-2'>
+                      move to:
+                        <div>
+                          {(selectedToolType == "HorizontalLine") && (
+                            <input 
+                              type="text"
+                              value={horizontalValue}
+                              onChange={(e) => setHorizontalValue(e.target.value)}
+                              onKeyDown={horizontalKeyDown}
+                              className='p-2 border-[1px] w-full border-green-400 h-[34px] rounded-md'
+                            />
+                          )}
+                          {(selectedToolType == "VerticalLine") && (
+                            <div>
+                              <input type="text" 
+                                className='p-2 border-[1px] w-full border-green-400 h-[34px] rounded-md' 
+                                readOnly onClick={() => {setIsVerticalCalendar(!isVerticalCalendar)}}
+                                value={verticalDate ? verticalDate.toLocaleDateString() : ''}
+                              />
+                              {isVerticalCalendar && (
+                                <div>
+                                  <DatePicker
+                                    selected={verticalDate}
+                                    onChange={(date) => verticalValueHandler(date)}
+                                    inline
+                                    className="absolute left-0 mt-2 z-[12]"
+                                />
+                                </div>
+                              )}
                             </div>
-                          </section>
-                        )}
-                        {activeTab === 'about' && (
-                          <section id="about">
-                            <div onMouseDown={preventDrag}> 
-                              <ColorPicker color={selectedLineColor} onChange={setSelectedLineColor} />
-                            </div>
-                          </section>
+                          )}
+                        </div>
+                    </div>
+                  </div>
+                  )}
+                  <hr />
+                  <div>
+                    <div className='p-2'>
+                      color
+                      <div className='p-2 flex'>
+                       text: <div className='bg-green-400 w-[20px] h-[20px] rounded-md ml-[65px]' onClick={() => {setIsTextcolor(!isTextcolor); setIsLinecolor(false); setIsBackgroundcolor(false)}}/> 
+                      </div>
+                      <div>
+                        { isTextcolor &&(
+                          <div onMouseDown={preventDrag} > 
+                            <ColorPicker color={selectTextColor} onChange={setSelectTextColor} />
+                          </div>
                         )}
                       </div>
-                    </nav>
-                  )}
-                  {(selectedToolType == "PriceRange" || selectedToolType == "Circle" || selectedToolType == "Callout") && (
-                    <nav className="bg-gray-800 p-4">
-                      <ul className="flex justify-center space-x-4">
-                        <li>
-                          <button
-                            className={`text-white px-3 py-2 rounded-md ${activeTab === 'home' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
-                            onClick={() => setActiveTab('home')}
-                          >
-                            text
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            className={`text-white px-3 py-2 rounded-md ${activeTab === 'about' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
-                            onClick={() => setActiveTab('about')}
-                          >
-                            line
-                          </button>
-                        </li>
-                        <li>
-                          <button
-                            className={`text-white px-3 py-2 rounded-md ${activeTab === 'contact' ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
-                            onClick={() => setActiveTab('contact')}
-                          >
-                            background
-                          </button>
-                        </li>
-                      </ul>
-                      <div className="p-4">
-                        {activeTab === 'home' && (
-                          <section id="home">
-                            <div onMouseDown={preventDrag}> 
-                              <ColorPicker color={selectTextColor} onChange={setSelectTextColor} />
-                            </div>
-                          </section>
-                        )}
-                        {activeTab === 'about' && (
-                          <section id="about">
-                            <div onMouseDown={preventDrag}> 
-                              <ColorPicker color={selectedLineColor} onChange={setSelectedLineColor} />
-                            </div>
-                          </section>
-                        )}
-                        {activeTab === 'contact' && (
-                          <section id="contact">
-                            <div onMouseDown={preventDrag}> 
-                              <ColorPicker color={selectBackgroundColor} onChange={setselectBackgroundColor} />
-                            </div>
-                          </section>
-                        )}
-                      </div>
-                    </nav>
-                  )}
-
+                      {(selectedToolType !== 'Text') && (
+                        <div>
+                          <div className='p-2 flex'>
+                            line: <div className='bg-red-400 w-[20px] h-[20px] rounded-md ml-[65px]'onClick={() => {setIsLinecolor(!isLinecolor); setIsTextcolor(false);  setIsBackgroundcolor(false)}}/>
+                          </div>
+                          <div>
+                            { isLinecolor && (
+                              <div onMouseDown={preventDrag}> 
+                                <ColorPicker color={selectedLineColor} onChange={setSelectedLineColor} />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      {(selectedToolType == 'Circle' || selectedToolType == 'PriceRange'|| selectedToolType == 'Callout') && (
+                        <div>
+                          <div className='p-2 flex'>
+                            background: <div className='bg-blue-400 w-[20px] h-[20px] rounded-md ml-[13px]'onClick={() => {setIsBackgroundcolor(!isBackgroundcolor); setIsTextcolor(false); setIsLinecolor(false)}}/>
+                          </div>
+                          <div>
+                            { isBackgroundcolor && (
+                              <div onMouseDown={preventDrag}> 
+                                <ColorPicker color={selectBackgroundColor} onChange={setselectBackgroundColor} />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <hr />
                 </div>
              </Draggable>
             )}
@@ -1052,7 +1095,6 @@ const Chart: FC = () => {
 
         <div className='bg-white border-l-[2px] border-l-grey'>
           <WatchList addStockfromheader={addStock}/>
-           
         </div>
         {/* -----Watchlist */}
       </div>
