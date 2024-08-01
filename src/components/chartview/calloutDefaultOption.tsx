@@ -6,7 +6,7 @@ import {
 
 export const calloutDefaultOption = {
   text: {
-    value: 'callout tool text',
+    value: '',
     alignment: TextAlignment.Left,
     font: {
       color: 'rgba(255,255,255,1)',

@@ -15,7 +15,6 @@ import {
 } from '../lightweights-line-tools/api/ichart-api'
 import { ISeriesApi } from '../lightweights-line-tools/api/iseries-api'
 import { ILineToolApi } from '../lightweights-line-tools/api/iline-tool-api'
-import { circleDefaultOption } from './circleDefaultOptions'
 import { rectangleDefaultOption } from './rectangleDefaultOption'
 import { labelDefaultOption } from './labelDefaultOption'
 import { horizontalLineDefaultOption } from './horizontalDefaultOption'
@@ -26,13 +25,14 @@ import { fetchStockIndicator } from '../../api/fetchStockIndicator'
 import { getTimeStamp } from '../../utils/getTimeStamp'
 import useWindowWidth from '../../context/useScreenWidth'
 import useHeaderWidthStore from '../../context/useHeadherWidth'
+import { color } from 'framer-motion'
 
 const trendLineOption = {
   text: {
     value: '',
     alignment: TextAlignment.Left,
     font: {
-      color: 'rgba(255,255,255,1)',
+      color: '#000000',
       size: 14,
       bold: true,
       italic: true,
@@ -63,14 +63,14 @@ const trendLineOption = {
         },
       },
       border: {
-        color: 'rgba(126,211,33,1)',
+        color: '#ffffff00',
         width: 4,
         radius: 20,
         highlight: false,
         style: 1,
       },
       background: {
-        color: 'rgba(199,56,56,0.25)',
+        color: '#ffffff00',
         inflation: {
           x: 10,
           y: 10,
@@ -83,7 +83,7 @@ const trendLineOption = {
     forceCalculateMaxLineWidth: false,
   },
   line: {
-    color: 'rgba(41,98,255,1)',
+    color: '#27c36c',
     width: 2,
     style: 0,
     end: {
@@ -172,6 +172,71 @@ const priceRangeOption = {
   editable: true,
 }
 
+const circleOption = {
+  text: {
+    value: '',
+    alignment: TextAlignment.Center,
+    font: {
+      color: '#000000',
+      size: 15,
+      bold: false,
+      italic: false,
+      family: 'Roboto',
+    },
+    box: {
+      alignment: {
+        vertical: BoxVerticalAlignment.Middle,
+        horizontal: BoxHorizontalAlignment.Center,
+      },
+      angle: 0,
+      scale: 3,
+      offset: {
+        x: 0,
+        y: 10,
+      },
+      padding: {
+        x: 0,
+        y: 0,
+      },
+      maxHeight: 500,
+      border: {
+        color: '#ffffff00',
+        width: 4,
+        radius: 20,
+        highlight: false,
+        style: 3,
+      },
+      background: {
+        color: '#ffffff00',
+        inflation: {
+          x: 10,
+          y: 30,
+        },
+      },
+    },
+    padding: 30,
+    wordWrapWidth: 0,
+    forceTextAlign: false,
+    forceCalculateMaxLineWidth: false,
+  },
+  circle: {
+    background: {
+      color: 'rgba(39,176,119,0.2)',
+    },
+    border: {
+      color: 'rgba(41,98,255,1)',
+      width: 2,
+      style: 0,
+    },
+    extend: {
+      right: true, //does not do anything, left in for ease of use with rectangle settings
+      left: false, //does not do anything, left in for ease of use with rectangle settings
+    },
+  },
+  visible: true,
+  editable: true,
+}
+
 export const ChartComponent = (props: any) => {
   const {
     data,
@@ -199,9 +264,13 @@ export const ChartComponent = (props: any) => {
     symbol,
     interval,
     selectLineColor,
+    selectTextColor,
+    selectBackgroundColor,
     setLastLineJSON,
     editType,
     templeWidth,
+    selectedToolType,
+    thickness,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -260,13 +329,19 @@ export const ChartComponent = (props: any) => {
 
     })
   }
-
+ 
   useEffect(() => {
     if (editType === 'trendline') {
       chart.current?.addLineTool('TrendLine', [], trendLineOption)
     }
     if (editType === 'PriceRange') {
       chart.current?.addLineTool('PriceRange', [], priceRangeOption)
+    }
+    if(editType === "Circle") {
+      chart.current?.addLineTool('Circle', [], circleOption)
+    }
+    if(editType === "callout") {
+      chart.current?.addLineTool('Callout', [], calloutDefaultOption)
     }
   }, [editType])
 
@@ -419,7 +494,6 @@ export const ChartComponent = (props: any) => {
         const indicatorLineSeries = chart.current.addLineSeries({
           color: '#2962FF',
         })
-
         const indifunction = indicatorArray[indicatorArray.length - 1]
         const indicatorSeries = await fetchStockIndicator(
           indifunction,
@@ -448,7 +522,7 @@ export const ChartComponent = (props: any) => {
     })
   }, [indicatorArray])
 
-  useEffect(() => {
+   useEffect(() => {
     if (selectedLine !== '[]' && selectedLine) {
       let selectedLineTextJSON = JSON.parse(selectedLine)
       chart.current.applyLineToolOptions({
@@ -461,33 +535,172 @@ export const ChartComponent = (props: any) => {
       })
     }
   }, [selectedLineText])
+ 
+  useEffect(() => {
+    if(selectedLine !== '[]' && selectedLine && selectedToolType !== null) {
+      let selectedLineTextJSON = JSON.parse(selectedLine)
+      console.log(selectedLineTextJSON);
+      if(selectedToolType !== "label" && selectedToolType !== "Circle" && selectedToolType !== "PriceRange") {
+        chart.current.applyLineToolOptions({
+          ...selectedLineTextJSON[0],
+          options: {
+            line: {
+              width: thickness
+            }
+          }
+        })
+      } else if (selectedToolType == "Circle") {
+        chart.current.applyLineToolOptions({
+          ...selectedLineTextJSON[0],
+          options: {
+            circle: {
+              border: {
+                width: thickness
+              }
+            }
+          }
+        })
+      } else if (selectedToolType == "PriceRange") {
+        chart.current.applyLineToolOptions({
+          ...selectedLineTextJSON[0],
+          options: {
+            priceRange: {
+              border: {
+                width: thickness
+              }
+            }
+          }
+        })
+      }
+    }
+  },[thickness])
+
+  useEffect(() => {
+    if (selectedLine !== '[]' && selectedLine && selectedToolType !== null) {
+        let selectedLineTextJSON = JSON.parse(selectedLine)
+        if (selectedToolType === "TrendLine" || selectedToolType === "HorizontalLine" || selectedToolType === "VerticalLine" || selectedToolType === "Callout") {
+           chart.current.applyLineToolOptions({
+             ...selectedLineTextJSON[0],
+             options: {
+               line: {
+                 color: selectLineColor.hex,
+               },
+               text: {
+                 value: selectedLineText,
+               },
+             },
+           })
+         } else if (selectedToolType === "PriceRange" ) {
+          chart.current.applyLineToolOptions({
+              ...selectedLineTextJSON[0],
+              options : {
+                priceRange: {
+                  border: {
+                    color: selectLineColor.hex
+                  },
+                  text: {
+                    value: selectedLineText,
+                  },
+                }
+              }
+          })
+         } else if (selectedToolType === "Circle") {
+            chart.current.applyLineToolOptions({
+              ...selectedLineTextJSON[0],
+              options : {
+                circle: {
+                  border: {
+                    color: selectLineColor.hex
+                  },
+                  text: {
+                    value: selectedLineText,
+                  },
+                }
+              }
+          })
+         }
+    }
+  }, [selectLineColor])
+
+  useEffect(() => {
+    if (selectedLine !== '[]' && selectedLine) {
+     let selectedLineTextJSON = JSON.parse(selectedLine)
+      chart.current.applyLineToolOptions({
+        ...selectedLineTextJSON[0],
+        options: {
+          text:{
+            font: {
+              color: selectTextColor.hex,
+              value: selectedLineText
+            }
+          }
+        }
+      })
+    }
+  }, [selectTextColor])
 
   useEffect(() => {
     if (selectedLine !== '[]' && selectedLine) {
       let selectedLineTextJSON = JSON.parse(selectedLine)
-      chart.current.applyLineToolOptions({
-        ...selectedLineTextJSON[0],
-        options: {
-          line: {
-            color: colorJSON[selectLineColor],
+      if(selectedToolType === "PriceRange") {
+        chart.current.applyLineToolOptions({
+          ...selectedLineTextJSON[0],
+          options: {
+            priceRange: {
+              background: {
+                color: selectBackgroundColor.hex
+              }
+            },
+            text: {
+              font: {
+                value: selectedLineText
+              }
+            }
           },
-          text: {
-            value: selectedLineText,
+        })
+      } else if (selectedToolType === "Callout") {
+        chart.current.applyLineToolOptions({
+          ...selectedLineTextJSON[0],
+          options: {
+            text: {
+              box: {
+                background: {
+                  color: selectBackgroundColor.hex
+                }
+              }
+            }
+          }
+        })
+      } else if (selectedToolType === "Circle") {
+        chart.current.applyLineToolOptions({
+          ...selectedLineTextJSON[0],
+          options: {
+            circle: {
+              background: {
+                color: selectBackgroundColor.hex
+              }
+            },
+            text: {
+              font: {
+                value: selectedLineText
+              }
+            }
           },
-        },
-      })
-    }
-  }, [selectLineColor])
+        })
+      }
+      }
+  }, [selectBackgroundColor])
 
   useEffect(() => {
     if (circlePoint) {
       chart.current?.addLineTool(
         'Circle',
         [circlePoint.point1, circlePoint.point2],
-        circleDefaultOption
+        circleOption
       )
-      chart.current?.timeScale().fitContent()
-    }
+      chart.current?.removeSelectedLineTools()
+     }
+     chart.current?.applyOptions({})
   }, [circlePoint])
 
   useEffect(() => {
@@ -525,6 +738,7 @@ export const ChartComponent = (props: any) => {
 
   useEffect(() => {
     if (horizontalPoint) {
+      chart.current?.removeSelectedLineTools();
       chart.current?.addLineTool(
         'HorizontalLine',
         [horizontalPoint],
@@ -537,14 +751,18 @@ export const ChartComponent = (props: any) => {
 
   useEffect(() => {
     if (verticalPoint) {
+      chart.current?.removeSelectedLineTools();
+      if(verticalPoint.timestamp == 0) {
+        return;
+      }
       chart.current?.addLineTool(
         'VerticalLine',
         [verticalPoint],
         verticalDefaultOption
       )
     }
-    
     chart.current.applyOptions({})
+    
   }, [verticalPoint])
 
   useEffect(() => {

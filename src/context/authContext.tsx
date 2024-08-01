@@ -35,14 +35,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true) // State to track loading
 
   const signInHandler = async (email: string, password: string) => {
-    // console.log('signInHandler')
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
     })
+  
     if (!data.user) {
       return
     }
+
     setSession(data.session)
     setUser(data.user)
   }
@@ -67,15 +69,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const loadUsers = async () => {
-    setIsLoading(true) // Set loading to true before fetching data
+    setIsLoading(true) 
     supabase.auth
       .getUser()
       .then(data => {
-        // console.log('userData: ', data)
         setUser(data.data.user)
-        setIsLoading(false) // Set loading to false after fetching data
+        setIsLoading(false) 
       })
-      .catch(() => setIsLoading(false)) // Ensure loading is set to false on error
+      .catch(() => setIsLoading(false)) 
+
+    supabase.auth
+      .getSession()
+      .then(data => {
+        setSession(data.data.session)
+        setIsLoading(false)
+      })
+      .catch(() => {
+        setIsLoading(false)
+      })
   }
 
   useEffect(() => {
@@ -95,7 +106,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         signOutHandler,
         loadUsers,
         signUpHandler,
-        isLoading, // Provide loading state through context
+        isLoading,
       }}
     >
       {children}

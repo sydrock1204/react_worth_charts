@@ -12,7 +12,6 @@ import {
 import { fetchStockData } from '../../api/fetchStockData'
 import { fetchCompanyData } from '../../api/fetchCompanyData'
 import { fetchMarketPrices } from '../../api/fetchMarketPrices'
-import { supabase } from '../../context/supabase'
 import { BaseInput } from '../../components/common/BaseInput'
 import { BaseSelect } from '../../components/common/BaseSelect'
 import { WatchList } from './watchList'
@@ -37,27 +36,27 @@ import {
   MagnifierSvg,
   CompareSvg,
   IntervalSvg,
-  StickSvg,
-  SettingsSvg,
   IndicatorsSvg,
-  CandleSvg,
+  CircleSvg,
+  CircleSelectedSvg,
+  SettingsSvg,
 } from '../../assets/icons'
-import { useAuthContext } from '../../context/authContext'
-import useWindowWidth from '../../context/useScreenWidth'
 import { ChartComponent } from '../../components/chartview'
-import { ChartView } from './chartView'
-import { fetchAllSymbol } from '../../api/fetchAllSymbol'
 import Spinner from './spinner';
-import TextField from '@mui/material/TextField';
-import Autocomplete from '@mui/material/Autocomplete';
+import { ColorPicker, useColor } from "react-color-palette";
+import "react-color-palette/css";
+import { fetchCompanyName } from '../../api/fetchCompanyName'
+import Modal from 'react-modal';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import CloseIcon from '@mui/icons-material/Close';
+
 
 const Chart: FC = () => {
-  const navigate = useNavigate()
   const [data, setData] = useState<StockPriceData[]>([])
   const [tempData, setTempData] = useState<any | null>(null)
   const [startPoint, setStartPoint] = useState<Point | null>(null)
   const [volume, setVolume] = useState<VolumeData[]>([])
-  const [circlePoints, setCirclePoints] = useState<PointXY | null>(null)
   const [trendPoints, setTrendPoints] = useState<PointXY | null>(null)
   const [rectanglePoints, setRectanglePoints] = useState<PointXY | null>(null)
   const [selectDelete, setSelectDelete] = useState<boolean>(false)
@@ -66,17 +65,15 @@ const Chart: FC = () => {
   const [verticalPoint, setVerticalPoint] = useState<Point | null>(null)
   const [calloutPoint, setCalloutPoint] = useState<PointXY | null>(null)
   const [priceRangePoint, setPriceRangePoint] = useState<PointXY | null>(null)
-  const width = useWindowWidth()
   const [magnet, setMagnet] = useState<boolean>(false)
   const [editType, setEditType] = useState<string>('arrow')
   const [editClickCounts, setEditClickCounts] = useState<number>(0)
   const [tempPoint, setTempPoint] = useState<Point | null>(null)
   const [symbol, setSymbol] = useState('AAPL')
-  const [interval, setInterval] = useState('60min')
+  const [interval, setInterval] = useState('daily')
   const [importLines, setImportLines] = useState<string>('')
-  const [save, setSave] = useState<boolean>(false)
-  const { session, user, signOutHandler, userInfo } = useAuthContext()
   const [isVisibleDaily, setIsVisibleDaily] = useState<boolean>(false)
+  const [isVisibleSelectDate, setIsVisibleSelectDate] = useState<boolean>(false)
   const [hoverData, setHoverData] = useState<HoverInfo>({
     index: 0,
     open: 0,
@@ -91,7 +88,6 @@ const Chart: FC = () => {
   const [selectedLine, setSelectedLine] = useState<any>(null)
   const [isLineSelected, setIsLineSelected] = useState<boolean>(false)
   const [selectedLineText, setSelectedLineText] = useState<string>('')
-  const [selectedLineColor, setSelectedLineColor] = useState<string>('green')
   const [isVisibleIndicator, setIsVisibleIndicator] = useState<boolean>(false)
   const [indicatorArray, setIndicatorArray] = useState<string[]>([])
   const [timeIndexArray, setTimeIndexArray] = useState<any>([])
@@ -100,13 +96,66 @@ const Chart: FC = () => {
     value: 0,
     percent: 0,
   })
-  const indicators = ['RSI', 'SMA', 'EMA', 'WMA', 'ADX']
+  const indicators = ['RSI', 'EMA', 'WMA', 'ADX']
   const [loading, setLoading] = useState(false);
-  const [companySymbols, setCompanySymbols] = useState<any>([]);
   const [bidPrice, setBidPrice] = useState(null);
   const [askPrice, setAskPrice] = useState(null);
   const templeWidthRef = useRef(null);
   const [templeWidth, setTempleWidth] = useState(0);
+  const [circlePoints, setCirclePoints] = useState<PointXY | null>(null)
+  const [selectedToolType, setSelectedToolType] = useState<String>(null);
+  const [addStock, setAddStock] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState('home');
+  const [selectedLineColor, setSelectedLineColor] = useColor("#561ecb");
+  const [selectTextColor, setSelectTextColor] = useColor("#000000")
+  const [selectBackgroundColor, setselectBackgroundColor] = useColor("#000000");
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [keywords, setKeywords] = useState<string>('APPLE');
+  const [suggestionList, setSuggestionList ] = useState<any>([]); 
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [dateModalIsOpen, setDateModalIsOpen] = useState(false);
+  const [startDate1, setStartDate1] = useState(null);
+  const [startDate2, setStartDate2] = useState(null);
+  const [showCalendar1, setShowCalendar1] = useState(false);
+  const [showCalendar2, setShowCalendar2] = useState(false);
+  const [start, setStart] = useState(null);
+  const [end, setEnd] = useState(null);
+  const [isVerticalCalendar,setIsVerticalCalendar] = useState(false);
+  const [verticalDate, setVerticalDate] = useState(null)
+  const [horizontalValue, setHorizontalValue] = useState(null); 
+  const [utcTimestamp, setUtcTimestamp] = useState("1718928000");
+  const [isOpenthicknesslist, setIsOpenthicknesslist] = useState(false);
+  const [thickness, setThickness] = useState(1);
+  const [isTextcolor, setIsTextcolor] = useState(false);
+  const [isLinecolor, setIsLinecolor] = useState(false);
+  const [isBackgroundcolor, setIsBackgroundcolor] = useState(false);
+
+  const thicknessOptions = [
+    { value: '1', label: '1 pixel' },
+    { value: '2', label: '2 pixels' },
+    { value: '3', label: '3 pixels' },
+    { value: '4', label: '4 pixels' },
+  ];
+
+  const handleFocus = () => setIsSearchModalOpen(true);
+  const handleClose = () => setIsSearchModalOpen(false);
+  const handleKeyDown = (event) => {
+    if (event.key === 'ArrowDown') {
+      setSelectedIndex((prevIndex) => 
+        prevIndex === null ? 0 : (prevIndex + 1) % suggestionList.length
+      );
+    } else if (event.key === 'ArrowUp') {
+      setSelectedIndex((prevIndex) => 
+        prevIndex === null ? suggestionList.length - 1 : (prevIndex - 1 + suggestionList.length) % suggestionList.length
+      );
+    } else if (event.key === 'Enter') {
+      if (selectedIndex !== null) {
+        const firstKey = Object.keys(suggestionList[selectedIndex])[0];
+        suggestItemselector(suggestionList[selectedIndex][firstKey]);
+      }
+    }
+  };
+
 
   useEffect(() => {
     const updateWidth = () => {
@@ -123,24 +172,6 @@ const Chart: FC = () => {
       window.removeEventListener('resize', updateWidth);
     };
   }, []);
-
-  useEffect(() => {
-    const fetchSymbol = async () => {
-      try {
-        const AllCompanySymbol = await fetchAllSymbol();
-        const lines = AllCompanySymbol.split('\n');
-        const result = lines.slice(1).map(line => {
-          const [symbol] = line.split(',');
-          return { label: symbol };
-        });
-        setCompanySymbols(result);
-      } catch (error) {
-        console.log('Error fetching data',error);
-      }
-    }
-
-    fetchSymbol(); 
-   },[])
 
   useEffect (() => { 
     if (lastLineJSON && lastLineJSON.lineTool) { 
@@ -184,47 +215,6 @@ const Chart: FC = () => {
     }
   }
 
-  const onSaveLines = () => {
-    if (!save) setSave(true)
-  }
-
-  const handleExportData = async exportLines => {
-    if (!session && signOutHandler) {
-      toast('session is expired!')
-      signOutHandler()
-      return
-    }
-
-    const { data: savedData, error: savedDataError } = await supabase
-      .from('linedata')
-      .select('id')
-      .eq('user_id', user?.id)
-      .eq('interval', interval)
-      .eq('symbol', symbol)
-      .limit(1)
-      .select()
-
-    if (savedData && savedData.length > 0) {
-      const { data, error } = await supabase
-        .from('linedata')
-        .update({ linedata: exportLines })
-        .eq('id', savedData[0].id)
-        .select()
-    } else if (savedData && savedData.length == 0) {
-      await supabase
-        .from('linedata')
-        .insert([
-          { user_id: user?.id, symbol, interval, linedata: exportLines },
-        ])
-    }
-  
-    setSave(false)
-  }
-
-  const onLoadLines = async () => {
-    await loadLineData(symbol, interval)
-  }
-
   const handleCrosshairMove = (time: number) => {
     if (tempData && tempData.get(time)) {
       setHoverData(tempData.get(time))
@@ -238,15 +228,12 @@ const Chart: FC = () => {
       })
 
       const dateObject = new Date(time * 1000)
-
       const year = dateObject.getFullYear()
-      const month = dateObject.getMonth() + 1 // Add 1 to get actual month
+      const month = dateObject.getMonth() + 1 
       const day = dateObject.getDate()
       const hours = dateObject.getHours()
-      const minutes = dateObject.getMinutes().toString().padStart(2, '0') // Pad minutes with leading 0 if needed
-
+      const minutes = dateObject.getMinutes().toString().padStart(2, '0') 
       const amPm = hours >= 12 ? 'PM' : 'AM'
-
       const adjustedHours = hours % 12 || 12
 
       setHoverTime(
@@ -254,38 +241,7 @@ const Chart: FC = () => {
       )
     }
   }
-
-  const loadLineData = async (symbol: string, interval: string) => {
-    if (!user) {
-      navigate('/auth/login')
-      return
-    }
-    const { data, error } = await supabase
-      .from('linedata')
-      .select('linedata')
-      .eq('user_id', user.id)
-      .eq('interval', interval)
-      .eq('symbol', symbol)
-      .limit(1)
-      .select()
-
-    if (data && data.length > 0) {
-      setImportLines(data[0].linedata)
-    }
-  }
-
-  const selectLineStyle = () => {
-    if (lineSeries == 'candlestick') {
-      setLineSeries('bar')
-    } else if (lineSeries == 'bar') {
-      setLineSeries('candlestick')
-    }
-  }
-
-  const handleSelectedLineColor = (name: any, option: any) => {
-    setSelectedLineColor(option)
-  }
-  
+ 
   const modalcloseHandler = () => {
     setIsLineSelected(false);
   }
@@ -293,7 +249,7 @@ const Chart: FC = () => {
   useEffect(() => {
     const fetchWrapper = async () => {
       const { stockDataSeries, tempDataArray, Volume, timeIndex } =
-        await fetchStockData(symbol, interval)
+        await fetchStockData(symbol, interval, start, end)
       setData(stockDataSeries)
       setTempData(tempDataArray)
       setVolume(Volume)
@@ -308,7 +264,7 @@ const Chart: FC = () => {
     const fetchWrapper = async () => {
       setLoading(true);
       try {
-        const { stockDataSeries, tempDataArray, Volume, timeIndex } = await fetchStockData(symbol, interval)
+        const { stockDataSeries, tempDataArray, Volume, timeIndex } = await fetchStockData(symbol, interval, start, end)
         const companyName = await fetchCompanyData(symbol)
         setCompanyData(companyName)
         setData(stockDataSeries)
@@ -322,7 +278,7 @@ const Chart: FC = () => {
         setLoading(false)
       }
     }
-
+   
     const fetchPrices = async () => {
       setLoading(true)
       try {
@@ -335,7 +291,7 @@ const Chart: FC = () => {
     }
     fetchWrapper();
     fetchPrices();
-  }, [symbol, interval])
+  }, [symbol, interval, start, end])
 
   useEffect(() => {
     switch (editType) {
@@ -351,27 +307,17 @@ const Chart: FC = () => {
           setIsLineSelected(false)
         }
         break
-      case 'rectangle':
-        if (editClickCounts == 0) {
-          setEditClickCounts(editClickCounts + 1)
-          setStartPoint(tempPoint)
-        } else if (editClickCounts == 1) {
-          setEditClickCounts(0)
-          setRectanglePoints({ point1: startPoint, point2: tempPoint })
-          setEditType('arrow')
-          setStartPoint(tempPoint)
-        }
-        break
-      case 'circle':
-        if (editClickCounts == 0) {
-          setEditClickCounts(editClickCounts + 1)
-          setStartPoint(tempPoint)
-        } else if (editClickCounts == 1) {
-          setEditClickCounts(0)
-          setCirclePoints({ point1: startPoint, point2: tempPoint })
-          setEditType('arrow')
-          setStartPoint(tempPoint)
-        }
+        case 'Circle':
+          if (editClickCounts == 0) {
+            setEditClickCounts(editClickCounts + 1)
+            setStartPoint(tempPoint)
+          } else if (editClickCounts == 1) {
+            setEditClickCounts(0)
+            setCirclePoints({ point1: startPoint, point2: tempPoint })
+            setEditType('arrow')
+            setStartPoint(tempPoint)
+            setIsLineSelected(false)
+          }
         break
       case 'callout':
         if (editClickCounts == 0) {
@@ -393,6 +339,7 @@ const Chart: FC = () => {
           setPriceRangePoint({ point1: startPoint, point2: tempPoint })
           setEditType('arrow')
           setStartPoint(tempPoint)
+          setIsLineSelected(false)
         }
         break
       case 'label':
@@ -410,12 +357,87 @@ const Chart: FC = () => {
     }
   }, [tempPoint])
 
-  const HandleSelectChange = (event, value) => {
-    setSymbol(value['label']);    
+  const preventDrag = (e) => {
+    e.stopPropagation();
+  };
+
+  useEffect(() => {
+    if(selectedLine !== null ) {
+      try{
+        const data = JSON.parse(selectedLine);
+        if (Array.isArray(data) && data.length > 0) {
+          const toolType = data[0].toolType;
+          setSelectedToolType(toolType);
+      } else {
+          console.log("Invalid data1 structure or empty array");
+      }
+      } catch (error) {
+        console.error("Error parsing JSON:", error);
+    }
+    }
+  }, [selectedLine])
+  
+  const addStockHandler = () => {
+    setAddStock(symbol);
   }
- 
-  return (
-    <div id='Chart' className={`pt-[36px] pl-[13px] pr-[50px] ${width > 1400 ? "h-[2020px]" : "h-[3050px]"}`}>
+
+  useEffect(() =>{
+    const fetchData = async () => {
+      try {
+        const suggestionData = await fetchCompanyName(keywords);
+        setSuggestionList(suggestionData);
+      } catch (error) {
+        console.log('Error fetching data',error);
+      }
+    }
+
+    fetchData();
+  },[keywords])
+
+  const searchHandleChange = event => {
+    const value = event.target.value.toUpperCase();
+    setKeywords(value);
+  }
+
+  const suggestItemselector = (symbol) => {
+    setSuggestionList([]);
+    setSymbol(symbol);
+    handleClose(true);
+  }
+
+  const indicatorButtonSelect = (value) => {
+    let nextIndicatorArray = indicatorArray.includes(value)
+      ? indicatorArray.filter(e => e != value)
+      : [...indicatorArray, value]
+    setIndicatorArray(nextIndicatorArray)
+    
+  }
+  
+  const horizontalKeyDown = (e) => {
+    if(e.key === 'Enter') {
+      setHorizontalPoint({price: horizontalValue, timestamp: "1718928000"});
+      e.preventDefault();
+    }
+  }
+
+  const verticalValueHandler = (date) => {
+    setVerticalDate(date);
+    setIsVerticalCalendar(false);
+    const vdate = new Date(verticalDate);
+    const utcDateString = vdate.toISOString();
+    const utcdate = new Date(utcDateString);
+    const value = utcdate.getTime()/1000;
+    setUtcTimestamp(value);
+    setVerticalPoint({price: 200, timestamp: utcTimestamp})
+  }
+
+  const thicknessListhandler = (value) => {
+    setThickness(value);
+    // setIsOpenthicknesslist(false);
+  };
+
+ return (
+    <div id='Chart' className={`pt-[36px] pl-[13px] pr-[50px]`}>
       <Spinner isLoading={loading} />
       {/* main chart---- */}
       <div className='flex flex-row justify-between w-full bg-white h-[895px] '>
@@ -426,35 +448,73 @@ const Chart: FC = () => {
               <div className="flex flex-row">
                 <div className="flex pt-[3px] pl-[8px]">    
                   <img src={MagnifierSvg} alt="magnifier" className="w-[20.06px]" />
-                  <Autocomplete
-                    disablePortal
-                    id="combo-box-demo"
-                    options={companySymbols}
-                    renderInput={(params) => <TextField
-                      {...params}  
-                      sx={{
-                        '& input::placeholder': {
-                          color: 'rgba(0, 0, 0, 1)',
-                        },
-                      }}
-                      placeholder='AAPL'/>}
-                    onChange={HandleSelectChange}
-                    sx={{
-                      width: '120px',
-                      height: 'auto',
-                      border:'none',
-                      '& .MuiAutocomplete-inputRoot': {
-                        height: '2.6rem',
-                      },
-                      '& input': 'p-0, w-[70px] h-[50px] text-[10px]',
-                      '& .MuiAutocomplete-clearIndicator': 'hidden',
-                    }}
+                  <input 
+                    type="text" 
+                    className='border-2 border-gray-500 rounded-lg h-[40px] w-[94px] p-[2px] text-center'
+                    onFocus={handleFocus}
+                    value={symbol}
+                    readOnly
                   />
+                  {isSearchModalOpen && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-50 z-50">
+                      <div className="relative bg-white p-8 rounded-lg shadow-lg max-w-3xl w-full h-3/4">
+                        <button
+                          className="absolute top-4 right-4 text-red-500 text-2xl hover:text-red-700"
+                          onClick={handleClose}
+                        >
+                          &times;
+                        </button>
+                        <h2 className="text-xl font-bold mb-4">Symbol search</h2>
+                        <div className='w-full'>
+                          <input
+                            className="text-center w-full p-1 font-mono font-bold text-[15.6px] border-b-[2px] border-b-grey-500 border-t-[2px] border-t-grey-500"
+                            value={keywords}
+                            onInput={searchHandleChange}
+                            type="text" 
+                            onKeyDown={handleKeyDown}
+                          />
+                              <li 
+                                className=" hover:bg-gray-100 flex w-[100%] pt-[8px] pb-[8px] mt-[20px]"
+                              >
+                                <p className='text-center w-1/2'>SYMBOL</p>  
+                                <p className='text-center w-1/2'>COMPANY NAME</p>
+                              </li>
+                            <ul className="w-full  h-[470px] overflow-y-auto">
+                            {
+                              suggestionList !== undefined && suggestionList.length > 0 && (
+                                suggestionList.map((item, index) => {
+                                  const firstKey = Object.keys(item)[0];
+                                  const secondeKey = Object.keys(item)[1];
+                                  return (
+                                    <li 
+                                      key={index} 
+                                      onClick={() => suggestItemselector(item[firstKey])} 
+                                      className={` hover:bg-gray-100 flex w-[100%] pt-[8px] pb-[8px] ${index === selectedIndex ? 'bg-gray-100' : ''}`}
+                                    >
+                                      <p className='text-center w-1/2'>{item[firstKey]}</p>  
+                                      <p className='text-center w-1/2'>{item[secondeKey]}</p>
+                                    </li>
+                                  );
+                                })
+                              )
+                            }
+                            {
+                              
+                              suggestionList == undefined && (
+                                <div className='h-[470px] flex justify-center items-center text-center text-[24px] '>no data</div>
+                              )
+                            }
+                            </ul>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div className="flex">
                     <img
                       src={CompareSvg}
                       alt="compare"
                       className="w-[31.2px] flex p-0.1 cursor-pointer hover:bg-gray5 border-r-2 border-b-gray-800"
+                      onClick={addStockHandler}
                     />
                   </div>
                 </div>
@@ -462,15 +522,15 @@ const Chart: FC = () => {
             <div className="flex flex-row my-1">
               <button
                 className={
-                  interval == '1min'
+                  interval == '15min'
                     ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700 text-16 text-black '
                     : 'w-[40px] cursor-pointer hover:bg-gray5 text-16 '
                 }
                 onClick={() => {
-                  setInterval('1min')
+                  setInterval('15min')
                 }}
               >
-                1m
+                15m
               </button>
               <button
                 className={
@@ -496,6 +556,112 @@ const Chart: FC = () => {
               >
                 1h
               </button>
+              <div>
+                
+              </div>
+              <div style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  justifyContent: 'center'}}>
+                <button>select Date</button>
+                <img
+                src={IntervalSvg}
+                alt=''
+                className="cursor-pointer hover:bg-gray5"
+                onClick={() => {
+                  setIsVisibleSelectDate(!isVisibleSelectDate)
+                }}
+              />
+                {isVisibleSelectDate && (
+                  <div className="flex flex-col gap-1 absolute mt-12 bg-white border border-gray-300 shadow-lg z-[11]" style={{zIndex: '34'}}>
+                    <div className="relative">
+                      <div className='flex'>
+                        <div className='flex items-center'>
+                          <label>start</label>  
+                        </div>
+                        <input
+                            type="text"
+                            value={startDate1 ? startDate1.toLocaleDateString() : ''}
+                            onClick={() => setShowCalendar1(!showCalendar1)}
+                            // readOnly
+                            placeholder="Select a date"
+                            className='w-[200px] border p-2 rounded'
+                        />
+                        <button
+                          className="absolute top-1 right-5 text-red-500 text-2xl hover:text-red-700"
+                          onClick={() => {
+                            setStartDate1(null)
+                          }}
+                        >
+                          &times;
+                        </button>
+                      </div>
+                      {showCalendar1 && (
+                          <DatePicker
+                              selected={startDate1}
+                              onChange={date => {
+                                  setStartDate1(date);
+                                  setShowCalendar1(false);
+                              }}
+                              inline
+                              className="absolute left-0 mt-2 z-[12]"
+                          />
+                      )}
+                    </div>
+                    <div className="relative">
+                      <div className='flex'>
+                        <div className='flex items-center'>
+                          <label>End</label>
+                        </div>
+                        <input
+                            type="text"
+                            value={startDate2 ? startDate2.toLocaleDateString() : ''}
+                            onClick={() => setShowCalendar2(!showCalendar2)}
+                            // readOnly
+                            placeholder="Select a date"
+                            className='w-[200px] border p-2 rounded'
+                        />
+                        <button
+                          className="absolute top-1 right-5 text-red-500 text-2xl hover:text-red-700"
+                          onClick={() => {
+                            setStartDate2(null)
+                          }}
+                        >
+                          &times;
+                        </button>
+                      </div>
+                      {showCalendar2 && (
+                        <DatePicker
+                            selected={startDate2}
+                            onChange={date => {
+                                setStartDate2(date);
+                                setShowCalendar2(false);
+                            }}
+                            inline
+                            className="absolute left-0 mt-2 z-[12]"
+                        />
+                      )}
+                    </div>
+                      <button onClick={() => {
+                        if(startDate1 !== null || startDate2 !== null) {
+                            if(interval === '15min' || interval === '30min' || interval === '60min') {
+                              alert('Not support function!')
+                              return;
+                            }
+                            if(startDate1 >= startDate2) {
+                              alert('error! start should be before that end date');
+                              return;
+                            }
+                          }
+                          setStart(startDate1);
+                          setEnd(startDate2);
+                          setIsVisibleSelectDate(false)
+                      }}>submit</button>
+                  </div>
+                )}
+              </div>
+              <div className="relative">
+              </div>
               <p
                 className={
                   ['daily', 'weekly', 'monthly'].includes(interval)
@@ -514,7 +680,7 @@ const Chart: FC = () => {
                 onClick={() => setIsVisibleDaily(!isVisibleDaily)}
               />
               {isVisibleDaily && (
-                <div className="flex flex-col absolute top-12 gap-1 left-[340px]">
+                <div className="flex flex-col top-12 gap-1 left-[340px] z-[11]">
                   <button
                     className="w-24 bg-[#f9f9f9] text-red-600 rounded-md"
                     onClick={() => {
@@ -542,16 +708,12 @@ const Chart: FC = () => {
                   >
                     Monthly
                   </button>
+
                 </div>
               )}
+
               <div className="w-2 border-r-2 border-b-gray-800" />
-              <div className='flex w-[110px]'>
-                <img
-                  src={lineSeries === 'candlestick' ? CandleSvg : StickSvg}
-                  alt="stick"
-                  className="cursor-pointer hover:bg-gray5 mr-[33.43px]"
-                  onClick={selectLineStyle}
-                />
+              <div className='flex'>
                 <img
                   src={SettingsSvg}
                   alt="settings"
@@ -561,55 +723,40 @@ const Chart: FC = () => {
                   src={IntervalSvg}
                   alt=''
                   className="cursor-pointer hover:bg-gray5"
+                  onClick={() => {
+                    setIsVisibleIndicator(!isVisibleIndicator)
+                  }}
                 />
-              </div>
+                {isVisibleIndicator && (
+                  <div className="flex flex-col top-12 gap-1 left-[520px] z-[11]">
+                    {indicators.map((value, index) => {
+                      const buttonColor = indicatorArray.includes(value)
+                        ? 'bg-gray4'
+                        : `bg-[#f9f9f9]`
+
+                      return (
+                        <button
+                          className={`w-24 ${buttonColor} text-red-600 rounded-md`}
+                          onClick={() => {indicatorButtonSelect(value); setIsVisibleIndicator(!isVisibleIndicator)}}
+                          key={index}
+                        >
+                          {value}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
               <div className="w-1 border-r-2 border-b-gray-800" />
               <img
                 src={IndicatorsSvg}
                 className="cursor-pointer hover:bg-gray5"
                 alt=''
                 onClick={() => {
-                  setIsVisibleIndicator(!isVisibleIndicator)
+                  indicatorButtonSelect('SMA')
                 }}
               />
               <p className='pt-1'>indicators</p>
-              {isVisibleIndicator && (
-                <div className="flex flex-col absolute top-12 gap-1 left-[520px]">
-                  {indicators.map((value, index) => {
-                    const buttonColor = indicatorArray.includes(value)
-                      ? 'bg-gray4'
-                      : `bg-[#f9f9f9]`
-                    const indicatorButtonSelect = () => {
-                      let nextIndicatorArray = indicatorArray.includes(value)
-                        ? indicatorArray.filter(e => e != value)
-                        : [...indicatorArray, value]
-                      setIndicatorArray(nextIndicatorArray)
-                      setIsVisibleIndicator(!isVisibleIndicator)
-                    }
-                    return (
-                      <button
-                        className={`w-24 ${buttonColor} text-red-600 rounded-md`}
-                        onClick={indicatorButtonSelect}
-                        key={index}
-                      >
-                        {value}
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
-              {/* <button
-                className="ml-8 w-16 bg-color-brand-green rounded-md text-white"
-                onClick={onSaveLines}
-              >
-                Save
-              </button>
-              <button
-                className="ml-8 w-16 bg-gray3 rounded-md text-white"
-                onClick={onLoadLines}
-              >
-                Load
-              </button> */}
+              </div>
             </div>
             <div className='bg-gray-300 w-[50px] ml-auto'></div>
           </div>
@@ -686,7 +833,7 @@ const Chart: FC = () => {
           {/* main display ----- */}
           <div className='flex relative'>
             {/* tool bar ---- */}
-            <div className="w-[61px] bg-white pt-10 pb-4 absolute top-0 left-0  z-20 border-r-[2px] border-r-grey border-b-[2px] border-b-grey border-t-[2px] border-t-grey">
+            <div className="w-[61px] bg-white pt-[3px] pb-4 absolute top-0 left-0  z-20 border-r-[2px] border-r-grey border-b-[2px] border-b-grey border-t-[2px] border-t-grey">
               <div className="">
                 <img
                   src={editType == 'arrow' ? ArrowSelectedSvg : ArrowSvg}
@@ -707,6 +854,15 @@ const Chart: FC = () => {
                   }}
                 />
                 <img
+                  src={editType == 'Circle' ? CircleSelectedSvg : CircleSvg}
+                  alt="Text"
+                  width={30}
+                  className="ml-2 cursor-pointer p-1 mb-2 w-[36px]"
+                  onClick={() => {
+                    setEditType('Circle')
+                  }}
+                />
+                <img
                   src={editType == 'trendline' ? TrendSelectedSvg : TrendSvg}
                   alt="Trend"
                   width={50}
@@ -721,7 +877,7 @@ const Chart: FC = () => {
                   onClick={() => {
                     setEditType('vertical')
                   }}
-                  className="cursor-pointer p-1 mb-2"
+                  className="cursor-pointer p-1 mb-2 w-[52px]"
                 />
                 <img
                   src={
@@ -792,8 +948,6 @@ const Chart: FC = () => {
                 magnet={magnet}
                 handleTemplePoint={handleTemplePoint}
                 handleCrosshairMove={handleCrosshairMove}
-                save={save}
-                handleExportData={handleExportData}
                 lineSeries={lineSeries}
                 importLines={importLines}
                 handleSelectedLine={handleSelectedLine}
@@ -803,75 +957,148 @@ const Chart: FC = () => {
                 symbol={symbol}
                 interval={interval}
                 selectLineColor={selectedLineColor}
+                selectTextColor={selectTextColor}
+                selectBackgroundColor={selectBackgroundColor}
                 setLastLineJSON={setLastLineJSON}
                 editType={editType}
                 templeWidth={templeWidth}
+                selectDelete={selectDelete}
+                selectedToolType={selectedToolType}
+                thickness={thickness}
               />
             </div>
             {/* !!!!! */}
             { isLineSelected === true && (
-              <Draggable defaultPosition={{ x: 500, y: 100 }}>
-                <div className="absolute p-2 z-30 bg-white w-[200px] h-[180px] border border-black rounded-md cursor-pointer">
-                  <button onClick={modalcloseHandler} className='ml-[90%]'>&times;</button>
-                  <BaseInput
-                    name="text"
-                    label="text"
-                    placeholder=""
-                    value={selectedLineText}
-                    handleChange={e => {
-                      setSelectedLineText(e.target.value)
-                    }}
-                  />
-                  <BaseSelect
-                    name="color"
-                    label="color"
-                    options={[
-                      { value: 'red', label: 'Red' },
-                      { value: 'green', label: 'Green' },
-                      { value: 'blue', label: 'Blue' },
-                    ]}
-                    value={selectedLineColor}
-                    setFieldValue={handleSelectedLineColor}
-                  />
+              <Draggable defaultPosition={{ x: 300, y: 100 }}>
+                <div className="p-3 z-30 bg-white w-[340px] h-auto cursor-pointer border-[1px] border-black">
+                  <div>
+                    <CloseIcon onClick={modalcloseHandler} className='float-right text-xl' />
+                  </div>
+                  <br /><hr />
+                  <div>
+                    <div className='p-2'>
+                      <BaseInput
+                        name="text"
+                        label="text:"
+                        placeholder=""
+                        value={selectedLineText}
+                        handleChange={e => {
+                          setSelectedLineText(e.target.value)
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <hr />
+                  <div>
+                    <div className='p-2'>
+                      <BaseSelect 
+                        name='thickness'
+                        label='thickness:'
+                        options={thicknessOptions}
+                        value={thickness}
+                        isClearable={false}
+                        setFieldValue={(field, value) => thicknessListhandler(value)}
+                      />
+                    </div>
+                  </div>
+                  {(selectedToolType == "HorizontalLine" || selectedToolType == "VerticalLine") && (
+                  <div>
+                    <hr />
+                    <div className='p-2'>
+                      move to:
+                        <div>
+                          {(selectedToolType == "HorizontalLine") && (
+                            <input 
+                              type="text"
+                              value={horizontalValue}
+                              onChange={(e) => setHorizontalValue(e.target.value)}
+                              onKeyDown={horizontalKeyDown}
+                              className='p-2 border-[1px] w-full border-green-400 h-[34px] rounded-md'
+                            />
+                          )}
+                          {(selectedToolType == "VerticalLine") && (
+                            <div>
+                              <input type="text" 
+                                className='p-2 border-[1px] w-full border-green-400 h-[34px] rounded-md' 
+                                readOnly onClick={() => {setIsVerticalCalendar(!isVerticalCalendar)}}
+                                value={verticalDate ? verticalDate.toLocaleDateString() : ''}
+                              />
+                              {isVerticalCalendar && (
+                                <div>
+                                  <DatePicker
+                                    selected={verticalDate}
+                                    onChange={(date) => verticalValueHandler(date)}
+                                    inline
+                                    className="absolute left-0 mt-2 z-[12]"
+                                />
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                    </div>
+                  </div>
+                  )}
+                  <hr />
+                  <div>
+                    <div className='p-2'>
+                      color
+                      <div className='p-2 flex'>
+                       text: <div className='bg-green-400 w-[20px] h-[20px] rounded-md ml-[65px]' onClick={() => {setIsTextcolor(!isTextcolor); setIsLinecolor(false); setIsBackgroundcolor(false)}}/> 
+                      </div>
+                      <div>
+                        { isTextcolor &&(
+                          <div onMouseDown={preventDrag} > 
+                            <ColorPicker color={selectTextColor} onChange={setSelectTextColor} />
+                          </div>
+                        )}
+                      </div>
+                      {(selectedToolType !== 'Text') && (
+                        <div>
+                          <div className='p-2 flex'>
+                            line: <div className='bg-red-400 w-[20px] h-[20px] rounded-md ml-[65px]'onClick={() => {setIsLinecolor(!isLinecolor); setIsTextcolor(false);  setIsBackgroundcolor(false)}}/>
+                          </div>
+                          <div>
+                            { isLinecolor && (
+                              <div onMouseDown={preventDrag}> 
+                                <ColorPicker color={selectedLineColor} onChange={setSelectedLineColor} />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      {(selectedToolType == 'Circle' || selectedToolType == 'PriceRange'|| selectedToolType == 'Callout') && (
+                        <div>
+                          <div className='p-2 flex'>
+                            background: <div className='bg-blue-400 w-[20px] h-[20px] rounded-md ml-[13px]'onClick={() => {setIsBackgroundcolor(!isBackgroundcolor); setIsTextcolor(false); setIsLinecolor(false)}}/>
+                          </div>
+                          <div>
+                            { isBackgroundcolor && (
+                              <div onMouseDown={preventDrag}> 
+                                <ColorPicker color={selectBackgroundColor} onChange={setselectBackgroundColor} />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <hr />
                 </div>
-              </Draggable>
+             </Draggable>
             )}
           </div>
           {/* -----main display */}
         </div>
         {/* ---main chartView */}
         {/* Watchlist------ */}
+
         <div className='bg-white border-l-[2px] border-l-grey'>
-          <WatchList/>
+          <WatchList addStockfromheader={addStock}/>
         </div>
         {/* -----Watchlist */}
       </div>
       {/* ----main chart*/}
-      {/* chart view------ */}
-      <div>
-        {width < 1400 && (
-          <div className="flex flex-col gap-[22px] pt-[20px]">
-            <ChartView tempWidth={templeWidth}/>
-            <ChartView tempWidth={templeWidth}/>
-            <ChartView tempWidth={templeWidth}/>
-            <ChartView tempWidth={templeWidth}/>
-          </div>
-        )}
-        {width >= 1400 && (
-          <div className='pt-[40px]'>
-            <div className="flex flex-row gap-[22px]">
-              <ChartView tempWidth={ (templeWidth + 432) * 0.5 - 11 }/>
-              <ChartView tempWidth={ (templeWidth + 432) * 0.5 - 11 }/>
-            </div>
-            <div className="flex flex-row gap-[22px] pt-[40px]">
-              <ChartView tempWidth={ (templeWidth + 432) * 0.5 - 11 }/>
-              <ChartView tempWidth={ (templeWidth + 432) * 0.5 - 11 }/>
-            </div>
-          </div>
-        )}
- 
-      </div>
-      {/* ---- chart view */}
     </div>
   )
 }

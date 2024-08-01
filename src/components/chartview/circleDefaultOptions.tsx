@@ -56,9 +56,9 @@ export const circleDefaultOption = {
       color: 'rgba(39,176,119,0.2)',
     },
     border: {
-      color: 'rgba(156,39,176,0.5)',
-      width: 1,
-      style: 3,
+      color: 'rgba(41,98,255,1)',
+      width: 2,
+      style: 1,
     },
     extend: {
       right: true, //does not do anything, left in for ease of use with rectangle settings

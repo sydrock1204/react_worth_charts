@@ -13,7 +13,7 @@ const Header = () => {
   const width = useWindowWidth()
   const context = useContext(MobileToggleContext);
   const { isToggled, setIsToggled } = context;
-
+  
   const handleToggle = () => {
     setIsToggled(prevState => !prevState);
   };
