@@ -7,6 +7,10 @@ export const fetchData = async (
   try {
     let url = ''
     let response = { data: null }
+    const dayData = await axios.get(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=${import.meta.env.VITE_ALPHAVANTAGE_PREMIUM_KEY}`);
+    const monthData = await axios.get(`https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${symbol}&outputsize=full&apikey=${import.meta.env.VITE_ALPHAVANTAGE_PREMIUM_KEY}`);
+    // console.log('---dayData--',dayData.data['Time Series (Daily)']);
+    // console.log('--monthData--',monthData.data['Monthly Time Series']);
     switch (interval) {
       case '15min':
         url = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=full&apikey=${import.meta.env.VITE_ALPHAVANTAGE_PREMIUM_KEY}`
@@ -20,22 +24,31 @@ export const fetchData = async (
         url = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&outputsize=full&apikey=${import.meta.env.VITE_ALPHAVANTAGE_PREMIUM_KEY}`
         response = await axios.get(url)
         return response.data[`Time Series (${interval})`]
-      case 'daily':
+      case '1D':
         url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=${import.meta.env.VITE_ALPHAVANTAGE_PREMIUM_KEY}`
         response = await axios.get(url)
         return response.data['Time Series (Daily)']
         break
-      case 'weekly':
+      case '1W':
         url = `https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=${symbol}&outputsize=full&apikey=${import.meta.env.VITE_ALPHAVANTAGE_PREMIUM_KEY}`
         response = await axios.get(url)
         return response.data['Weekly Time Series']
-      case 'monthly':
+      case '1M':
         url = `https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${symbol}&outputsize=full&apikey=${import.meta.env.VITE_ALPHAVANTAGE_PREMIUM_KEY}`
         response = await axios.get(url)
         return response.data['Monthly Time Series']
         break
+      case '5D':
+
+      case '3M':
+
+      case '6M':
+
+      case '1Y':
+
+      case '5Y':
     }
-    // console.log(Object.entries(response.data["Time Series (1min)"]))
+
   } catch (error) {
     console.log('Error fetching data: ', error)
     return null
