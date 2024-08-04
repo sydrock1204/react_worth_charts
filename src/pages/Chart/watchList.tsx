@@ -26,7 +26,11 @@ interface endQuoteMap {
 }
 
 export const WatchList = (props : any) => {
-  const { addStockfromheader } = props;
+  const { 
+    addStockfromheader,
+    addStockChartHandler,
+    symbol
+  } = props;
   const { watchLists, setWatchLists, loadWatchLists, saveWatchLists } =
     useWatchListsStore()
   const { user } = useAuthContext()
@@ -37,7 +41,9 @@ export const WatchList = (props : any) => {
   const [endQuote, setEndQuote] = useState<endQuoteMap>({})
   const [watchListWidth, setWatchListWidth] = useState<string>('lg')
   const width = useWindowWidth()
- 
+  const [isBtnSelected, setIsBtnSelected] = useState<boolean>(true) 
+  const [currentStock, setCurrentStock] = useState(null)
+
   const onVisibleHeader = (header: string) => {
     setWatchLists({
       ...watchLists,
@@ -167,6 +173,10 @@ export const WatchList = (props : any) => {
       setWatchListWidth('sm')
     }
   }, [width])
+  
+  const stockChartHandler = (stock) => {
+      addStockChartHandler(stock, isBtnSelected);
+  } 
 
   if (width > 1400) {
     return (
@@ -227,7 +237,24 @@ export const WatchList = (props : any) => {
                       className="flex flex-row ml-4 my-1 text-[#6A6D78]"
                       key={`${header}-${index}`}
                     >
-                      <div className="w-1/4 text-left">{stock}</div>
+                      <button 
+                        className={`w-1/4 text-center ${(currentStock == stock) && ('bg-red-400 text-white')}`} 
+                        onClick={() => { 
+                          if(stock !== symbol) {
+                            stockChartHandler(stock);
+                            setIsBtnSelected(!isBtnSelected);
+                            if(isBtnSelected) {
+                              setCurrentStock(stock);
+                            } else {
+                              setCurrentStock(null);
+                            }
+                          } else {
+                            alert('Same company')
+                          }
+                        }}
+                      >
+                        {stock}
+                      </button>
                       <div className="w-1/4 text-right">
                         {endQuote[stock] &&
                           Number(endQuote[stock]['05. price']).toFixed(2)}
