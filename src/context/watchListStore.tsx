@@ -11,7 +11,7 @@ export const defaultStockWatchLists: stockWatchLists = {
   },
   STOCKS: {
     visible: true,
-    lists: ['AAPL', 'NVDA'],
+    lists: ['AAPL'],
   },
   FUTURES: {
     visible: false,

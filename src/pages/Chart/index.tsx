@@ -84,7 +84,6 @@ const Chart: FC = () => {
   })
   const [companyData, setCompanyData] = useState<string>('')
   const [hoverTime, setHoverTime] = useState<any>(null)
-  const [lineSeries, setLineSeries] = useState<string>('bar')
   const [selectedLine, setSelectedLine] = useState<any>(null)
   const [isLineSelected, setIsLineSelected] = useState<boolean>(false)
   const [selectedLineText, setSelectedLineText] = useState<string>('')
@@ -105,7 +104,6 @@ const Chart: FC = () => {
   const [circlePoints, setCirclePoints] = useState<PointXY | null>(null)
   const [selectedToolType, setSelectedToolType] = useState<String>(null);
   const [addStock, setAddStock] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState('home');
   const [selectedLineColor, setSelectedLineColor] = useColor("#561ecb");
   const [selectTextColor, setSelectTextColor] = useColor("#000000")
   const [selectBackgroundColor, setselectBackgroundColor] = useColor("#000000");
@@ -113,7 +111,6 @@ const Chart: FC = () => {
   const [keywords, setKeywords] = useState<string>('APPLE');
   const [suggestionList, setSuggestionList ] = useState<any>([]); 
   const [selectedIndex, setSelectedIndex] = useState(null);
-  const [dateModalIsOpen, setDateModalIsOpen] = useState(false);
   const [startDate1, setStartDate1] = useState(null);
   const [startDate2, setStartDate2] = useState(null);
   const [showCalendar1, setShowCalendar1] = useState(false);
@@ -124,19 +121,21 @@ const Chart: FC = () => {
   const [verticalDate, setVerticalDate] = useState(null)
   const [horizontalValue, setHorizontalValue] = useState(null); 
   const [utcTimestamp, setUtcTimestamp] = useState("1718928000");
-  const [isOpenthicknesslist, setIsOpenthicknesslist] = useState(false);
   const [thickness, setThickness] = useState(1);
   const [isTextcolor, setIsTextcolor] = useState(false);
   const [isLinecolor, setIsLinecolor] = useState(false);
   const [isBackgroundcolor, setIsBackgroundcolor] = useState(false);
-
+  const [addData, setAddData] = useState<StockPriceData[]>([])
+  const [addVolume, setAddVolume] = useState<VolumeData[]>([])
   const thicknessOptions = [
     { value: '1', label: '1 pixel' },
     { value: '2', label: '2 pixels' },
     { value: '3', label: '3 pixels' },
     { value: '4', label: '4 pixels' },
   ];
-
+  const [addStockChart, setAddStockChart] = useState<string>(null)
+  const [isAddStock, setIsAddStock] = useState<Boolean>(false)
+  
   const handleFocus = () => setIsSearchModalOpen(true);
   const handleClose = () => setIsSearchModalOpen(false);
   const handleKeyDown = (event) => {
@@ -155,7 +154,6 @@ const Chart: FC = () => {
       }
     }
   };
-
 
   useEffect(() => {
     const updateWidth = () => {
@@ -248,23 +246,24 @@ const Chart: FC = () => {
 
   useEffect(() => {
     const fetchWrapper = async () => {
-      const { stockDataSeries, tempDataArray, Volume, timeIndex } =
-        await fetchStockData(symbol, interval, start, end)
+      let { stockDataSeries, tempDataArray, Volume, timeIndex } = await fetchStockData(symbol, interval, start, end)
       setData(stockDataSeries)
       setTempData(tempDataArray)
       setVolume(Volume)
       setTimeIndexArray(timeIndex)
     }
+
     fetchWrapper().catch(e => {
       console.log(e)
     })
+
   }, [])
  
   useEffect(() => {
     const fetchWrapper = async () => {
       setLoading(true);
       try {
-        const { stockDataSeries, tempDataArray, Volume, timeIndex } = await fetchStockData(symbol, interval, start, end)
+        let { stockDataSeries, tempDataArray, Volume, timeIndex } = await fetchStockData(symbol, interval, start, end)
         const companyName = await fetchCompanyData(symbol)
         setCompanyData(companyName)
         setData(stockDataSeries)
@@ -272,6 +271,7 @@ const Chart: FC = () => {
         setTimeIndexArray(timeIndex)
         setVolume(Volume)
         setLoading(true)
+
       } catch (err) {
         console.log('---Not found data---')
       } finally {
@@ -279,6 +279,30 @@ const Chart: FC = () => {
       }
     }
    
+    if(isAddStock) {
+      const fetchAddWrapper = async () => {
+        try {
+        const addStockDataSeries = await fetchStockData(addStockChart, interval, start, end);
+        setAddData(addStockDataSeries.stockDataSeries);
+        setAddVolume(addStockDataSeries.Volume);
+        } catch (err) {
+          console.log('----Not found addData---')
+        }
+      }
+      fetchAddWrapper();
+    } else {
+      const fetchAddWrapper = async () => {
+        try {
+        const addStockDataSeries = await fetchStockData('', interval, start, end);
+        setAddData(addStockDataSeries.stockDataSeries);
+        setAddVolume(addStockDataSeries.Volume);
+        } catch (err) {
+          console.log('----Not found addData---')
+        }
+      }
+      fetchAddWrapper();
+    }
+
     const fetchPrices = async () => {
       setLoading(true)
       try {
@@ -291,8 +315,11 @@ const Chart: FC = () => {
     }
     fetchWrapper();
     fetchPrices();
-  }, [symbol, interval, start, end])
+    
+  }, [symbol, interval, start, end, addStockChart])
 
+
+  
   useEffect(() => {
     switch (editType) {
       case 'trendline':
@@ -433,9 +460,13 @@ const Chart: FC = () => {
 
   const thicknessListhandler = (value) => {
     setThickness(value);
-    // setIsOpenthicknesslist(false);
   };
 
+  const addStockChartHandler = (addStockValue, isClicked) => {
+      setAddStockChart(addStockValue);
+      setIsAddStock(isClicked);
+  }
+  
  return (
     <div id='Chart' className={`pt-[36px] pl-[13px] pr-[50px]`}>
       <Spinner isLoading={loading} />
@@ -948,7 +979,6 @@ const Chart: FC = () => {
                 magnet={magnet}
                 handleTemplePoint={handleTemplePoint}
                 handleCrosshairMove={handleCrosshairMove}
-                lineSeries={lineSeries}
                 importLines={importLines}
                 handleSelectedLine={handleSelectedLine}
                 selectedLine={selectedLine}
@@ -965,6 +995,9 @@ const Chart: FC = () => {
                 selectDelete={selectDelete}
                 selectedToolType={selectedToolType}
                 thickness={thickness}
+                addData={addData}
+                addVolume={addVolume}
+                isAddStock={isAddStock}
               />
             </div>
             {/* !!!!! */}
@@ -1094,7 +1127,13 @@ const Chart: FC = () => {
         {/* Watchlist------ */}
 
         <div className='bg-white border-l-[2px] border-l-grey'>
-          <WatchList addStockfromheader={addStock}/>
+          <WatchList 
+            addStockfromheader={addStock}
+            addStockChartHandler={ addStockChartHandler}
+            symbol={symbol}
+            isAddStock={isAddStock}
+            
+          />
         </div>
         {/* -----Watchlist */}
       </div>

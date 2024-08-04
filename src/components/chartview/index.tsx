@@ -271,6 +271,9 @@ export const ChartComponent = (props: any) => {
     templeWidth,
     selectedToolType,
     thickness,
+    addData,
+    addVolume,
+    isAddStock,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -280,15 +283,10 @@ export const ChartComponent = (props: any) => {
     } = {},
   } = props
 
-  const colorJSON = {
-    red: '#FF0000',
-    green: '#00FF00',
-    blue: '#0000FF',
-  }
-
   const chartContainerRef = useRef<IChartApi | null>(null)
   const chart = useRef<IChartApi | null>(null)
   const candleStickSeries = useRef<ISeriesApi<'Candlestick'> | null>(null)
+  const addCandleStickSeries = useRef <ISeriesApi<'Candlestick'> | null>(null)
   const [calloutPointLineSeries, setCalloutPointLineSeries] =
     useState<ILineToolApi<'Callout'>>()
   const [priorSelectDelete, setPriorSelectDelete] =
@@ -421,20 +419,30 @@ export const ChartComponent = (props: any) => {
       height: 800,
     })
 
-    if (lineSeries == 'candlestick') {
-      candleStickSeries.current = chart.current.addCandlestickSeries({
-        upColor: '#000000',
-        downColor: '#000000',
-      })
-    } else if (lineSeries == 'bar') {
-      candleStickSeries.current = chart.current.addBarSeries({
-        upColor: '#000000',
-        downColor: '#000000',
-      })
-    }
+    // candleStickSeries.current = chart.current.addCandlestickSeries({
+    //   upColor: '#000000',
+    //   downColor: '#000000',
+    // })
+    
+    candleStickSeries.current = chart.current.addBarSeries({
+      upColor: '#000000',
+      downColor: '#000000',
+    })
     candleStickSeries.current.setData(data)
+    
+    if(isAddStock) {
+      if(addData !== null) {
+        addCandleStickSeries.current = chart.current.addBarSeries({
+          upColor: '#de2626',
+          downColor: '#de2626',
+        })
+  
+        addCandleStickSeries.current.setData(addData);
+      }
+    }
+   
     const volumeSeries = chart.current.addHistogramSeries({
-      color: '#00FF00',
+      color: '#7685AA',
       priceFormat: {
         type: 'volume',
       },
@@ -453,6 +461,31 @@ export const ChartComponent = (props: any) => {
     })
 
     volumeSeries.setData(volume)
+    
+    if(isAddStock) {
+      if(addVolume !== null) {
+        const addVolumeSeries = chart.current.addHistogramSeries({
+          color: '#e1101d6b',
+          priceFormat: {
+            type: 'volume',
+          },
+          priceScaleId: 'left',
+          scaleMargins: {
+            top: 0.7,
+            bottom: 0,
+          },
+        })
+        
+        addVolumeSeries.priceScale().applyOptions({
+          scaleMargins: {
+            top: 0.75,
+            bottom: 0,
+          },
+        })    
+    
+        addVolumeSeries.setData(addVolume);
+      }
+    }
 
     chart.current.timeScale().setVisibleLogicalRange({
       from: data.length - 50,
@@ -480,14 +513,16 @@ export const ChartComponent = (props: any) => {
   }, [
     data,
     volume,
-    lineSeries,
     backgroundColor,
     lineColor,
     textColor,
     areaTopColor,
     areaBottomColor,
+    addData,
+    addVolume,
+    isAddStock,
   ])
-
+ 
   useEffect(() => {
     const fetchWrapper = async () => {
       if (indicatorArray.length > 0) {
@@ -539,7 +574,6 @@ export const ChartComponent = (props: any) => {
   useEffect(() => {
     if(selectedLine !== '[]' && selectedLine && selectedToolType !== null) {
       let selectedLineTextJSON = JSON.parse(selectedLine)
-      console.log(selectedLineTextJSON);
       if(selectedToolType !== "label" && selectedToolType !== "Circle" && selectedToolType !== "PriceRange") {
         chart.current.applyLineToolOptions({
           ...selectedLineTextJSON[0],
