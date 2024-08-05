@@ -436,12 +436,21 @@ const Chart: FC = () => {
     handleClose(true);
   }
 
+  // const indicatorButtonSelect = (value) => {
+  //   let nextIndicatorArray = indicatorArray.includes(value)
+  //     ? indicatorArray.filter(e => e != value)
+  //     : [...indicatorArray, value]
+  //   setIndicatorArray(nextIndicatorArray)
+  // }
+
   const indicatorButtonSelect = (value) => {
-    let nextIndicatorArray = indicatorArray.includes(value)
-      ? indicatorArray.filter(e => e != value)
-      : [...indicatorArray, value]
-    setIndicatorArray(nextIndicatorArray)
-  }
+    const isValueInArray = indicatorArray.includes(value);
+  
+    const nextIndicatorArray = isValueInArray
+      ? indicatorArray.filter(e => e !== value)  // Remove the value
+      : [...indicatorArray, value];             // Add the value
+    setIndicatorArray(nextIndicatorArray);
+  };
   
   const horizontalKeyDown = (e) => {
     if(e.key === 'Enter') {

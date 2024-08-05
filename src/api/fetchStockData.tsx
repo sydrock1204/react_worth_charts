@@ -20,7 +20,6 @@ export const fetchStockData = async (symbol: string, interval: string, start: Da
   const endDate = formatDate(new Date(end))
 
   const rawData = await fetchData(symbol, interval)
-  console.log('---responseData---',rawData);
   const result = {};
   for (const date in rawData ) {
     if (date >= startDate && date <=endDate) {
