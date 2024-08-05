@@ -137,6 +137,8 @@ const Chart: FC = () => {
   const [isAddStock, setIsAddStock] = useState<Boolean>(false)
   const selectDataRef = useRef(null);
   const draggableRef = useRef(null);
+  const timeFrameRef = useRef(null);
+  const indicatorRef = useRef(null);
 
   const handleFocus = () => setIsSearchModalOpen(true);
   const handleClose = () => setIsSearchModalOpen(false);
@@ -492,10 +494,26 @@ const Chart: FC = () => {
     }
   };
 
+  const timeFrameClickOutside = (event) => {
+    if(timeFrameRef.current && !timeFrameRef.current.contains(event.target)) {
+      setIsVisibleDaily(false);
+    }
+  }
+
+  const indicatorClickOutside = (event) => {
+    if(indicatorRef.current && !indicatorRef.current.contains(event.target)) {
+      setIsVisibleIndicator(false);
+    }
+  }
+
   useEffect(() => {
     document.addEventListener('mousedown', draggableClickOutside);
+    document.addEventListener('mousedown', timeFrameClickOutside);
+    document.addEventListener('mousedown', indicatorClickOutside);
     return () => {
       document.removeEventListener('mousedown', draggableClickOutside);
+      document.removeEventListener('mousedown', timeFrameClickOutside);
+      document.removeEventListener('mousedown', indicatorClickOutside);
     };
   }, []);
 
@@ -730,8 +748,6 @@ const Chart: FC = () => {
                   </div>
                 )}
               </div>
-              <div className="relative">
-              </div>
               <p
                 className={
                   ['1D','5D','1W', '1M','3M','6M','1Y','5Y'].includes(interval)
@@ -750,7 +766,10 @@ const Chart: FC = () => {
                 onClick={() => setIsVisibleDaily(!isVisibleDaily)}
               />
               {isVisibleDaily && (
-                <div className="flex flex-col top-12 gap-1 left-[340px] z-[11]">
+                <div 
+                  className="flex flex-col top-12 gap-1 left-[340px] z-[11]" 
+                  ref={timeFrameRef}
+                >
                   <button
                     className="w-24 bg-[#f9f9f9] text-red-600 rounded-md"
                     onClick={() => {
@@ -842,7 +861,10 @@ const Chart: FC = () => {
                   }}
                 />
                 {isVisibleIndicator && (
-                  <div className="flex flex-col top-12 gap-1 left-[520px] z-[11]">
+                  <div 
+                    className="flex flex-col top-12 gap-1 left-[520px] z-[11]"
+                    ref={indicatorRef}
+                  >
                     {indicators.map((value, index) => {
                       const buttonColor = indicatorArray.includes(value)
                         ? 'bg-gray4'
