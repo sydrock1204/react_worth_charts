@@ -292,6 +292,7 @@ export const ChartComponent = (props: any) => {
   const [priorSelectDelete, setPriorSelectDelete] =
     useState<boolean>(selectDelete)
   const width = useWindowWidth()
+  const existingSeries = useRef({});
 
   const getPointInformation = (param: MouseEventParams) => {
     if (!param.point) {
@@ -522,42 +523,52 @@ export const ChartComponent = (props: any) => {
     addVolume,
     isAddStock,
   ])
- 
+
   useEffect(() => {
     const fetchWrapper = async () => {
-      if (indicatorArray.length > 0) {
-        console.log('---indicatorArray--',indicatorArray);
-        const indicatorLineSeries = chart.current.addLineSeries({
-          color: '#2962FF',
-        })
-        const indifunction = indicatorArray[indicatorArray.length - 1]
-        const indicatorSeries = await fetchStockIndicator(
-          indifunction,
-          symbol,
-          interval,
-          20,
-          'high'
-        )
-     
-        const indicatorData = Object.entries(indicatorSeries)
-          .map((data, index) => {
-            const indiData = {
-              time: getTimeStamp(data[0]),
-              value: Number(data[1][indifunction]),
-            }
-            return indiData
-          })
-          .reverse()
-
-        indicatorLineSeries.setData(indicatorData)
+      try {
+        // Remove lines for indicators not in the new array
+        Object.keys(existingSeries.current).forEach((indicator) => {
+          if (!indicatorArray.includes(indicator)) {
+            chart.current.removeSeries(existingSeries.current[indicator]);
+            delete existingSeries.current[indicator];
+          }
+        });
+  
+        // Add or update lines for indicators in the new array
+        for (const indifunction of indicatorArray) {
+          if (!existingSeries.current[indifunction]) {
+            const indicatorLineSeries = chart.current.addLineSeries({
+              color: '#2962FF',
+            });
+            existingSeries.current[indifunction] = indicatorLineSeries;
+          }
+  
+          const indicatorSeries = await fetchStockIndicator(
+            indifunction,
+            symbol,
+            interval,
+            20,
+            'high'
+          );
+  
+          const indicatorData = Object.entries(indicatorSeries)
+            .map(([timestamp, values]) => ({
+              time: getTimeStamp(timestamp),
+              value: Number(values[indifunction]),
+            }))
+            .reverse();
+  
+          existingSeries.current[indifunction].setData(indicatorData);
+        }
+      } catch (e) {
+        console.error(e);
       }
-    }
-
-    fetchWrapper().catch(e => {
-      console.log(e)
-    })
-  }, [indicatorArray])
-
+    };
+  
+    fetchWrapper();
+  }, [indicatorArray]);
+  
    useEffect(() => {
     if (selectedLine !== '[]' && selectedLine) {
       let selectedLineTextJSON = JSON.parse(selectedLine)
