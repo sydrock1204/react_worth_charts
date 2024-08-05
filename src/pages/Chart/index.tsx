@@ -70,7 +70,7 @@ const Chart: FC = () => {
   const [editClickCounts, setEditClickCounts] = useState<number>(0)
   const [tempPoint, setTempPoint] = useState<Point | null>(null)
   const [symbol, setSymbol] = useState('AAPL')
-  const [interval, setInterval] = useState('daily')
+  const [interval, setInterval] = useState('1D')
   const [importLines, setImportLines] = useState<string>('')
   const [isVisibleDaily, setIsVisibleDaily] = useState<boolean>(false)
   const [isVisibleSelectDate, setIsVisibleSelectDate] = useState<boolean>(false)
@@ -135,7 +135,9 @@ const Chart: FC = () => {
   ];
   const [addStockChart, setAddStockChart] = useState<string>(null)
   const [isAddStock, setIsAddStock] = useState<Boolean>(false)
-  
+  const selectDataRef = useRef(null);
+  const draggableRef = useRef(null);
+
   const handleFocus = () => setIsSearchModalOpen(true);
   const handleClose = () => setIsSearchModalOpen(false);
   const handleKeyDown = (event) => {
@@ -437,7 +439,6 @@ const Chart: FC = () => {
       ? indicatorArray.filter(e => e != value)
       : [...indicatorArray, value]
     setIndicatorArray(nextIndicatorArray)
-    
   }
   
   const horizontalKeyDown = (e) => {
@@ -467,6 +468,37 @@ const Chart: FC = () => {
       setIsAddStock(isClicked);
   }
   
+  useEffect(() => {
+    document.addEventListener('mousedown', clickOutsideSelectData);
+    return () => {
+      document.removeEventListener('mousedown', clickOutsideSelectData);
+    };
+  }, []);
+
+  const clickOutsideSelectData = (event) => {
+    if(selectDataRef.current && !selectDataRef.current.contains(event.target)) {
+        setIsVisibleSelectDate(false)
+        setShowCalendar1(false)
+        setShowCalendar2(false)
+    }
+  }
+
+  const draggableClickOutside = (event) => {
+    if (draggableRef.current && !draggableRef.current.contains(event.target)) {
+      setIsTextcolor(false);
+      setIsLinecolor(false);
+      setIsBackgroundcolor(false);
+      setIsVerticalCalendar(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', draggableClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', draggableClickOutside);
+    };
+  }, []);
+
  return (
     <div id='Chart' className={`pt-[36px] pl-[13px] pr-[50px]`}>
       <Spinner isLoading={loading} />
@@ -530,7 +562,6 @@ const Chart: FC = () => {
                               )
                             }
                             {
-                              
                               suggestionList == undefined && (
                                 <div className='h-[470px] flex justify-center items-center text-center text-[24px] '>no data</div>
                               )
@@ -604,28 +635,30 @@ const Chart: FC = () => {
                 }}
               />
                 {isVisibleSelectDate && (
-                  <div className="flex flex-col gap-1 absolute mt-12 bg-white border border-gray-300 shadow-lg z-[11]" style={{zIndex: '34'}}>
+                  <div ref={selectDataRef} className="flex flex-col gap-1 absolute mt-12 bg-white border border-gray-300  z-[11]" style={{zIndex: '34'}}>
                     <div className="relative">
                       <div className='flex'>
-                        <div className='flex items-center'>
+                        <div className='flex items-center p-[5px]'>
                           <label>start</label>  
                         </div>
-                        <input
-                            type="text"
-                            value={startDate1 ? startDate1.toLocaleDateString() : ''}
-                            onClick={() => setShowCalendar1(!showCalendar1)}
-                            // readOnly
-                            placeholder="Select a date"
-                            className='w-[200px] border p-2 rounded'
-                        />
-                        <button
-                          className="absolute top-1 right-5 text-red-500 text-2xl hover:text-red-700"
-                          onClick={() => {
-                            setStartDate1(null)
-                          }}
-                        >
-                          &times;
-                        </button>
+                        <div className='p-[5px]'>
+                          <input
+                              type="text"
+                              value={startDate1 ? startDate1.toLocaleDateString() : ''}
+                              onClick={() => setShowCalendar1(!showCalendar1)}
+                              // readOnly
+                              placeholder="Select a date"
+                              className='w-[200px] border p-2 rounded'
+                          />
+                          <button
+                            className="absolute top-2 right-5 text-red-500 text-2xl hover:text-red-700"
+                            onClick={() => {
+                              setStartDate1(null)
+                            }}
+                          >
+                            &times;
+                          </button>
+                        </div>
                       </div>
                       {showCalendar1 && (
                           <DatePicker
@@ -641,25 +674,27 @@ const Chart: FC = () => {
                     </div>
                     <div className="relative">
                       <div className='flex'>
-                        <div className='flex items-center'>
+                        <div className='flex items-center p-[5px]'>
                           <label>End</label>
                         </div>
-                        <input
-                            type="text"
-                            value={startDate2 ? startDate2.toLocaleDateString() : ''}
-                            onClick={() => setShowCalendar2(!showCalendar2)}
-                            // readOnly
-                            placeholder="Select a date"
-                            className='w-[200px] border p-2 rounded'
-                        />
-                        <button
-                          className="absolute top-1 right-5 text-red-500 text-2xl hover:text-red-700"
-                          onClick={() => {
-                            setStartDate2(null)
-                          }}
-                        >
-                          &times;
-                        </button>
+                        <div className='p-[5px] ml-[1px]'>
+                          <input
+                              type="text"
+                              value={startDate2 ? startDate2.toLocaleDateString() : ''}
+                              onClick={() => setShowCalendar2(!showCalendar2)}
+                              // readOnly
+                              placeholder="Select a date"
+                              className='w-[200px] border p-2 rounded'
+                          />
+                          <button
+                            className="absolute top-2 right-5 text-red-500 text-2xl hover:text-red-700"
+                            onClick={() => {
+                              setStartDate2(null)
+                            }}
+                          >
+                            &times;
+                          </button>
+                        </div>
                       </div>
                       {showCalendar2 && (
                         <DatePicker
@@ -687,7 +722,11 @@ const Chart: FC = () => {
                           setStart(startDate1);
                           setEnd(startDate2);
                           setIsVisibleSelectDate(false)
-                      }}>submit</button>
+                        }}
+                        className='p-[5px] m-[5px] bg-gray-400 hover:bg-gray-200'
+                    >
+                      submit
+                    </button>
                   </div>
                 )}
               </div>
@@ -695,14 +734,14 @@ const Chart: FC = () => {
               </div>
               <p
                 className={
-                  ['daily', 'weekly', 'monthly'].includes(interval)
+                  ['1D','5D','1W', '1M','3M','6M','1Y','5Y'].includes(interval)
                     ? 'flex justify-center items-center w-[40px] cursor-pointer hover:bg-gray5 text-blue-700'
                     : 'flex justify-center items-center w-[40px] cursor-pointer hover:bg-gray5'
                 }
               >
-                {['daily', 'weekly', 'monthly'].includes(interval)
-                  ? interval.slice(0, 1).toUpperCase()
-                  : 'D'}
+                {['1D','5D','1W', '1M','3M','6M','1Y','5Y'].includes(interval)
+                  ? interval.slice(0, 2).toUpperCase()
+                  : '1D'}
               </p>
               <img
                 src={IntervalSvg}
@@ -715,31 +754,75 @@ const Chart: FC = () => {
                   <button
                     className="w-24 bg-[#f9f9f9] text-red-600 rounded-md"
                     onClick={() => {
-                      setInterval('daily')
+                      setInterval('1D')
                       setIsVisibleDaily(!isVisibleDaily)
                     }}
                   >
-                    Daily
+                    1D
                   </button>
                   <button
                     className="w-24 bg-[#f9f9f9] text-red-600 rounded-md"
                     onClick={() => {
-                      setInterval('weekly')
+                      setInterval('5D')
                       setIsVisibleDaily(!isVisibleDaily)
                     }}
                   >
-                    Weekly
+                    5D
                   </button>
                   <button
                     className="w-24 bg-[#f9f9f9] text-red-600 rounded-md"
                     onClick={() => {
-                      setInterval('monthly')
+                      setInterval('1W')
                       setIsVisibleDaily(!isVisibleDaily)
                     }}
                   >
-                    Monthly
+                    1W
                   </button>
-
+                  <button
+                    className="w-24 bg-[#f9f9f9] text-red-600 rounded-md"
+                    onClick={() => {
+                      setInterval('1M')
+                      setIsVisibleDaily(!isVisibleDaily)
+                    }}
+                  >
+                    1M
+                  </button>
+                  <button
+                    className="w-24 bg-[#f9f9f9] text-red-600 rounded-md"
+                    onClick={() => {
+                      setInterval('3M')
+                      setIsVisibleDaily(!isVisibleDaily)
+                    }}
+                  >
+                    3M
+                  </button>
+                  <button
+                    className="w-24 bg-[#f9f9f9] text-red-600 rounded-md"
+                    onClick={() => {
+                      setInterval('6M')
+                      setIsVisibleDaily(!isVisibleDaily)
+                    }}
+                  >
+                    6M
+                  </button>
+                  <button
+                    className="w-24 bg-[#f9f9f9] text-red-600 rounded-md"
+                    onClick={() => {
+                      setInterval('1Y')
+                      setIsVisibleDaily(!isVisibleDaily)
+                    }}
+                  >
+                    1Y
+                  </button>
+                  <button
+                    className="w-24 bg-[#f9f9f9] text-red-600 rounded-md"
+                    onClick={() => {
+                      setInterval('5Y')
+                      setIsVisibleDaily(!isVisibleDaily)
+                    }}
+                  >
+                    5Y
+                  </button>
                 </div>
               )}
 
@@ -848,7 +931,7 @@ const Chart: FC = () => {
                 </span>
               </div>
             </div>
-            <div className='flex mt-[5px] ml-[3px] z-30'>
+            <div className='flex mt-[5px] ml-[3px] z-30 w-[300px]'>
                 <div className='w-[70px] h-[37px] ml-[53px] mr-3 border rounded-md text-center align-center border-black pt-[7px]'>{bidPrice}</div>
                 <p className='pr-3 pt-3'>0.00</p>
                 <div className='w-[70px] h-[37px] border rounded-md text-center pt-2 border-blue-500 text-blue-800'>{askPrice}</div>
@@ -1003,7 +1086,7 @@ const Chart: FC = () => {
             {/* !!!!! */}
             { isLineSelected === true && (
               <Draggable defaultPosition={{ x: 300, y: 100 }}>
-                <div className="p-3 z-30 bg-white w-[340px] h-auto cursor-pointer border-[1px] border-black">
+                <div className="p-3 z-30 bg-white w-[340px] h-auto cursor-pointer border-[1px] border-black" ref={draggableRef} >
                   <div>
                     <CloseIcon onClick={modalcloseHandler} className='float-right text-xl' />
                   </div>
@@ -1077,7 +1160,9 @@ const Chart: FC = () => {
                     <div className='p-2'>
                       color
                       <div className='p-2 flex'>
-                       text: <div className='bg-green-400 w-[20px] h-[20px] rounded-md ml-[65px]' onClick={() => {setIsTextcolor(!isTextcolor); setIsLinecolor(false); setIsBackgroundcolor(false)}}/> 
+                       text: <div className="w-[20px] h-[20px] rounded-md ml-[65px]"
+                                style={{backgroundColor: selectTextColor.hex}} 
+                                onClick={() => {setIsTextcolor(!isTextcolor); setIsLinecolor(false); setIsBackgroundcolor(false)}}/> 
                       </div>
                       <div>
                         { isTextcolor &&(
@@ -1089,7 +1174,10 @@ const Chart: FC = () => {
                       {(selectedToolType !== 'Text') && (
                         <div>
                           <div className='p-2 flex'>
-                            line: <div className='bg-red-400 w-[20px] h-[20px] rounded-md ml-[65px]'onClick={() => {setIsLinecolor(!isLinecolor); setIsTextcolor(false);  setIsBackgroundcolor(false)}}/>
+                            line: <div 
+                                    className='bg-red-400 w-[20px] h-[20px] rounded-md ml-[65px]'
+                                    style={{backgroundColor: selectedLineColor.hex}}
+                                    onClick={() => {setIsLinecolor(!isLinecolor); setIsTextcolor(false);  setIsBackgroundcolor(false)}}/>
                           </div>
                           <div>
                             { isLinecolor && (
@@ -1103,7 +1191,10 @@ const Chart: FC = () => {
                       {(selectedToolType == 'Circle' || selectedToolType == 'PriceRange'|| selectedToolType == 'Callout') && (
                         <div>
                           <div className='p-2 flex'>
-                            background: <div className='bg-blue-400 w-[20px] h-[20px] rounded-md ml-[13px]'onClick={() => {setIsBackgroundcolor(!isBackgroundcolor); setIsTextcolor(false); setIsLinecolor(false)}}/>
+                            background: <div 
+                                          className='bg-blue-400 w-[20px] h-[20px] rounded-md ml-[13px]'
+                                          style={{backgroundColor: selectBackgroundColor.hex}}
+                                          onClick={() => {setIsBackgroundcolor(!isBackgroundcolor); setIsTextcolor(false); setIsLinecolor(false)}}/>
                           </div>
                           <div>
                             { isBackgroundcolor && (

@@ -526,6 +526,7 @@ export const ChartComponent = (props: any) => {
   useEffect(() => {
     const fetchWrapper = async () => {
       if (indicatorArray.length > 0) {
+        console.log('---indicatorArray--',indicatorArray);
         const indicatorLineSeries = chart.current.addLineSeries({
           color: '#2962FF',
         })
@@ -537,7 +538,7 @@ export const ChartComponent = (props: any) => {
           20,
           'high'
         )
-
+     
         const indicatorData = Object.entries(indicatorSeries)
           .map((data, index) => {
             const indiData = {
