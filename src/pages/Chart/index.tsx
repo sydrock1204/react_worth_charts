@@ -1,7 +1,7 @@
 import { FC, useState, useEffect, useRef } from 'react'
+import Draggable from 'react-draggable'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
-import Draggable from 'react-draggable'
 import {
   StockPriceData,
   VolumeData,
@@ -111,8 +111,8 @@ const Chart: FC = () => {
   const [keywords, setKeywords] = useState<string>('APPLE');
   const [suggestionList, setSuggestionList ] = useState<any>([]); 
   const [selectedIndex, setSelectedIndex] = useState(null);
-  const [startDate1, setStartDate1] = useState(null);
-  const [startDate2, setStartDate2] = useState(null);
+  const [startDate1, setStartDate1] = useState<Date | null>(new Date());
+  const [startDate2, setStartDate2] = useState<Date | null>(new Date());
   const [showCalendar1, setShowCalendar1] = useState(false);
   const [showCalendar2, setShowCalendar2] = useState(false);
   const [start, setStart] = useState(null);
@@ -146,7 +146,7 @@ const Chart: FC = () => {
 
   const handleFocus = () => setIsSearchModalOpen(true);
   
-  const handleClose = () => setIsSearchModalOpen(false);
+  const handleClose = (v) => setIsSearchModalOpen(false);
 
   const handleKeyDown = (event) => {
     if (event.key === 'ArrowDown') {
@@ -454,7 +454,7 @@ const Chart: FC = () => {
   
   const horizontalKeyDown = (e) => {
     if(e.key === 'Enter') {
-      setHorizontalPoint({price: horizontalValue, timestamp: "1718928000"});
+      setHorizontalPoint({price: horizontalValue, timestamp: 1718928000});
       e.preventDefault();
     }
   }
@@ -466,8 +466,8 @@ const Chart: FC = () => {
     const utcDateString = vdate.toISOString();
     const utcdate = new Date(utcDateString);
     const value = utcdate.getTime()/1000;
-    setUtcTimestamp(value);
-    setVerticalPoint({price: 200, timestamp: utcTimestamp})
+    setUtcTimestamp(String(value));
+    setVerticalPoint({price: 200, timestamp: Number(utcTimestamp)})
   }
 
   const thicknessListhandler = (value) => {
@@ -563,7 +563,8 @@ const Chart: FC = () => {
                 <div className="flex pt-[3px] pl-[8px]">    
                   <img src={MagnifierSvg} alt="magnifier" className="w-[20.06px]" />
                   <input 
-                    type="text" 
+                    type="text"
+                    title='Symbol Search' 
                     className='border-2 border-gray-500 rounded-lg h-[40px] w-[94px] p-[2px] text-center'
                     onFocus={handleFocus}
                     value={symbol}
@@ -581,22 +582,29 @@ const Chart: FC = () => {
                         <h2 className="text-xl font-bold mb-4">Symbol search</h2>
                         <div className='w-full'>
                           <input
+                            title='Symbol'
                             className="text-center w-full p-1 font-mono font-bold text-[15.6px] border-b-[2px] border-b-grey-500 border-t-[2px] border-t-grey-500"
                             value={keywords}
                             onInput={searchHandleChange}
                             type="text" 
                             onKeyDown={handleKeyDown}
                           />
+                            <ul>
                               <li 
                                 className=" hover:bg-gray-100 flex w-[100%] pt-[8px] pb-[8px] mt-[20px]"
                               >
                                 <p className='text-center w-1/2'>SYMBOL</p>  
                                 <p className='text-center w-1/2'>COMPANY NAME</p>
                               </li>
+                            </ul>
                             <ul className="w-full  h-[470px] overflow-y-auto">
                             {
                               suggestionList !== undefined && suggestionList.length > 0 && (
                                 suggestionList.map((item, index) => {
+                                  const keys = Object.keys(item);
+                                  if (keys.length < 2) {
+                                    return null;
+                                  }
                                   const firstKey = Object.keys(item)[0];
                                   const secondeKey = Object.keys(item)[1];
                                   return (
@@ -614,7 +622,7 @@ const Chart: FC = () => {
                             }
                             {
                               suggestionList == undefined && (
-                                <div className='h-[470px] flex justify-center items-center text-center text-[24px] '>no data</div>
+                                <li className='h-[470px] flex justify-center items-center text-center text-[24px] '>no data</li>
                               )
                             }
                             </ul>
@@ -765,10 +773,7 @@ const Chart: FC = () => {
                   </button>
                 </div>
               )}
-              <div style={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'center'}}>
+              <div className='flex flex-row justify-center'>
               <button>Select Date</button>
               <img
               src={IntervalSvg}
@@ -779,7 +784,7 @@ const Chart: FC = () => {
               }}
               />
                 {isVisibleSelectDate && (
-                  <div ref={selectDataRef} className="flex flex-col gap-1 absolute mt-12 bg-white border border-gray-300  z-[11]" style={{zIndex: '34'}}>
+                  <div ref={selectDataRef} className="flex flex-col gap-1 absolute mt-12 bg-white border border-gray-300  z-[34]">
                     <div className="relative">
                       <div className='flex'>
                         <div className='flex items-center p-[5px]'>
@@ -807,7 +812,7 @@ const Chart: FC = () => {
                       {showCalendar1 && (
                         <DatePicker
                           selected={startDate1}
-                          onChange={date => {
+                          onChange={(date: Date | null) => {
                               setStartDate1(date);
                               setShowCalendar1(false);
                           }}
@@ -843,7 +848,7 @@ const Chart: FC = () => {
                       {showCalendar2 && (
                         <DatePicker
                             selected={startDate2}
-                            onChange={date => {
+                            onChange={(date: Date | null) => {
                                 setStartDate2(date);
                                 setShowCalendar2(false);
                             }}
@@ -1163,7 +1168,7 @@ const Chart: FC = () => {
                         name='thickness'
                         label='thickness:'
                         options={thicknessOptions}
-                        value={thickness}
+                        value={String(thickness)}
                         isClearable={false}
                         setFieldValue={(field, value) => thicknessListhandler(value)}
                       />
@@ -1195,7 +1200,7 @@ const Chart: FC = () => {
                                 <div>
                                   <DatePicker
                                     selected={verticalDate}
-                                    onChange={(date) => verticalValueHandler(date)}
+                                    onChange={(date: Date | null) => verticalValueHandler(date)}
                                     inline
                                     className="absolute left-0 mt-2 z-[12]"
                                 />

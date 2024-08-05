@@ -416,7 +416,7 @@ export const ChartComponent = (props: any) => {
           bottom: 0,
         },
       },
-      width: templeWidth,
+      width: templeWidth-17,
       height: templeWidth*0.8
     })
 
