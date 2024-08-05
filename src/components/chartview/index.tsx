@@ -417,7 +417,7 @@ export const ChartComponent = (props: any) => {
         },
       },
       width: templeWidth,
-      height: 800,
+      height: templeWidth*0.8
     })
 
     // candleStickSeries.current = chart.current.addCandlestickSeries({
