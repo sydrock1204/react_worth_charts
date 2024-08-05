@@ -365,7 +365,7 @@ export const ChartComponent = (props: any) => {
       const newOptions = { ...options, crosshair: newCrosshair }
       chart.current?.applyOptions(newOptions)
     } else {
-      const newCrosshair = { ...crosshair, magnetThreshold: 14 }
+      const newCrosshair = { ...crosshair, magnetThreshold: 0 }
       const newOptions = { ...options, crosshair: newCrosshair }
       chart.current?.applyOptions(newOptions)
     }
@@ -568,8 +568,8 @@ export const ChartComponent = (props: any) => {
   
     fetchWrapper();
   }, [indicatorArray]);
-  
-   useEffect(() => {
+ 
+  useEffect(() => {
     if (selectedLine !== '[]' && selectedLine) {
       let selectedLineTextJSON = JSON.parse(selectedLine)
       chart.current.applyLineToolOptions({
@@ -810,19 +810,19 @@ export const ChartComponent = (props: any) => {
     chart.current.applyOptions({})
     
   }, [verticalPoint])
-
+  
   useEffect(() => {
     if (calloutPoint) {
       setCalloutPointLineSeries(
         chart.current?.addLineTool(
           'Callout',
           [calloutPoint.point1, calloutPoint.point2],
-          calloutDefaultOption
+          calloutDefaultOption,
         )
-      )
-    }
-
-    chart.current.applyOptions({})
+        )
+      chart.current?.removeSelectedLineTools();
+      }
+    chart.current?.applyOptions({})
   }, [calloutPoint])
 
   useEffect(() => {

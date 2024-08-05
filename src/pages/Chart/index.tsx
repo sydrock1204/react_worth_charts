@@ -135,13 +135,18 @@ const Chart: FC = () => {
   ];
   const [addStockChart, setAddStockChart] = useState<string>(null)
   const [isAddStock, setIsAddStock] = useState<Boolean>(false)
-  const selectDataRef = useRef(null);
-  const draggableRef = useRef(null);
-  const timeFrameRef = useRef(null);
-  const indicatorRef = useRef(null);
+  const selectDataRef = useRef(null)
+  const draggableRef = useRef(null)
+  const timeFrameRef = useRef(null)
+  const indicatorRef = useRef(null)
+  const textColorRef = useRef(null)
+  const lineColorRef = useRef(null)
+  const backgroundColorRef = useRef(null)
 
   const handleFocus = () => setIsSearchModalOpen(true);
+  
   const handleClose = () => setIsSearchModalOpen(false);
+
   const handleKeyDown = (event) => {
     if (event.key === 'ArrowDown') {
       setSelectedIndex((prevIndex) => 
@@ -359,6 +364,7 @@ const Chart: FC = () => {
           setCalloutPoint({ point1: startPoint, point2: tempPoint })
           setEditType('arrow')
           setStartPoint(tempPoint)
+          setIsLineSelected(false)
         }
         break
       case 'PriceRange':
@@ -436,13 +442,6 @@ const Chart: FC = () => {
     handleClose(true);
   }
 
-  // const indicatorButtonSelect = (value) => {
-  //   let nextIndicatorArray = indicatorArray.includes(value)
-  //     ? indicatorArray.filter(e => e != value)
-  //     : [...indicatorArray, value]
-  //   setIndicatorArray(nextIndicatorArray)
-  // }
-
   const indicatorButtonSelect = (value) => {
     const isValueInArray = indicatorArray.includes(value);
   
@@ -515,14 +514,38 @@ const Chart: FC = () => {
     }
   }
 
+  const textcolorClickOutside = (event) => {
+    if(textColorRef.current && !textColorRef.current.contains(event.target)) {
+      setIsTextcolor(false);
+    }
+  }
+
+  const linecolorClickOutside = (event) => {
+    if(lineColorRef.current && !lineColorRef.current.contains(event.target)) {
+      setIsLinecolor(false);
+    }
+  }
+
+  const backgroundcolorClickOutside = (event) => {
+    if(backgroundColorRef.current && !backgroundColorRef.current.contains(event.target)) {
+      setIsBackgroundcolor(false);
+    }
+  }
+
   useEffect(() => {
     document.addEventListener('mousedown', draggableClickOutside);
     document.addEventListener('mousedown', timeFrameClickOutside);
     document.addEventListener('mousedown', indicatorClickOutside);
+    document.addEventListener('mousedown', textcolorClickOutside);
+    document.addEventListener('mousedown', linecolorClickOutside);
+    document.addEventListener('mousedown', backgroundcolorClickOutside);
     return () => {
       document.removeEventListener('mousedown', draggableClickOutside);
       document.removeEventListener('mousedown', timeFrameClickOutside);
       document.removeEventListener('mousedown', indicatorClickOutside);
+      document.removeEventListener('mousedown', textcolorClickOutside);
+      document.removeEventListener('mousedown', linecolorClickOutside);
+      document.addEventListener('mousedown', backgroundcolorClickOutside);
     };
   }, []);
 
@@ -609,7 +632,7 @@ const Chart: FC = () => {
                 </div>
               </div>
             <div className="flex flex-row my-1">
-              <button
+              {/* <button
                 className={
                   interval == '15min'
                     ? 'w-[40px] cursor-pointer hover:bg-gray5 text-blue-700 text-16 text-black '
@@ -644,119 +667,7 @@ const Chart: FC = () => {
                 }}
               >
                 1h
-              </button>
-              <div>
-                
-              </div>
-              <div style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  justifyContent: 'center'}}>
-                <button>select Date</button>
-                <img
-                src={IntervalSvg}
-                alt=''
-                className="cursor-pointer hover:bg-gray5"
-                onClick={() => {
-                  setIsVisibleSelectDate(!isVisibleSelectDate)
-                }}
-              />
-                {isVisibleSelectDate && (
-                  <div ref={selectDataRef} className="flex flex-col gap-1 absolute mt-12 bg-white border border-gray-300  z-[11]" style={{zIndex: '34'}}>
-                    <div className="relative">
-                      <div className='flex'>
-                        <div className='flex items-center p-[5px]'>
-                          <label>start</label>  
-                        </div>
-                        <div className='p-[5px]'>
-                          <input
-                              type="text"
-                              value={startDate1 ? startDate1.toLocaleDateString() : ''}
-                              onClick={() => setShowCalendar1(!showCalendar1)}
-                              // readOnly
-                              placeholder="Select a date"
-                              className='w-[200px] border p-2 rounded'
-                          />
-                          <button
-                            className="absolute top-2 right-5 text-red-500 text-2xl hover:text-red-700"
-                            onClick={() => {
-                              setStartDate1(null)
-                            }}
-                          >
-                            &times;
-                          </button>
-                        </div>
-                      </div>
-                      {showCalendar1 && (
-                          <DatePicker
-                              selected={startDate1}
-                              onChange={date => {
-                                  setStartDate1(date);
-                                  setShowCalendar1(false);
-                              }}
-                              inline
-                              className="absolute left-0 mt-2 z-[12]"
-                          />
-                      )}
-                    </div>
-                    <div className="relative">
-                      <div className='flex'>
-                        <div className='flex items-center p-[5px]'>
-                          <label>End</label>
-                        </div>
-                        <div className='p-[5px] ml-[1px]'>
-                          <input
-                              type="text"
-                              value={startDate2 ? startDate2.toLocaleDateString() : ''}
-                              onClick={() => setShowCalendar2(!showCalendar2)}
-                              // readOnly
-                              placeholder="Select a date"
-                              className='w-[200px] border p-2 rounded'
-                          />
-                          <button
-                            className="absolute top-2 right-5 text-red-500 text-2xl hover:text-red-700"
-                            onClick={() => {
-                              setStartDate2(null)
-                            }}
-                          >
-                            &times;
-                          </button>
-                        </div>
-                      </div>
-                      {showCalendar2 && (
-                        <DatePicker
-                            selected={startDate2}
-                            onChange={date => {
-                                setStartDate2(date);
-                                setShowCalendar2(false);
-                            }}
-                            inline
-                            className="absolute left-0 mt-2 z-[12]"
-                        />
-                      )}
-                    </div>
-                      <button onClick={() => {
-                        if(startDate1 !== null || startDate2 !== null) {
-                            if(interval === '15min' || interval === '30min' || interval === '60min') {
-                              alert('Not support function!')
-                              return;
-                            }
-                            if(startDate1 >= startDate2) {
-                              alert('error! start should be before that end date');
-                              return;
-                            }
-                          }
-                          setStart(startDate1);
-                          setEnd(startDate2);
-                          setIsVisibleSelectDate(false)
-                        }}
-                        className='p-[5px] m-[5px] bg-gray-400 hover:bg-gray-200'
-                    >
-                      submit
-                    </button>
-                  </div>
-                )}
-              </div>
+              </button> */}
               <p
                 className={
                   ['1D','5D','1W', '1M','3M','6M','1Y','5Y'].includes(interval)
@@ -776,7 +687,7 @@ const Chart: FC = () => {
               />
               {isVisibleDaily && (
                 <div 
-                  className="flex flex-col top-12 gap-1 left-[340px] z-[11]" 
+                  className="flex flex-col top-12 gap-1 left-[340px] z-[40]" 
                   ref={timeFrameRef}
                 >
                   <button
@@ -853,7 +764,115 @@ const Chart: FC = () => {
                   </button>
                 </div>
               )}
-
+              <div style={{
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center'}}>
+              <button>Select Date</button>
+              <img
+              src={IntervalSvg}
+              alt=''
+              className="cursor-pointer hover:bg-gray5"
+              onClick={() => {
+                setIsVisibleSelectDate(!isVisibleSelectDate)
+              }}
+              />
+                {isVisibleSelectDate && (
+                  <div ref={selectDataRef} className="flex flex-col gap-1 absolute mt-12 bg-white border border-gray-300  z-[11]" style={{zIndex: '34'}}>
+                    <div className="relative">
+                      <div className='flex'>
+                        <div className='flex items-center p-[5px]'>
+                          <label>Start</label>  
+                        </div>
+                        <div className='p-[5px]'>
+                          <input
+                              type="text"
+                              value={startDate1 ? startDate1.toLocaleDateString() : ''}
+                              onClick={() => setShowCalendar1(!showCalendar1)}
+                              // readOnly
+                              placeholder="Select a date"
+                              className='w-[200px] border p-2 rounded'
+                          />
+                          <button
+                            className="absolute top-2 right-5 text-red-500 text-2xl hover:text-red-700"
+                            onClick={() => {
+                              setStartDate1(null)
+                            }}
+                          >
+                            &times;
+                          </button>
+                        </div>
+                      </div>
+                      {showCalendar1 && (
+                        <DatePicker
+                          selected={startDate1}
+                          onChange={date => {
+                              setStartDate1(date);
+                              setShowCalendar1(false);
+                          }}
+                          inline
+                          className="absolute left-0 mt-2 z-[12]"
+                        />
+                      )}
+                    </div>
+                    <div className="relative">
+                      <div className='flex'>
+                        <div className='flex items-center p-[5px]'>
+                          <label>End</label>
+                        </div>
+                        <div className='p-[5px] ml-[1px]'>
+                          <input
+                              type="text"
+                              value={startDate2 ? startDate2.toLocaleDateString() : ''}
+                              onClick={() => setShowCalendar2(!showCalendar2)}
+                              // readOnly
+                              placeholder="Select a date"
+                              className='w-[200px] border p-2 rounded'
+                          />
+                          <button
+                            className="absolute top-2 right-5 text-red-500 text-2xl hover:text-red-700"
+                            onClick={() => {
+                              setStartDate2(null)
+                            }}
+                          >
+                            &times;
+                          </button>
+                        </div>
+                      </div>
+                      {showCalendar2 && (
+                        <DatePicker
+                            selected={startDate2}
+                            onChange={date => {
+                                setStartDate2(date);
+                                setShowCalendar2(false);
+                            }}
+                            inline
+                            className="absolute left-0 mt-2 z-[12]"
+                        />
+                      )}
+                    </div>
+                      <button onClick={() => {
+                        if(startDate1 !== null || startDate2 !== null) {
+                            if(interval === '15min' || interval === '30min' || interval === '60min') {
+                              alert('Not support function!')
+                              return;
+                            }
+                            if(startDate1 >= startDate2) {
+                              alert('error! start should be before that end date');
+                              return;
+                            }
+                          }
+                          setStart(startDate1);
+                          setEnd(startDate2);
+                          setIsVisibleSelectDate(false)
+                        }}
+                        className='p-[5px] m-[5px] bg-gray-400 hover:bg-gray-200'
+                    >
+                      submit
+                    </button>
+                  </div>
+                )}
+              </div>
               <div className="w-2 border-r-2 border-b-gray-800" />
               <div className='flex'>
                 <img
@@ -900,7 +919,7 @@ const Chart: FC = () => {
                   indicatorButtonSelect('SMA')
                 }}
               />
-              <p className='pt-1'>indicators</p>
+              <p className='pt-1'>Indicators</p>
               </div>
             </div>
             <div className='bg-gray-300 w-[50px] ml-auto'></div>
@@ -1197,7 +1216,7 @@ const Chart: FC = () => {
                       </div>
                       <div>
                         { isTextcolor &&(
-                          <div onMouseDown={preventDrag} > 
+                          <div onMouseDown={preventDrag} ref={textColorRef}> 
                             <ColorPicker color={selectTextColor} onChange={setSelectTextColor} />
                           </div>
                         )}
@@ -1212,7 +1231,7 @@ const Chart: FC = () => {
                           </div>
                           <div>
                             { isLinecolor && (
-                              <div onMouseDown={preventDrag}> 
+                              <div onMouseDown={preventDrag} ref={lineColorRef}> 
                                 <ColorPicker color={selectedLineColor} onChange={setSelectedLineColor} />
                               </div>
                             )}
@@ -1229,7 +1248,7 @@ const Chart: FC = () => {
                           </div>
                           <div>
                             { isBackgroundcolor && (
-                              <div onMouseDown={preventDrag}> 
+                              <div onMouseDown={preventDrag} ref={backgroundColorRef}> 
                                 <ColorPicker color={selectBackgroundColor} onChange={setselectBackgroundColor} />
                               </div>
                             )}
