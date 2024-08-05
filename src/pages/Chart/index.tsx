@@ -135,6 +135,7 @@ const Chart: FC = () => {
   ];
   const [addStockChart, setAddStockChart] = useState<string>(null)
   const [isAddStock, setIsAddStock] = useState<Boolean>(false)
+  const [isIndicator, setIsIndicator] = useState<Boolean>(false)
   const selectDataRef = useRef(null)
   const draggableRef = useRef(null)
   const timeFrameRef = useRef(null)
@@ -913,10 +914,11 @@ const Chart: FC = () => {
               <div className="w-1 border-r-2 border-b-gray-800" />
               <img
                 src={IndicatorsSvg}
-                className="cursor-pointer hover:bg-gray5"
+                className={`cursor-pointer hover:bg-gray5 ${isIndicator && 'bg-gray-200'}`}
                 alt=''
                 onClick={() => {
                   indicatorButtonSelect('SMA')
+                  setIsIndicator(!isIndicator)
                 }}
               />
               <p className='pt-1'>Indicators</p>
