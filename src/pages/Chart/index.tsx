@@ -562,7 +562,6 @@ const Chart: FC = () => {
                               )
                             }
                             {
-                              
                               suggestionList == undefined && (
                                 <div className='h-[470px] flex justify-center items-center text-center text-[24px] '>no data</div>
                               )

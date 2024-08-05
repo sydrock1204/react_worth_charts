@@ -538,7 +538,7 @@ export const ChartComponent = (props: any) => {
           20,
           'high'
         )
-        console.log(indicatorSeries);
+     
         const indicatorData = Object.entries(indicatorSeries)
           .map((data, index) => {
             const indiData = {
