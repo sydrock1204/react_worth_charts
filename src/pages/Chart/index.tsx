@@ -551,10 +551,10 @@ const Chart: FC = () => {
   }, []);
 
  return (
-    <div id='Chart' className={`pt-[36px] pl-[13px] pr-[50px]`}>
+    <div id='Chart' className="pt-[36px] pl-[13px] pr-[50px]">
       <Spinner isLoading={loading} />
       {/* main chart---- */}
-      <div className='flex flex-row justify-between w-full bg-white h-[895px] '>
+      <div className="flex flex-row justify-between w-full bg-white" style={{height: `${templeWidth * 0.8 + 100}px`}}>
         {/* main chartView ---- */}
         <div className='flex-1'>
           {/* header bar ------- */}
@@ -1275,7 +1275,6 @@ const Chart: FC = () => {
             addStockChartHandler={ addStockChartHandler}
             symbol={symbol}
             isAddStock={isAddStock}
-            
           />
         </div>
         {/* -----Watchlist */}
