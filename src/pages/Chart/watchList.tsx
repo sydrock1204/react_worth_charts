@@ -275,10 +275,11 @@ export const WatchList = (props : any) => {
                             .toString() + '%'}
                       </div>
                       <button
+                        aria-label="Delete Stock"
                         className="ml-2 p-1 bg-gray4 rounded-sm"
                         onClick={() => deleteStock(header, stock)}
                       >
-                        <img src={RecycleBinSvg} width={15} alt=''/>
+                        <img src={RecycleBinSvg} width={15} alt='Recycle Bin'/>
                       </button>
                     </div>
                   )
@@ -308,6 +309,7 @@ export const WatchList = (props : any) => {
                   className="flex w-4/5 place-items-center border border-gray2"
                   onChange={e => setAddStock(e.target.value)}
                   value={addStock}
+                  title="addStock"
                 ></input>
               </div>
               <div className="flex flex-column">
