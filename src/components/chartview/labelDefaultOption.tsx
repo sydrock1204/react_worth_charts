@@ -6,10 +6,10 @@ import {
 
 export const labelDefaultOption = {
   text: {
-    value: 'Text Line Tool, below is highlighter',
+    value: '',
     alignment: TextAlignment.Left,
     font: {
-      color: 'rgba(255,255,255,1)',
+      color: 'black',
       size: 14,
       bold: false,
       italic: false,
@@ -39,20 +39,20 @@ export const labelDefaultOption = {
           y: 0,
         },
       },
-      border: {
-        color: 'rgba(126,211,33,1)',
-        width: 4,
-        radius: 0,
-        highlight: false,
-        style: 0,
-      },
-      background: {
-        color: 'rgba(153,27,27,1)',
-        inflation: {
-          x: 10,
-          y: 10,
-        },
-      },
+      // border: {
+      //   color: 'rgba(126,211,33,1)',
+      //   width: 4,
+      //   radius: 0,
+      //   highlight: false,
+      //   style: 0,
+      // },
+      // background: {
+      //   color: 'rgba(153,27,27,1)',
+      //   inflation: {
+      //     x: 10,
+      //     y: 10,
+      //   },
+      // },
     },
     padding: 0,
     wordWrapWidth: 0,

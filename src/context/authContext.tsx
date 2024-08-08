@@ -1,104 +1,3 @@
-// import React, { createContext, useContext, useEffect, useState } from 'react'
-// // import { useNavigate } from 'react-router-dom'
-// import { User, Session } from '@supabase/auth-helpers-react'
-// import { UserInfo } from '../utils/typing'
-// import { supabase } from './supabase'
-
-// interface AuthContextProps {
-//   session: Session | null
-//   user: User | null
-//   userInfo: UserInfo
-//   users: UserInfo[]
-//   signUpHandler: null | ((e: string, p: string) => {})
-//   signInHandler: null | ((e: string, p: string) => void)
-//   signOutHandler: null | (() => void)
-//   loadUsers: () => void
-// }
-
-// export const AuthContext = createContext<AuthContextProps>({
-//   session: null,
-//   user: null,
-//   userInfo: {} as UserInfo,
-//   users: [],
-//   signInHandler: (e: string, p: string) => {},
-//   signOutHandler: () => {},
-//   loadUsers: () => {},
-//   signUpHandler: (e: string, p: string) => null,
-// })
-
-// export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-//   const [session, setSession] = useState<Session | null>(null)
-//   const [user, setUser] = useState<User | null>(null)
-//   const [userInfo, setUserInfo] = useState<UserInfo>({} as UserInfo)
-//   const [users, setUsers] = useState<UserInfo[]>([])
-
-//   const signInHandler = async (email: string, password: string) => {
-//     console.log('signInHandler')
-//     const { data, error } = await supabase.auth.signInWithPassword({
-//       email: email,
-//       password: password,
-//     })
-//     if (!data.user) {
-//       return
-//     }
-//     setSession(data.session)
-//     setUser(data.user)
-//   }
-
-//   const signOutHandler = async () => {
-//     const { error } = await supabase.auth.signOut()
-//     if (error) {
-//       return
-//     }
-//     setUser(null)
-//     setSession(null)
-//     setUserInfo({} as UserInfo)
-//   }
-
-//   const signUpHandler = async (email: string, password: string) => {
-//     // console.log('email: ', email, 'string: ', password)
-//     const { error } = await supabase.auth.signUp({
-//       email: email,
-//       password: password,
-//     })
-
-//     return error
-//     console.log(error)
-//   }
-
-//   const loadUsers = async () => {
-//     supabase.auth.getUser().then(data => {
-//       console.log('userData: ', data)
-//       setUser(data.data.user)
-//     })
-//   }
-
-//   useEffect(() => {
-//     if (!session) {
-//       loadUsers()
-//     }
-//   }, [session])
-
-//   return (
-//     <AuthContext.Provider
-//       value={{
-//         user,
-//         session,
-//         userInfo,
-//         users,
-//         signInHandler,
-//         signOutHandler,
-//         loadUsers,
-//         signUpHandler,
-//       }}
-//     >
-//       {children}
-//     </AuthContext.Provider>
-//   )
-// }
-
-// export const useAuthContext = () => useContext(AuthContext)
-
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session } from '@supabase/auth-helpers-react'
 import { UserInfo } from '../utils/typing'
@@ -136,14 +35,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isLoading, setIsLoading] = useState<boolean>(true) // State to track loading
 
   const signInHandler = async (email: string, password: string) => {
-    console.log('signInHandler')
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
     })
+  
     if (!data.user) {
       return
     }
+
     setSession(data.session)
     setUser(data.user)
   }
@@ -168,15 +69,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const loadUsers = async () => {
-    setIsLoading(true) // Set loading to true before fetching data
+    setIsLoading(true) 
     supabase.auth
       .getUser()
       .then(data => {
-        console.log('userData: ', data)
         setUser(data.data.user)
-        setIsLoading(false) // Set loading to false after fetching data
+        setIsLoading(false) 
       })
-      .catch(() => setIsLoading(false)) // Ensure loading is set to false on error
+      .catch(() => setIsLoading(false)) 
+
+    supabase.auth
+      .getSession()
+      .then(data => {
+        setSession(data.data.session)
+        setIsLoading(false)
+      })
+      .catch(() => {
+        setIsLoading(false)
+      })
   }
 
   useEffect(() => {
@@ -196,7 +106,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         signOutHandler,
         loadUsers,
         signUpHandler,
-        isLoading, // Provide loading state through context
+        isLoading,
       }}
     >
       {children}

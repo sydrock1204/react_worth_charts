@@ -6,7 +6,7 @@ import {
 
 export const calloutDefaultOption = {
   text: {
-    value: 'callout tool text',
+    value: '',
     alignment: TextAlignment.Left,
     font: {
       color: 'rgba(255,255,255,1)',
@@ -41,7 +41,7 @@ export const calloutDefaultOption = {
       },
       border: {
         color: 'rgba(74,144,226,1)',
-        width: 4,
+        width: 2,
         radius: 10,
         highlight: false,
         style: 0,
@@ -61,7 +61,7 @@ export const calloutDefaultOption = {
   },
   line: {
     color: 'rgba(74,144,226,1)',
-    width: 1,
+    width: 2,
     style: 0,
     end: {
       left: 1,
