@@ -17,6 +17,7 @@ import { BaseSelect } from '../../components/common/BaseSelect'
 import { WatchList } from './watchList'
 import RemoveSvg from '../../assets/icons/Remove.png'
 import allRemoveSvg from '../../assets/icons/allRemoveSvg.png'
+import toolSvg from '../../assets/icons/tools.svg'
 import {
   ArrowSvg,
   ArrowSelectedSvg,
@@ -48,10 +49,10 @@ import { ColorPicker, useColor } from "react-color-palette";
 import "react-color-palette/css";
 import { fetchCompanyName } from '../../api/fetchCompanyName'
 import Modal from 'react-modal';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+// import DatePicker from 'react-datepicker';
+// import 'react-datepicker/dist/react-datepicker.css';
 import CloseIcon from '@mui/icons-material/Close';
-
+import { DatePicker } from "@nextui-org/date-picker";
 
 const Chart: FC = () => {
   const [data, setData] = useState<StockPriceData[]>([])
@@ -123,7 +124,7 @@ const Chart: FC = () => {
   const [verticalDate, setVerticalDate] = useState(null)
   const [horizontalValue, setHorizontalValue] = useState(null); 
   const [utcTimestamp, setUtcTimestamp] = useState("1718928000");
-  const [thickness, setThickness] = useState(1);
+  const [thickness, setThickness] = useState(2);
   const [isTextcolor, setIsTextcolor] = useState(false);
   const [isLinecolor, setIsLinecolor] = useState(false);
   const [isBackgroundcolor, setIsBackgroundcolor] = useState(false);
@@ -146,7 +147,8 @@ const Chart: FC = () => {
   const textColorRef = useRef(null)
   const lineColorRef = useRef(null)
   const backgroundColorRef = useRef(null)
-  
+  const [isToolbarSelect, setIsToolbarSelect] = useState<Boolean>(false)
+  const [IndicatorLoading, setIndicatorLoading] = useState<Boolean>(false);
   const handleFocus = () => setIsSearchModalOpen(true);
   
   const handleClose = (v) => setIsSearchModalOpen(false);
@@ -341,8 +343,6 @@ const Chart: FC = () => {
     fetchPrices();
     
   }, [symbol, interval, start, end, addStockChart])
-
-
   
   useEffect(() => {
     switch (editType) {
@@ -492,8 +492,6 @@ const Chart: FC = () => {
       setAddStockChart(addStockValue);
       setIsAddStock(isClicked);
   }
-  
-
 
   const clickOutsideSelectData = (event) => {
     if(selectDataRef.current && !selectDataRef.current.contains(event.target)) {
@@ -560,6 +558,34 @@ const Chart: FC = () => {
       document.removeEventListener('mousedown', clickOutsideSelectData);
     };
   }, []);
+
+  const handleStartDate = (date ) => {
+    const { year, month, day } = date;
+    const jsDate = new Date(year, month - 1, day);
+    setStartDate1(jsDate);
+  }
+
+  const handleEndDate = (date) => {
+    const { year, month, day } = date;
+    const jsDate = new Date(year, month - 1, day);
+    setStartDate2(date);
+  }
+
+  const loadingHandler = (value) => {
+    if(value === true) {
+      setIndicatorLoading(true)
+    } else {
+      setIndicatorLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if(IndicatorLoading === true) {
+      setLoading(true)
+    } else {
+      setLoading(false)
+    }
+  },[IndicatorLoading])
 
  return (
     <div id='Chart' className="pt-[36px] pl-[13px] pr-[50px]">
@@ -699,7 +725,7 @@ const Chart: FC = () => {
                   ? interval.slice(0, 2).toUpperCase()
                   : '1D'}
               </p>
-              <div ref={timeFrameRef} className='z-[50]'>
+              <div ref={timeFrameRef} className='z-[40]'>
                 <img
                   src={IntervalSvg}
                   alt=''
@@ -806,76 +832,30 @@ const Chart: FC = () => {
                       <div className="relative">
                         <div className='flex'>
                           <div className='flex items-center p-[5px]'>
-                            <label>Start</label>  
-                          </div>
-                          <div className='p-[5px]'>
-                            <input
-                                type="text"
-                                value={startDate1 ? startDate1.toLocaleDateString() : ''}
-                                onClick={() => setShowCalendar1(!showCalendar1)}
-                                // readOnly
-                                placeholder="Select a date"
-                                className='w-[200px] border p-2 rounded'
-                            />
-                            <button
-                              className="absolute top-2 right-5 text-red-500 text-2xl hover:text-red-700"
-                              onClick={() => {
-                                setStartDate1(null)
+                            <DatePicker 
+                              label="First"
+                              className='border border-gray-300 rounded-md w-[140px]'
+                              classNames={{
+                                calendar: "bg-white border border-gray-300 ",
                               }}
-                            >
-                              &times;
-                            </button>
+                              onChange={handleStartDate}
+                            />  
                           </div>
                         </div>
-                      {showCalendar1 && (
-                          <DatePicker
-                            selected={startDate1}
-                            onChange={(date: Date | null) => {
-                                setStartDate1(date);
-                                setShowCalendar1(false);
-                            }}
-                            inline
-                            className="absolute left-0 mt-2 z-[12]"
-                          />
-                        )} 
-                      </div>
-                      <div className="relative">
                         <div className='flex'>
                           <div className='flex items-center p-[5px]'>
-                            <label>End</label>
-                          </div>
-                          <div className='p-[5px] ml-[1px]'>
-                            <input
-                                type="text"
-                                value={startDate2 ? startDate2.toLocaleDateString() : ''}
-                                onClick={() => setShowCalendar2(!showCalendar2)}
-                                // readOnly
-                                placeholder="Select a date"
-                                className='w-[200px] border p-2 rounded'
-                            />
-                            <button
-                              className="absolute top-2 right-5 text-red-500 text-2xl hover:text-red-700"
-                              onClick={() => {
-                                setStartDate2(null)
+                            <DatePicker 
+                              label="End"
+                              className='ml-[5px] border border-gray-300 rounded-md w-[140px]'
+                              classNames={{
+                                calendar: "bg-white border border-gray-300 ",
                               }}
-                            >
-                              &times;
-                            </button>
+                              onChange={handleEndDate}
+                            />  
                           </div>
                         </div>
-                        {showCalendar2 && (
-                          <DatePicker
-                              selected={startDate2}
-                              onChange={(date: Date | null) => {
-                                  setStartDate2(date);
-                                  setShowCalendar2(false);
-                              }}
-                              inline
-                              className="absolute left-0 mt-2 z-[12]"
-                          />
-                        )} 
                       </div>
-                        <button onClick={() => {
+                      <button onClick={() => {
                           if(startDate1 !== null || startDate2 !== null) {
                               if(interval === '15min' || interval === '30min' || interval === '60min') {
                                 alert('Not support function!')
@@ -1019,120 +999,126 @@ const Chart: FC = () => {
             </div>
           </div>
           {/* ---- coordinate bar */}
+  
           {/* main display ----- */}
-          <div className='flex relative'>
-            {/* tool bar ---- */}
-            <div className="w-[61px] bg-white pt-[3px] pb-4 absolute top-0 left-0  z-20 border-r-[2px] border-r-grey border-b-[2px] border-b-grey border-t-[2px] border-t-grey">
-              <div className="">
-                <img
-                  src={editType == 'arrow' ? ArrowSelectedSvg : ArrowSvg}
-                  alt="Text"
-                  width={50}
-                  className=" cursor-pointer p-3 mb-2"
-                  onClick={() => {
-                    setEditType('arrow')
-                  }}
-                />
-                <img
-                  src={editType == 'label' ? TextSelectedSvg : TextSvg}
-                  alt="Text"
-                  width={30}
-                  className="ml-2 cursor-pointer p-1 mb-2"
-                  onClick={() => {
-                    setEditType('label')
-                  }}
-                />
-                <img
-                  src={editType == 'Circle' ? CircleSelectedSvg : CircleSvg}
-                  alt="Text"
-                  width={30}
-                  className="ml-2 cursor-pointer p-1 mb-2 w-[36px]"
-                  onClick={() => {
-                    setEditType('Circle')
-                  }}
-                />
-                <img
-                  src={editType == 'trendline' ? TrendSelectedSvg : TrendSvg}
-                  alt="Trend"
-                  width={50}
-                  onClick={() => {
-                    setEditType('trendline')
-                  }}
-                  className="cursor-pointer p-1 mb-2"
-                />
-                <img
-                  src={editType == 'vertical' ? VerticalSelectedSvg : VerticalSvg}
-                  alt="Vertical"
-                  onClick={() => {
-                    setEditType('vertical')
-                  }}
-                  className="cursor-pointer p-1 mb-2 w-[52px]"
-                />
-                <img
-                  src={
-                    editType == 'horizontal' ? HorizontalSelectedSvg : HorizontalSvg
-                  }
-                  alt="Horizontal"
-                  width={50}
-                  onClick={() => {
-                    setEditType('horizontal')
-                  }}
-                  className="cursor-pointer p-1 mb-2"
-                />
-                <img
-                  src={editType == 'callout' ? CalloutSelectedSvg : CalloutSvg}
-                  alt="Callout"
-                  width={50}
-                  onClick={() => {
-                    setEditType('callout')
-                  }}
-                  className="cursor-pointer p-1 mb-2"
-                />
-                <img
-                  src={
-                    editType == 'PriceRange' ? PriceRangeSelectedSvg : PriceRangeSvg
-                  }
-                  alt="priceRange"
-                  width={50}
-                  onClick={() => {
-                    setEditType('PriceRange')
-                  }}
-                  className="cursor-pointer p-2 mb-2"
-                />
-                <img
-                  src={magnet ? MagnetSelectedSvg : MagnetSvg}
-                  alt="magnet"
-                  width={50}
-                  className="cursor-pointer p-2 mb-2"
-                  onClick={() => {
-                    setMagnet(!magnet)
-                  }}
-                />
-                <img
-                  src={RemoveSvg}
-                  alt="Remove"
-                  width={50}
-                  onClick={() => {
-                    setSelectDelete(!selectDelete)
-                    setIsLineSelected(false)
-                  }}
-                  className="cursor-pointer p-2"
-                />
-                <img
-                  src={allRemoveSvg}
-                  alt="allRemove"
-                  width={50}
-                  onClick={() => {
-                    setIsAllDelete(true);
-                    setTimeout(() => {
-                      setIsAllDelete(false);
-                    }, 1000)
-                  }}
-                  className="cursor-pointer p-2"
-                />
-              </div>
+          <div className='flex relative visible'>
+            <div className="z-[40]" >
+              <img src={toolSvg} alt="tool" onClick={() => setIsToolbarSelect(!isToolbarSelect)} className={`w-[35px] h-auto ml-[10px] p-[3px] border border-black rounded-[8px] ${isToolbarSelect ? "bg-gray-400" : "bg-white"}`}/>
             </div>
-            {/* -----tool bar */}
+            {
+              isToolbarSelect && (
+                <div className="w-[52px] bg-white pt-[3px] pb-4 absolute top-[40px] left-[7px]  z-20 border-[2px] border-grey ">
+                  <div>
+                    <img
+                      src={editType == 'arrow' ? ArrowSelectedSvg : ArrowSvg}
+                      alt="Text"
+                      width={50}
+                      className=" cursor-pointer p-1 ml-[5px] w-[35px] h-auto"
+                      onClick={() => {
+                        setEditType('arrow')
+                      }}
+                    />
+                    <img
+                      src={editType == 'label' ? TextSelectedSvg : TextSvg}
+                      alt="Text"
+                      width={30}
+                      className="ml-2 cursor-pointer p-1 ml-[10px] w-[25px] h-auto"
+                      onClick={() => {
+                        setEditType('label')
+                      }}
+                    />
+                    <img
+                      src={editType == 'Circle' ? CircleSelectedSvg : CircleSvg}
+                      alt="Text"
+                      width={30}
+                      className="ml-2 cursor-pointer p-1  w-[30px] h-auto"
+                      onClick={() => {
+                        setEditType('Circle')
+                      }}
+                    />
+                    <img
+                      src={editType == 'trendline' ? TrendSelectedSvg : TrendSvg}
+                      alt="Trend"
+                      width={50}
+                      onClick={() => {
+                        setEditType('trendline')
+                      }}
+                      className="cursor-pointer p-1 ml-[5px] w-[35px] h-auto"
+                    />
+                    <img
+                      src={editType == 'vertical' ? VerticalSelectedSvg : VerticalSvg}
+                      alt="Vertical"
+                      onClick={() => {
+                        setEditType('vertical')
+                      }}
+                      className="cursor-pointer p-1 ml-[3px] w-[38px] h-auto"
+                    />
+                    <img
+                      src={
+                        editType == 'horizontal' ? HorizontalSelectedSvg : HorizontalSvg
+                      }
+                      alt="Horizontal"
+                      width={50}
+                      onClick={() => {
+                        setEditType('horizontal')
+                      }}
+                      className="cursor-pointer p-1  ml-[5px] w-[40px] h-auto"
+                    />
+                    <img
+                      src={editType == 'callout' ? CalloutSelectedSvg : CalloutSvg}
+                      alt="Callout"
+                      width={50}
+                      onClick={() => {
+                        setEditType('callout')
+                      }}
+                      className="cursor-pointer p-1  ml-[3px] w-[40px] h-auto"
+                    />
+                    <img
+                      src={
+                        editType == 'PriceRange' ? PriceRangeSelectedSvg : PriceRangeSvg
+                      }
+                      alt="priceRange"
+                      width={50}
+                      onClick={() => {
+                        setEditType('PriceRange')
+                      }}
+                      className="cursor-pointer p-1  ml-[9px] w-[35px] h-auto"
+                    />
+                    <img
+                      src={magnet ? MagnetSelectedSvg : MagnetSvg}
+                      alt="magnet"
+                      width={50}
+                      className="cursor-pointer p-1 ml-[3px] w-[41px] h-auto"
+                      onClick={() => {
+                        setMagnet(!magnet)
+                      }}
+                    />
+                    <img
+                      src={RemoveSvg}
+                      alt="Remove"
+                      width={50}
+                      onClick={() => {
+                        setSelectDelete(!selectDelete)
+                        setIsLineSelected(false)
+                      }}
+                      className="cursor-pointer p-1 ml-[4px] w-[38px] h-auto"
+                    />
+                    <img
+                      src={allRemoveSvg}
+                      alt="allRemove"
+                      width={50}
+                      onClick={() => {
+                        setIsAllDelete(true);
+                        setTimeout(() => {
+                          setIsAllDelete(false);
+                        }, 1000)
+                      }}
+                      className="cursor-pointer p-1 ml-[3px] w-[38px] h-auto"
+                    />
+                  </div>
+                </div> 
+              )
+            }
             {/* !!! */}
             <div className='absolute inset-0  z-10'>
               <ChartComponent
@@ -1170,6 +1156,7 @@ const Chart: FC = () => {
                 isAddStock={isAddStock}
                 templeHeight={templeHeight}
                 isAllDelete={isAllDelete}
+                loadingHandler={loadingHandler}
               />
             </div>
             {/* !!!!! */}
@@ -1223,21 +1210,18 @@ const Chart: FC = () => {
                           )}
                           {(selectedToolType == "VerticalLine") && (
                             <div>
-                              <input type="text" 
-                                className='p-2 border-[1px] w-full border-green-400 h-[34px] rounded-md' 
-                                readOnly onClick={() => {setIsVerticalCalendar(!isVerticalCalendar)}}
-                                value={verticalDate ? verticalDate.toLocaleDateString() : ''}
+                              <DatePicker 
+                                label='Date'
+                                className='border border-gray-300 rounded-md w-full'
+                                classNames={{
+                                  calendar: "bg-white border border-gray-300 ",
+                                }}
+                                onChange={(date) => {
+                                  const { year, month, day } = date;
+                                  const jsDate = new Date(year, month - 1, day);
+                                  verticalValueHandler(jsDate)
+                                }}
                               />
-                              {isVerticalCalendar && (
-                                <div>
-                                  <DatePicker
-                                    selected={verticalDate}
-                                    onChange={(date: Date | null) => verticalValueHandler(date)}
-                                    inline
-                                    className="absolute left-0 mt-2 z-[12]"
-                                />
-                                </div>
-                              )}
                             </div>
                           )}
                         </div>
