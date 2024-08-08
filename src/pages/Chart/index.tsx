@@ -188,7 +188,7 @@ const Chart: FC = () => {
   }, []);
 
   const updateHeight = () => {
-    setTempleHeight(window.screen.height - 351)
+    setTempleHeight(window.screen.height - 381)
   }
 
   useEffect(() => {
