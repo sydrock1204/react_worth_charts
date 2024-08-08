@@ -146,6 +146,7 @@ const Chart: FC = () => {
   const indicatorRef = useRef(null)
   const textColorRef = useRef(null)
   const lineColorRef = useRef(null)
+  const stockRef = useRef(null)
   const backgroundColorRef = useRef(null)
   const [isToolbarSelect, setIsToolbarSelect] = useState<Boolean>(false)
   const [IndicatorLoading, setIndicatorLoading] = useState<Boolean>(false);
@@ -541,6 +542,13 @@ const Chart: FC = () => {
     }
   }
 
+  const stockClickOutside = (event) => {
+    if(stockRef.current && !stockRef.current.contains(event.target)) {
+      setIsStockBtn(false);
+    }
+
+  }
+
   useEffect(() => {
     document.addEventListener('mousedown', draggableClickOutside);
     document.addEventListener('mousedown', timeFrameClickOutside);
@@ -549,6 +557,7 @@ const Chart: FC = () => {
     document.addEventListener('mousedown', linecolorClickOutside);
     document.addEventListener('mousedown', backgroundcolorClickOutside);
     document.addEventListener('mousedown', clickOutsideSelectData);
+    document.addEventListener('mousedown', stockClickOutside);
     return () => {
       document.removeEventListener('mousedown', draggableClickOutside);
       document.removeEventListener('mousedown', timeFrameClickOutside);
@@ -557,6 +566,7 @@ const Chart: FC = () => {
       document.removeEventListener('mousedown', linecolorClickOutside);
       document.removeEventListener('mousedown', backgroundcolorClickOutside);
       document.removeEventListener('mousedown', clickOutsideSelectData);
+      document.removeEventListener('mousedown', stockClickOutside);
     };
   }, []);
 
@@ -1261,7 +1271,7 @@ const Chart: FC = () => {
           {/* ---main chartView */}
           {/* Watchlist------ */}
           {isStockBtn && (
-            <div className='bg-white border-l-[2px] border-l-grey z-50'>
+            <div className='bg-white border-l-[2px] border-l-grey z-50' ref={stockRef}>
               <WatchList 
                 addStockfromheader={addStock}
                 addStockChartHandler={ addStockChartHandler}
