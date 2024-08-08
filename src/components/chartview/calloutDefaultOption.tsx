@@ -61,7 +61,7 @@ export const calloutDefaultOption = {
   },
   line: {
     color: 'rgba(74,144,226,1)',
-    width: 1,
+    width: 2,
     style: 0,
     end: {
       left: 1,

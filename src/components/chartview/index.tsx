@@ -275,6 +275,7 @@ export const ChartComponent = (props: any) => {
     addVolume,
     isAddStock,
     templeHeight,
+    isAllDelete,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -283,7 +284,7 @@ export const ChartComponent = (props: any) => {
       areaBottomColor = 'rgba(41, 98, 255, 0.28)',
     } = {},
   } = props
-
+  
   const chartContainerRef = useRef<IChartApi | null>(null)
   const chart = useRef<IChartApi | null>(null)
   const candleStickSeries = useRef<ISeriesApi<'Candlestick'> | null>(null)
@@ -848,6 +849,12 @@ export const ChartComponent = (props: any) => {
   useEffect(() => {
     chart.current?.removeSelectedLineTools()
   }, [selectDelete])
+
+  useEffect(() => {
+    if(isAllDelete) {
+      chart.current?.removeAllLineTools();
+    }
+  },[isAllDelete])
 
   useEffect(() => {
     chart.current?.importLineTools(importLines)
