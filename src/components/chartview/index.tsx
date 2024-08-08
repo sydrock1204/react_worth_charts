@@ -347,6 +347,7 @@ export const ChartComponent = (props: any) => {
     templeHeight,
     isAllDelete,
     loadingHandler,
+    isStockBtn,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -421,7 +422,7 @@ export const ChartComponent = (props: any) => {
     chart.current?.applyOptions({
       width: templeWidth,
     })
-  }, [templeWidth])
+  }, [templeWidth, isStockBtn])
 
   useEffect(() => {
     chart.current?.applyOptions({
@@ -591,7 +592,7 @@ export const ChartComponent = (props: any) => {
     areaBottomColor,
     addData,
     addVolume,
-    isAddStock,
+    isAddStock
   ])
 
   useEffect(() => {
