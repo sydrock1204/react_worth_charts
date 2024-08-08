@@ -895,7 +895,7 @@ const Chart: FC = () => {
               </div>
               <div className='ml-auto p-[4px] w-[80px] h-full'>
                 <div 
-                  className='bg-gray-300 text-center text-[20px] h-[39px] border border-gray-500 rounded-[12px] pt-[2px]'
+                  className={`text-center text-[20px] h-[39px] border border-gray-500 rounded-[12px] pt-[2px] ${isStockBtn ? 'bg-gray-500 text-white' : 'bg-gray-200'}`}
                   onClick={() => {setIsStockBtn(!isStockBtn)}}
                 >Stock</div>
               </div>
