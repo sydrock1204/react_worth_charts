@@ -156,7 +156,7 @@ const priceRangeOption = {
   },
   priceRange: {
     background: {
-      color: 'rgba(156,39,176,0.2)',
+      color: '#ffffff00',
     },
     border: {
       color: 'rgba(41,98,255,1)',
@@ -221,7 +221,7 @@ const circleOption = {
   },
   circle: {
     background: {
-      color: 'rgba(39,176,119,0.2)',
+      color: '#ffffff00',
     },
     border: {
       color: 'rgba(41,98,255,1)',
@@ -274,6 +274,7 @@ export const ChartComponent = (props: any) => {
     addData,
     addVolume,
     isAddStock,
+    templeHeight,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -348,7 +349,13 @@ export const ChartComponent = (props: any) => {
     chart.current?.applyOptions({
       width: templeWidth,
     })
-  }, [width])
+  }, [templeWidth])
+
+  useEffect(() => {
+    chart.current?.applyOptions({
+      height: templeHeight,
+    })
+  }, [templeHeight])
 
   useEffect(() => {
     if (save) {
@@ -416,8 +423,8 @@ export const ChartComponent = (props: any) => {
           bottom: 0,
         },
       },
-      width: templeWidth-17,
-      height: templeWidth*0.8
+      width: templeWidth,
+      height: templeHeight,
     })
 
     // candleStickSeries.current = chart.current.addCandlestickSeries({

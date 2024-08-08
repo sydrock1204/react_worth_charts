@@ -135,7 +135,11 @@ export const fetchData = async (
     }
 
   } catch (error) {
-    console.log('Error fetching data: ', error)
+    if(interval === '5D' || interval === '3M' || interval === '6M' || interval === '1Y' || interval === '5Y') {
+      
+    } else {
+      console.log('Error fetching data: ', error)
+    }
     return null
   }
 

@@ -42,7 +42,7 @@ export const WatchList = (props : any) => {
   const [watchListWidth, setWatchListWidth] = useState<string>('lg')
   const width = useWindowWidth()
   const [isBtnSelected, setIsBtnSelected] = useState<boolean>(true) 
-  const [currentStock, setCurrentStock] = useState(null)
+  const [currentStock, setCurrentStock] = useState<any>(null)
 
   const onVisibleHeader = (header: string) => {
     setWatchLists({
@@ -134,23 +134,23 @@ export const WatchList = (props : any) => {
     // console.log('endQuote: ', endQuote)
   }, [endQuote])
 
-  useEffect(() => {
-    const fetchWrapper = async () => {
-      await loadWatchLists(user.id)
-    }
-    const saveWrapper = async () => {
-      try {
-        await saveWatchLists(user.id)
-      } catch (e) {
-        console.log(e)
-      }
-    }
+  // useEffect(() => {
+  //   const fetchWrapper = async () => {
+  //     await loadWatchLists(user.id)
+  //   }
+  //   const saveWrapper = async () => {
+  //     try {
+  //       await saveWatchLists(user.id)
+  //     } catch (e) {
+  //       console.log(e)
+  //     }
+  //   }
 
-    fetchWrapper().catch(e => console.log(e))
-    return () => {
-      saveWrapper()
-    }
-  }, [])
+  //   fetchWrapper().catch(error => console.log(error))
+  //   return () => {
+  //     saveWrapper()
+  //   }
+  // }, [])
 
   useEffect(() => {
     const fetchWrapper = async () => {

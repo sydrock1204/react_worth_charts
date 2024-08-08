@@ -101,6 +101,7 @@ const Chart: FC = () => {
   const [askPrice, setAskPrice] = useState(null);
   const templeWidthRef = useRef(null);
   const [templeWidth, setTempleWidth] = useState(0);
+  const [templeHeight, setTempleHeight] = useState(0);
   const [circlePoints, setCirclePoints] = useState<PointXY | null>(null)
   const [selectedToolType, setSelectedToolType] = useState<String>(null);
   const [addStock, setAddStock] = useState<any>(null);
@@ -181,6 +182,17 @@ const Chart: FC = () => {
     };
   }, []);
 
+  const updateHeight = () => {
+    setTempleHeight(window.screen.height - 351)
+  }
+
+  useEffect(() => {
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+
+    return () => window.removeEventListener('resize', updateHeight);
+  },[])
+  
   useEffect (() => { 
     if (lastLineJSON && lastLineJSON.lineTool) { 
       setSelectedLine(JSON.stringify([{ 
@@ -554,7 +566,7 @@ const Chart: FC = () => {
     <div id='Chart' className="pt-[36px] pl-[13px] pr-[50px]">
       <Spinner isLoading={loading} />
       {/* main chart---- */}
-      <div className="flex flex-row justify-between w-full bg-white" style={{height: `${templeWidth * 0.8 + 100}px`}}>
+      <div className="flex flex-row justify-between w-full bg-white" style={{height: `${templeHeight + 100}px`}}>
         {/* main chartView ---- */}
         <div className='flex-1'>
           {/* header bar ------- */}
@@ -1138,6 +1150,7 @@ const Chart: FC = () => {
                 addData={addData}
                 addVolume={addVolume}
                 isAddStock={isAddStock}
+                templeHeight={templeHeight}
               />
             </div>
             {/* !!!!! */}
