@@ -19,8 +19,6 @@ import { rectangleDefaultOption } from './rectangleDefaultOption'
 import { labelDefaultOption } from './labelDefaultOption'
 import { horizontalLineDefaultOption } from './horizontalDefaultOption'
 import { verticalDefaultOption } from './verticalDefaultOption'
-import { calloutDefaultOption } from './calloutDefaultOption'
-import { pricerangeDefaultOption } from './pricerangeDefaultOption'
 import { fetchStockIndicator } from '../../api/fetchStockIndicator'
 import { getTimeStamp } from '../../utils/getTimeStamp'
 import useWindowWidth from '../../context/useScreenWidth'
@@ -181,7 +179,7 @@ const circleOption = {
       size: 15,
       bold: false,
       italic: false,
-      family: 'Roboto',
+      family: 'Arial',
     },
     box: {
       alignment: {
@@ -237,6 +235,78 @@ const circleOption = {
   editable: true,
 }
 
+const calloutOption = {
+  text: {
+    value: '',
+    alignment: TextAlignment.Left,
+    font: {
+      color: 'rgba(255,255,255,1)',
+      size: 14,
+      bold: false,
+      italic: false,
+      family: 'Arial',
+    },
+    box: {
+      alignment: {
+        vertical: BoxVerticalAlignment.Middle,
+        horizontal: BoxHorizontalAlignment.Center,
+      },
+      angle: 0,
+      scale: 1,
+      offset: {
+        x: 0,
+        y: 0,
+      },
+      padding: {
+        x: 0,
+        y: 0,
+      },
+      maxHeight: 300,
+      shadow: {
+        blur: 0,
+        color: 'rgba(255,255,255,1)',
+        offset: {
+          x: 0,
+          y: 0,
+        },
+      },
+      border: {
+        color: 'rgba(74,144,226,1)',
+        width: 2,
+        radius: 10,
+        highlight: false,
+        style: 0,
+      },
+      background: {
+        color: 'rgba(19,73,133,1)',
+        inflation: {
+          x: 10,
+          y: 10,
+        },
+      },
+    },
+    padding: 0,
+    wordWrapWidth: 120,
+    forceTextAlign: false,
+    forceCalculateMaxLineWidth: true,
+  },
+  line: {
+    color: 'rgba(74,144,226,1)',
+    width: 2,
+    style: 0,
+    end: {
+      left: 2,
+      right: 0,
+    },
+    extend: {
+      right: false,
+      left: false,
+    },
+  },
+  visible: true,
+  editable: true,
+}
+
 export const ChartComponent = (props: any) => {
   const {
     data,
@@ -275,6 +345,9 @@ export const ChartComponent = (props: any) => {
     addVolume,
     isAddStock,
     templeHeight,
+    isAllDelete,
+    loadingHandler,
+    isStockBtn,
     colors: {
       backgroundColor = 'white',
       lineColor = '#2962FF',
@@ -329,7 +402,7 @@ export const ChartComponent = (props: any) => {
 
     })
   }
- 
+
   useEffect(() => {
     if (editType === 'trendline') {
       chart.current?.addLineTool('TrendLine', [], trendLineOption)
@@ -341,7 +414,7 @@ export const ChartComponent = (props: any) => {
       chart.current?.addLineTool('Circle', [], circleOption)
     }
     if(editType === "callout") {
-      chart.current?.addLineTool('Callout', [], calloutDefaultOption)
+      chart.current?.addLineTool('Callout', [], calloutOption)
     }
   }, [editType])
 
@@ -349,7 +422,7 @@ export const ChartComponent = (props: any) => {
     chart.current?.applyOptions({
       width: templeWidth,
     })
-  }, [templeWidth])
+  }, [templeWidth, isStockBtn])
 
   useEffect(() => {
     chart.current?.applyOptions({
@@ -423,7 +496,7 @@ export const ChartComponent = (props: any) => {
           bottom: 0,
         },
       },
-      width: templeWidth,
+      width: templeWidth -17,
       height: templeHeight,
     })
 
@@ -431,69 +504,60 @@ export const ChartComponent = (props: any) => {
     //   upColor: '#000000',
     //   downColor: '#000000',
     // })
-    
-    candleStickSeries.current = chart.current.addBarSeries({
-      upColor: '#000000',
-      downColor: '#000000',
-    })
-    candleStickSeries.current.setData(data)
+
+    if(!isAddStock) {
+      candleStickSeries.current = chart.current.addBarSeries({
+        upColor: '#000000',
+        downColor: '#000000',
+      })
+      
+      candleStickSeries.current.setData(data)
+    }
     
     if(isAddStock) {
       if(addData !== null) {
-        addCandleStickSeries.current = chart.current.addBarSeries({
-          upColor: '#de2626',
-          downColor: '#de2626',
-        })
-  
-        addCandleStickSeries.current.setData(addData);
+          const convertData = Object.keys(data).map(date => ({
+            time: data[date]["time"],
+            value: parseFloat(data[date]["open"]) // Converting string to float
+          }));
+      
+          candleStickSeries.current = chart.current.addAreaSeries({ lineColor, topColor: '#ffffff00', bottomColor: '#ffffff00' });
+          candleStickSeries.current.setData(convertData);
+
+          const addConvertData = Object.keys(addData).map(date => ({
+            time: addData[date]["time"],
+            value: parseFloat(addData[date]["open"]) // Converting string to float
+          }));
+
+          addCandleStickSeries.current = chart.current.addAreaSeries({ lineColor: 'red', topColor: '#ffffff00', bottomColor: '#ffffff00' });
+    
+          addCandleStickSeries.current.setData(addConvertData);
       }
     }
-   
-    const volumeSeries = chart.current.addHistogramSeries({
-      color: '#7685AA',
-      priceFormat: {
-        type: 'volume',
-      },
-      priceScaleId: 'left',
-      scaleMargins: {
-        top: 0.7,
-        bottom: 0,
-      },
-    })
 
-    volumeSeries.priceScale().applyOptions({
-      scaleMargins: {
-        top: 0.75,
-        bottom: 0,
-      },
-    })
+   if(!isAddStock) {
+     const volumeSeries = chart.current.addHistogramSeries({
+       color: '#7685AA',
+       priceFormat: {
+         type: 'volume',
+       },
+       priceScaleId: 'left',
+       scaleMargins: {
+         top: 0.7,
+         bottom: 0,
+       },
+     })
+ 
+     volumeSeries.priceScale().applyOptions({
+       scaleMargins: {
+         top: 0.75,
+         bottom: 0,
+       },
+     })
+ 
+     volumeSeries.setData(volume)
 
-    volumeSeries.setData(volume)
-    
-    if(isAddStock) {
-      if(addVolume !== null) {
-        const addVolumeSeries = chart.current.addHistogramSeries({
-          color: '#e1101d6b',
-          priceFormat: {
-            type: 'volume',
-          },
-          priceScaleId: 'left',
-          scaleMargins: {
-            top: 0.7,
-            bottom: 0,
-          },
-        })
-        
-        addVolumeSeries.priceScale().applyOptions({
-          scaleMargins: {
-            top: 0.75,
-            bottom: 0,
-          },
-        })    
-    
-        addVolumeSeries.setData(addVolume);
-      }
-    }
+   }
 
     chart.current.timeScale().setVisibleLogicalRange({
       from: data.length - 50,
@@ -528,11 +592,12 @@ export const ChartComponent = (props: any) => {
     areaBottomColor,
     addData,
     addVolume,
-    isAddStock,
+    isAddStock
   ])
 
   useEffect(() => {
     const fetchWrapper = async () => {
+      loadingHandler(true)
       try {
         // Remove lines for indicators not in the new array
         Object.keys(existingSeries.current).forEach((indicator) => {
@@ -568,6 +633,7 @@ export const ChartComponent = (props: any) => {
   
           existingSeries.current[indifunction].setData(indicatorData);
         }
+        loadingHandler(false)
       } catch (e) {
         console.error(e);
       }
@@ -621,6 +687,15 @@ export const ChartComponent = (props: any) => {
               border: {
                 width: thickness
               }
+            }
+          }
+        })
+      } else if (selectedToolType == "Callout") {
+        chart.current.applyLineToolOptions({
+          ...selectedLineTextJSON[0],
+          options: {
+            line: {
+              width: thickness
             }
           }
         })
@@ -820,14 +895,12 @@ export const ChartComponent = (props: any) => {
   
   useEffect(() => {
     if (calloutPoint) {
-      setCalloutPointLineSeries(
         chart.current?.addLineTool(
           'Callout',
           [calloutPoint.point1, calloutPoint.point2],
-          calloutDefaultOption,
+          calloutOption,
         )
-        )
-      chart.current?.removeSelectedLineTools();
+        chart.current?.removeSelectedLineTools();
       }
     chart.current?.applyOptions({})
   }, [calloutPoint])
@@ -848,6 +921,12 @@ export const ChartComponent = (props: any) => {
   useEffect(() => {
     chart.current?.removeSelectedLineTools()
   }, [selectDelete])
+
+  useEffect(() => {
+    if(isAllDelete) {
+      chart.current?.removeAllLineTools();
+    }
+  },[isAllDelete])
 
   useEffect(() => {
     chart.current?.importLineTools(importLines)
