@@ -51,7 +51,7 @@ export class SeriesPriceAxisView extends PriceAxisView {
 			paneRendererData.visible = paneRendererData.text.length > 0;
 		}
 
-		const lastValueColor = source.priceLineColor(lastValueData.color);
+		const lastValueColor = source.priceLineColor('#008C48');
 		const colors = generateContrastColors(lastValueColor);
 
 		commonRendererData.background = colors.background;
