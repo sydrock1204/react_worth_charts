@@ -6,18 +6,18 @@ import {
 
 export const verticalDefaultOption = {
   text: {
-    value: 'VerticalLine Line Tool',
+    value: '',
     alignment: TextAlignment.Left,
     font: {
-      color: 'rgba(41,98,255,1)',
-      size: 20,
+      color: '#000000',
+      size: 17,
       bold: false,
       italic: false,
       family: 'Arial',
     },
     box: {
       alignment: {
-        vertical: BoxVerticalAlignment.Bottom,
+        vertical: BoxVerticalAlignment.Top,
         horizontal: BoxHorizontalAlignment.Center,
       },
       angle: 0,
@@ -28,7 +28,7 @@ export const verticalDefaultOption = {
       },
       padding: {
         x: 0,
-        y: 0,
+        y: 10,
       },
       maxHeight: 100,
       shadow: {
@@ -62,7 +62,7 @@ export const verticalDefaultOption = {
   line: {
     color: 'rgba(41,98,255,1)',
     width: 2,
-    style: 1,
+    style: 0,
   },
   visible: true,
   editable: true,

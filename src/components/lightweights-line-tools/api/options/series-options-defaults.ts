@@ -12,16 +12,16 @@ import {
 import { LineStyle, LineType } from '../../renderers/draw-line';
 
 export const candlestickStyleDefaults: CandlestickStyleOptions = {
-	upColor: '#26a69a',
-	downColor: '#ef5350',
+	upColor: '#000000',
+	downColor: '#000000',
 	wickVisible: true,
 	borderVisible: true,
-	borderColor: '#378658',
-	borderUpColor: '#26a69a',
-	borderDownColor: '#ef5350',
-	wickColor: '#737375',
-	wickUpColor: '#26a69a',
-	wickDownColor: '#ef5350',
+	borderColor: '#000000',
+	borderUpColor: '#000000',
+	borderDownColor: '#000000',
+	wickColor: '#000000',
+	wickUpColor: '#000000',
+	wickDownColor: '#000000',
 };
 
 export const barStyleDefaults: BarStyleOptions = {

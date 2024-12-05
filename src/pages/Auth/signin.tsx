@@ -9,7 +9,7 @@ export default function WorthAuth() {
   const { signInHandler, session } = useAuthContext()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-
+  
   // if (session) {
   //   return redirect('/chart')
   // } else {

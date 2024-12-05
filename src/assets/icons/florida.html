@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<!-- saved from url=(0042)file:///D:/florida_HTML/florida/index.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>florida</title>
+    <link rel="stylesheet" href="./florida_files/style.css">
+</head>
+
+<body>
+    <div class="coverImg-container">
+        <img alt="" class="coverImg-bgimg" id="coverImg-img" src="./florida_files/bg.png">
+        <div class="coverImg-coverage coverImg-container-box">
+            <img src="./florida_files/coverage.png" alt="" class="coverImg-coverageimg" id="coverImg-coverage">
+            <div class="coverImg-text" id="coverImg-cover">Insurance for all your unique<br>needs</div>
+        </div>
+        <div class="coverImg-own coverImg-own-box">
+            <img alt="" class="coverImg-memberimg" id="coverImg-member" src="./florida_files/member.png">
+            <div class="coverImg-text" id="coverImg-own">Trient belongs to you.<br>We ensure your claims<br>are paid quickly and<br>faily</div>
+        </div>
+        <div class="coverImg-driven coverImg-driven-box">
+            <img alt="" class="coverImg-drivenimg" id="coverImg-driven" src="./florida_files/driven.png">
+            <div class="coverImg-text" id="coverImg-driventext">Our innovative technology delivers <br>tailored, efficient, and easy<br>insurance experience</div>
+        </div>
+        <div class="coverImg-fair coverImg-fair-box">
+            <img alt="" class="coverImg-fairimg" id="coverImg-fair" src="./florida_files/fair.png">
+            <div class="coverImg-text" id="coverImg-fairtext">Only pay for the coverage<br>that you need</div>
+        </div>
+    </div>
+
+
+<script>
+    window.addEventListener('resize', function() {
+        const image = document.getElementById('coverImg-img');
+        const coverage = document.getElementById('coverImg-coverage');
+        const member = document.getElementById('coverImg-member');
+        const driven = document.getElementById('coverImg-driven');
+        const fair = document.getElementById('coverImg-fair');
+
+        if (window.innerWidth > 995) {
+            image.src = './img/bg.png';
+            coverage.src = './img/coverage.png';
+            member.src = './img/member.png';
+            driven.src = './img/driven.png';
+            fair.src = './img/fair.png';
+
+            document.getElementById('coverImg-cover').innerHTML = "Insurance for all your unique<br>needs";
+            document.getElementById('coverImg-own').innerHTML = "Trient belongs to you.<br>We ensure your claims<br>are paid quickly and<br>faily";
+            document.getElementById('coverImg-driventext').innerHTML = "Our innovative technology delivers <br>tailored, efficient, and easy<br>insurance experience";
+            document.getElementById('coverImg-fairtext').innerHTML = "Only pay for the coverage<br>that you need";
+        } else {
+            image.src = './img/small-bg.png'
+            coverage.src = './img/sm-coverage.png'
+            member.src = './img/sm-member.png'
+            driven.src = './img/sm-driven.png'
+            fair.src = './img/sm-fair.png'
+
+            document.getElementById('coverImg-cover').innerHTML = "Insurance for all your <br> unique needs";
+            document.getElementById('coverImg-own').innerHTML = "Trient belongs to you.<br>We ensure your claims<br>are paid quickly and faily";
+            document.getElementById('coverImg-driventext').innerHTML = "Our innovative technology <br> delivers tailored, efficient, and <br> easy insurance experience";
+            document.getElementById('coverImg-fairtext').innerHTML = "Only pay for the coverage<br>that you need";
+        }
+    });
+
+  window.dispatchEvent(new Event('resize'));
+</script>
+</body></html>

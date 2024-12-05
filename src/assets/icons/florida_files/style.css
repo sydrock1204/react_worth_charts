@@ -1,0 +1,307 @@
+html, body {
+    margin: 0;
+    padding: 10px;
+    height: 100%;
+}
+
+@media (min-width: 995px) {
+    .coverImg-container {
+        width: 649px;
+        position: relative;
+        height: 668px;
+        padding-top: 80px;
+    }
+    
+    .coverImg-bgimg {
+       z-index: -1;
+    }
+    
+    .coverImg-coverage {
+        position:absolute; 
+        top: 69px; 
+        left: 414px; 
+        color: rgb(17, 3, 3); 
+       
+        display: inline-block;
+        border: 1px solid gray;
+        background-color: white;
+        border-radius: 10px;
+        padding: 10px;
+        z-index: 1;
+    }
+    
+    .coverImg-own {
+        position: absolute; 
+        top: 170px; 
+        left: 708px; 
+        color: rgb(17, 3, 3); 
+        
+        display: inline-block;
+        border: 1px solid gray;
+        background-color: white;
+        border-radius: 10px;
+        padding: 10px;
+        z-index: 2;
+    }
+    
+    .coverImg-driven {
+        position: absolute; 
+        top: 451px; 
+        left: 421px; 
+        color: rgb(17, 3, 3); 
+         
+        display: inline-block;
+        border: 1px solid gray;
+        background-color: white;
+        border-radius: 10px;
+        padding: 10px;
+        z-index: 3;
+    }
+    
+    .coverImg-fair {
+        position: absolute; 
+        top: 622px; 
+        left: 431px; 
+        color: rgb(17, 3, 3); 
+       
+        display: inline-block;
+        border: 1px solid gray;
+        background-color: white;
+        border-radius: 10px;
+        padding: 10px;
+        z-index: 4;
+    }
+    
+    .coverImg-coverageimg{
+        width: 150px;
+        margin-left: 0px;
+        margin-top: 0px;
+    }
+    
+    .coverImg-memberimg {
+        width: 130px;
+        text-align: left;
+        src: url('./img/coverage.png');
+    }
+    
+    .coverImg-drivenimg {
+        width: 100px;
+    }
+    
+    .coverImg-fairimg {
+        width: 120px;
+    }
+    
+    .coverImg-text {
+      color: grey;
+      font-size: 17px;
+    }
+    
+    .coverImg-container-box .coverImg-text {
+        opacity: 0;
+        max-height: 0;
+        width: 150px;
+        overflow: hidden;
+        transition: opacity 0.3s ease, max-height 0.3s ease;
+    }
+    
+    .coverImg-container-box:hover .coverImg-text {
+        opacity: 1;
+        max-height: 200px;
+        width: 200px;
+    }
+    
+    
+    .coverImg-own-box .coverImg-text {
+        opacity: 0;
+        max-height: 0;
+        width:150px;
+        overflow: hidden;
+        transition: opacity 0.3s ease, max-height 0.3s ease;
+    }
+    
+    .coverImg-own-box:hover .coverImg-text {
+        opacity: 1;
+        max-height: 200px;
+        width: 155px;
+    }
+    
+    .coverImg-driven-box .coverImg-text {
+        opacity: 0;
+        max-height: 0;
+        width: 119px;
+        overflow: hidden;
+        transition: opacity 0.3s ease, max-height 0.3s ease;
+    }
+    
+    .coverImg-driven-box:hover .coverImg-text {
+        opacity: 1;
+        max-height: 200px;
+        width: 243px;
+    }
+    
+    .coverImg-fair-box .coverImg-text {
+        opacity: 0;
+        max-height: 0;
+        width: 131px;
+        overflow: hidden;
+        transition: opacity 0.3s ease, max-height 0.3s ease;
+    }
+    
+    .coverImg-fair-box:hover .coverImg-text {
+        opacity: 1;
+        max-height: 200px;
+        width: 180px;
+    }
+
+}
+
+
+
+@media (max-width: 994px) {
+    .coverImg-container {
+        position: relative;
+        width: 415px;
+        height: 374px;
+        padding-top: 150px;
+        padding-left: 313px;
+    }
+    
+    .coverImg-bgimg {
+       z-index: -1;
+       width: 415px;
+       height: auto;
+    }
+    
+    .coverImg-coverage {
+        position:absolute; 
+        top: 52px; 
+        left: 396px; 
+        color: rgb(17, 3, 3); 
+        display: inline-block;
+        border: 1px solid gray;
+        background-color: white;
+        border-radius: 10px;
+        padding: 10px;
+        z-index: 4;
+    }
+    
+    .coverImg-own {
+        position: absolute; 
+        top: 234px; 
+        left: 358px; 
+        color: rgb(17, 3, 3); 
+        display: inline-block;
+        border: 1px solid gray;
+        background-color: white;
+        border-radius: 10px;
+        padding: 10px;
+        z-index: 3;
+    }
+    
+    .coverImg-driven {
+        position: absolute; 
+        top: 296px; 
+        left: 411px; 
+        color: rgb(17, 3, 3); 
+        display: inline-block;
+        border: 1px solid gray;
+        background-color: white;
+        border-radius: 10px;
+        padding: 10px;
+        z-index: 2;
+    }
+    
+    .coverImg-fair {
+        position: absolute; 
+        top: 371px;
+        left: 444px; 
+        color: rgb(17, 3, 3); 
+        display: inline-block;
+        border: 1px solid gray;
+        background-color: white;
+        border-radius: 10px;
+        padding: 10px;
+        z-index: 1;
+    }
+    
+    .coverImg-coverageimg{
+        width: 150px;
+        margin-left: 0px;
+        margin-top: 0px;
+    }
+    
+    .coverImg-memberimg {
+        width: 130px;
+        text-align: left;
+    }
+    
+    .coverImg-drivenimg {
+        width: 100px;
+    }
+    
+    .coverImg-fairimg {
+        width: 120px;
+    }
+    
+    .coverImg-text {
+      color: grey;
+      font-size: 17px;
+    }
+    
+    .coverImg-container-box .coverImg-text {
+        opacity: 0;
+        max-height: 0;
+        width: 150px;
+        overflow: hidden;
+        transition: opacity 0.3s ease, max-height 0.3s ease;
+    }
+    
+    .coverImg-container-box:hover .coverImg-text {
+        opacity: 1;
+        max-height: 200px;
+        width: 147px;
+    }
+    
+    .coverImg-own-box .coverImg-text {
+        opacity: 0;
+        max-height: 0;
+        width:150px;
+        overflow: hidden;
+        transition: opacity 0.3s ease, max-height 0.3s ease;
+    }
+    
+    .coverImg-own-box:hover .coverImg-text {
+        opacity: 1;
+        max-height: 200px;
+        width: 155px;
+    }
+    
+    .coverImg-driven-box .coverImg-text {
+        opacity: 0;
+        max-height: 0;
+        width: 119px;
+        overflow: hidden;
+        transition: opacity 0.3s ease, max-height 0.3s ease;
+    }
+    
+    .coverImg-driven-box:hover .coverImg-text {
+        opacity: 1;
+        max-height: 200px;
+        width: 208px;
+    }
+    
+    .coverImg-fair-box .coverImg-text {
+        opacity: 0;
+        max-height: 0;
+        width: 131px;
+        overflow: hidden;
+        transition: opacity 0.3s ease, max-height 0.3s ease;
+    }
+    
+    .coverImg-fair-box:hover .coverImg-text {
+        opacity: 1;
+        max-height: 200px;
+        width: 180px;
+    }
+}
